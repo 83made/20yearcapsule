@@ -43,9 +43,19 @@ export default function Home() {
           <span className="font-mono text-[0.68rem] font-bold tracking-[0.2em] uppercase">
             20yearcapsule.com
           </span>
-          <span className="font-mono text-[0.68rem] tracking-[0.14em] uppercase opacity-70">
-            {sealed ? 'Sealed' : 'Accepting entries'}
-          </span>
+          <div className="flex items-center gap-5">
+            <span className="font-mono text-[0.68rem] tracking-[0.14em] uppercase opacity-70">
+              {sealed ? 'Sealed' : 'Accepting entries'}
+            </span>
+            {!sealed && (
+              <a
+                href="#write"
+                className="font-mono text-[0.68rem] font-bold tracking-[0.14em] uppercase underline underline-offset-4 hover:opacity-70"
+              >
+                Write yours
+              </a>
+            )}
+          </div>
         </div>
       </header>
 
