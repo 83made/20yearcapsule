@@ -31,6 +31,17 @@ export const OPEN_LABEL = 'January 1, 2047 · 12:01 AM PST'
  */
 export const GOAL_ENTRIES = 1000
 
+/**
+ * Below this many entries the page does not lead with the count.
+ *
+ * Not a trick — the number is still shown, just not given top billing. A counter reading "3 of
+ * 1,000" above an almost-empty progress bar is three separate announcements that nothing is
+ * happening here, and it buries the things that actually are compelling: the deadline, the price,
+ * and the fact that the low entry numbers are still available. Once the number helps rather than
+ * hurts, it takes the lead.
+ */
+export const REVEAL_COUNT_AT = 25
+
 /** What one entry is actually worth after payment processing. Used for the funding readout. */
 export const NET_PER_ENTRY = 2 - (0.029 * 2 + 0.3)
 

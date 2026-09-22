@@ -61,7 +61,54 @@ export function WallRow({ entry }) {
   )
 }
 
-export default function Wall({ entries, loading, emptyNote }) {
+/**
+ * The zero state.
+ *
+ * An empty gallery announces that nothing is happening. This does the opposite job with the same
+ * true facts: the wall is empty, which means the lowest entry numbers have not been taken, and
+ * those are the only genuinely scarce thing here. #000001 exists exactly once and will still say
+ * #000001 when it is published in 2047.
+ */
+function EmptyWall() {
+  return (
+    <div className="mt-2 border border-dashed border-rule p-9 md:p-12">
+      <div className="mx-auto max-w-lg text-center">
+        <span className="stamp">Unopened</span>
+        <p className="mt-6 font-display text-4xl leading-tight">
+          Nobody has written to 2047 yet.
+        </p>
+        <p className="mt-4 leading-relaxed text-ink-3">
+          Which means the first numbers are still on the shelf. Entry numbers are assigned in order
+          and never reused — whoever writes next is{' '}
+          <strong className="font-semibold text-ink-2">#000001</strong>, and still will be when the
+          capsule opens in twenty years.
+        </p>
+
+        {/* what a sealed row will look like — clearly an illustration, not an entry */}
+        <div className="mt-8 border border-rule bg-paper-2 p-5 text-left">
+          <div className="label">What your entry will look like here</div>
+          <div className="mt-3 flex flex-wrap items-baseline gap-3">
+            <span className="font-mono text-[0.72rem] font-bold text-muted">#000001</span>
+            <span className="text-[0.9rem] font-semibold text-ink-2">Your name</span>
+            <span className="text-[0.82rem] text-muted">Your town</span>
+          </div>
+          <div className="mt-2" style={{ fontSize: '1.02rem' }}>
+            <Redaction chars={34} />
+          </div>
+          <p className="mt-3 font-mono text-[0.7rem] text-muted">
+            Everything except the sentence.
+          </p>
+        </div>
+
+        <a href="#write" className="btn btn-primary mt-8">
+          Take #000001
+        </a>
+      </div>
+    </div>
+  )
+}
+
+export default function Wall({ entries, loading }) {
   if (loading) {
     return (
       <ul className="mt-2">
@@ -75,18 +122,7 @@ export default function Wall({ entries, loading, emptyNote }) {
     )
   }
 
-  if (!entries?.length) {
-    return (
-      <div className="mt-2 border border-dashed border-rule p-10 text-center">
-        <span className="stamp">Empty</span>
-        <p className="mt-5 font-display text-3xl">Nothing sealed yet.</p>
-        <p className="mt-2 text-ink-3">{emptyNote || 'Message #000001 is still available.'}</p>
-        <a href="#write" className="btn btn-primary mt-6">
-          Write the first one
-        </a>
-      </div>
-    )
-  }
+  if (!entries?.length) return <EmptyWall />
 
   return (
     <ul className="mt-2">

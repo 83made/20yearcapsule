@@ -10,6 +10,7 @@ import {
   PRICE_USD,
   GOAL_ENTRIES,
   NET_PER_ENTRY,
+  REVEAL_COUNT_AT,
   isSealed,
   goalPct,
 } from '../lib/capsule.js'
@@ -151,31 +152,45 @@ export default function Home() {
         {/* funding goal */}
         <section className="py-12">
           <div className="bg-paper-2 p-7">
-            <div className="flex flex-wrap items-end justify-between gap-6">
-              <div>
-                <div className="label">Messages so far</div>
-                <div className="mt-2 flex items-baseline gap-2.5">
-                  <span className="font-mono text-5xl font-bold tabular-nums leading-none">
-                    {n.toLocaleString()}
-                  </span>
-                  <span className="font-mono text-lg tabular-nums text-muted">
-                    / {GOAL_ENTRIES.toLocaleString()}
-                  </span>
-                </div>
-              </div>
-              {n < GOAL_ENTRIES && (
-                <div className="text-right">
-                  <div className="font-mono text-3xl font-bold tabular-nums text-seal">
-                    {(GOAL_ENTRIES - n).toLocaleString()}
+            {n >= REVEAL_COUNT_AT ? (
+              /* Enough entries that the number is the most persuasive thing on the block. */
+              <>
+                <div className="flex flex-wrap items-end justify-between gap-6">
+                  <div>
+                    <div className="label">Messages so far</div>
+                    <div className="mt-2 flex items-baseline gap-2.5">
+                      <span className="font-mono text-5xl font-bold leading-none tabular-nums">
+                        {n.toLocaleString()}
+                      </span>
+                      <span className="font-mono text-lg tabular-nums text-muted">
+                        / {GOAL_ENTRIES.toLocaleString()}
+                      </span>
+                    </div>
                   </div>
-                  <div className="label mt-1">still needed</div>
+                  {n < GOAL_ENTRIES && (
+                    <div className="text-right">
+                      <div className="font-mono text-3xl font-bold tabular-nums text-seal">
+                        {(GOAL_ENTRIES - n).toLocaleString()}
+                      </div>
+                      <div className="label mt-1">still needed</div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-
-            <div className="meter mt-6">
-              <span style={{ width: `${Math.max(goalPct(n), n > 0 ? 1.5 : 0)}%` }} />
-            </div>
+                <div className="meter mt-6">
+                  <span style={{ width: `${Math.max(goalPct(n), 1.5)}%` }} />
+                </div>
+              </>
+            ) : (
+              /* Early on, the deadline and the arithmetic are the story. The count is still stated
+                 plainly below — it is just not the headline while it would only discourage. */
+              <>
+                <div className="label">What has to happen</div>
+                <h2 className="mt-3 font-display text-3xl md:text-4xl">
+                  {GOAL_ENTRIES.toLocaleString()} messages by December 31, or nobody&rsquo;s is
+                  sealed.
+                </h2>
+              </>
+            )}
 
             <div className="mt-6 grid gap-3 text-[0.95rem] leading-relaxed text-ink-2">
               <p>
@@ -193,6 +208,13 @@ export default function Home() {
                 </strong>{' '}
                 A twenty-year promise you cannot afford to keep is not worth making.
               </p>
+              {n < REVEAL_COUNT_AT && (
+                <p className="font-mono text-[0.78rem] text-muted">
+                  {n === 0
+                    ? 'No messages sealed yet. Entry #000001 is still open.'
+                    : `${n.toLocaleString()} sealed so far.`}
+                </p>
+              )}
             </div>
           </div>
         </section>
@@ -280,7 +302,7 @@ export default function Home() {
                 Every sentence sealed so far. The black bars are real messages.
               </p>
             </div>
-            {total !== null && (
+            {total !== null && total > 0 && (
               <div className="text-right">
                 <div className="font-mono text-4xl font-bold tabular-nums">
                   {total.toLocaleString()}
