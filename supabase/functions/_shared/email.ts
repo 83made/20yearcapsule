@@ -73,6 +73,15 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
   const who = opts.name ? `, ${opts.name}` : ''
   const url = `${SITE}/m/${opts.seq}`
 
+  // Share links have to be plain hrefs — an email client will not run JavaScript, so the site's
+  // share component cannot be reused here. Same wording, built from the same shape.
+  const blurb = `I just sealed a message in a time capsule that opens on January 1, 2047. It's entry #${num} - and I'm not allowed to read it again until then.`
+  const body = `${blurb}\n\n${SITE}`
+  const e = (v: string) => encodeURIComponent(v)
+  const sms = `sms:?&body=${e(body)}`
+  const x = `https://twitter.com/intent/tweet?text=${e(blurb)}&url=${e(SITE)}`
+  const wa = `https://wa.me/?text=${e(body)}`
+
   const html = shell(
     'Your message is sealed.',
     `<p style="margin:0 0 16px;">That's it${who} — it's in, and it stays hidden until <strong style="color:#16161d;">${OPEN_LABEL}</strong>.</p>
@@ -92,7 +101,34 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
 
      <a href="${url}" style="display:inline-block;background:#16161d;color:#ffffff;font:700 15px/1 Helvetica,Arial,sans-serif;padding:14px 24px;border-radius:999px;text-decoration:none;">See your entry</a>
 
-     <p style="margin:24px 0 0;font-size:14px;color:#62626f;">One thing worth knowing: the capsule only gets sealed if 1,000 messages go in by December 31. If you'd like yours to actually make it, sending this to one person genuinely helps.</p>`,
+     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0 0;border-top:1px solid #e2e2e8;">
+       <tr><td style="padding-top:24px;">
+         <div style="font:700 17px/1.3 Helvetica,Arial,sans-serif;color:#16161d;">Now the awkward part.</div>
+         <p style="margin:10px 0 0;font:400 14px/1.6 Helvetica,Arial,sans-serif;color:#3d3d4a;">
+           The capsule is only sealed if <strong>1,000 messages</strong> go in by December 31. If it
+           doesn't get there, everyone is refunded and none of this happens &mdash; including your
+           entry. Sending this to one person is genuinely the whole difference.
+         </p>
+
+         <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:18px;">
+           <tr>
+             <td style="padding:0 8px 8px 0;">
+               <a href="${sms}" style="display:inline-block;background:#e8a33d;color:#15132b;font:700 14px/1 Helvetica,Arial,sans-serif;padding:12px 18px;border-radius:999px;text-decoration:none;">Text a friend</a>
+             </td>
+             <td style="padding:0 8px 8px 0;">
+               <a href="${x}" style="display:inline-block;background:#f6f6f8;color:#16161d;font:700 14px/1 Helvetica,Arial,sans-serif;padding:12px 18px;border-radius:999px;text-decoration:none;">Post on X</a>
+             </td>
+             <td style="padding:0 0 8px 0;">
+               <a href="${wa}" style="display:inline-block;background:#f6f6f8;color:#16161d;font:700 14px/1 Helvetica,Arial,sans-serif;padding:12px 18px;border-radius:999px;text-decoration:none;">WhatsApp</a>
+             </td>
+           </tr>
+         </table>
+
+         <p style="margin:14px 0 0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8a8a96;">
+           Or just forward this email to someone. That works too.
+         </p>
+       </td></tr>
+     </table>`,
   )
 
   const text = `Your message is sealed.
@@ -106,7 +142,12 @@ The proof code is made from your exact words. In 2047, when every message is pub
 
 See your entry: ${url}
 
-The capsule is only sealed if 1,000 messages go in by December 31.`
+NOW THE AWKWARD PART
+The capsule is only sealed if 1,000 messages go in by December 31. If it doesn't get there, everyone is refunded and none of this happens - including your entry.
+
+Sending this to one person is genuinely the whole difference. Forwarding this email works too.
+
+${SITE}`
 
   return { subject: `Your message is sealed — entry #${num}`, html, text }
 }

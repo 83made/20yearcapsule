@@ -1,71 +1,82 @@
 import { useState } from 'react'
+import { SITE, shareText, shareTargets } from '../lib/share.js'
 
 /**
- * Sharing, for the phase where the site lives or dies on people sending it to each other.
+ * Sharing, for the phase where this lives or dies on people sending it to each other.
  *
- * Uses the native share sheet on mobile — which is where this actually gets shared, and which gives
- * access to iMessage, WhatsApp and everything else without us having to enumerate networks. Falls
- * back to copy-to-clipboard on desktop, and to a text selection if even that is blocked.
- *
- * The share text is written to be forwarded, not announced: "I put a message in a time capsule that
- * opens in 2047" is a sentence someone says to a friend. "Check out this website" is not.
+ * The native share sheet is offered first on devices that have one — it reaches iMessage, WhatsApp
+ * and everything else without us enumerating networks. But `navigator.share` does not exist on most
+ * desktop browsers, so the explicit targets are always rendered too rather than hidden behind a
+ * failed feature check. Desktop users were previously getting nothing but a clipboard copy.
  */
-export default function Share({ seq, variant = 'full' }) {
-  const [state, setState] = useState('idle')
+export default function Share({ seq, tone = 'light' }) {
+  const [copied, setCopied] = useState(false)
+  const targets = shareTargets(seq)
+  const text = shareText(seq)
+  const full = `${text}\n\n${SITE}`
+  const dark = tone === 'light' // rendered on a dark panel
 
-  const url = 'https://20yearcapsule.com'
-  const text = seq
-    ? `I just sealed a message in a time capsule that opens on January 1, 2047. It's entry #${String(
-        seq,
-      ).padStart(6, '0')} and I'm not allowed to see it again until then.`
-    : `You write one sentence, it gets sealed until January 1, 2047, and nobody reads it — not even you.`
-
-  async function share() {
-    const payload = { title: 'The 20 Year Capsule', text, url }
-    if (navigator.share) {
-      try {
-        await navigator.share(payload)
-        setState('shared')
-        return
-      } catch {
-        // user dismissed the sheet — not an error worth showing
-        return
-      }
-    }
+  async function nativeShare() {
+    if (!navigator.share) return
     try {
-      await navigator.clipboard.writeText(`${text}\n\n${url}`)
-      setState('copied')
-      setTimeout(() => setState('idle'), 2600)
+      await navigator.share({ title: 'The 20 Year Capsule', text, url: SITE })
     } catch {
-      setState('manual')
+      /* dismissed — not an error */
     }
   }
 
-  const label =
-    state === 'copied' ? 'Copied' : state === 'shared' ? 'Thank you' : seq ? 'Share this' : 'Share'
-
-  if (variant === 'inline') {
-    return (
-      <button
-        type="button"
-        onClick={share}
-        className="text-[0.92rem] font-semibold text-ink-3 underline underline-offset-4 hover:text-ink"
-      >
-        {label}
-      </button>
-    )
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(full)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2600)
+    } catch {
+      setCopied(false)
+    }
   }
+
+  const btn = dark
+    ? 'bg-white/10 text-white hover:bg-white/20'
+    : 'bg-bg-2 text-ink hover:bg-bg-3'
 
   return (
     <div>
-      <button type="button" onClick={share} className="btn btn-gold">
-        {label}
-      </button>
-      {state === 'manual' && (
-        <p className="mt-3 select-all rounded-xl bg-bg-2 p-3 text-[0.88rem] text-ink-2">
-          {text} {url}
-        </p>
+      {/* mobile: one tap into the OS share sheet */}
+      {typeof navigator !== 'undefined' && navigator.share && (
+        <button type="button" onClick={nativeShare} className="btn btn-gold w-full sm:w-auto">
+          Share
+        </button>
       )}
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        {targets.map((t) => (
+          <a
+            key={t.id}
+            href={t.href}
+            target={t.href.startsWith('http') ? '_blank' : undefined}
+            rel={t.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+            className={`rounded-full px-4 py-2 text-[0.92rem] font-semibold transition-colors ${
+              t.tone === 'primary' ? 'bg-gold text-night hover:bg-gold-2' : btn
+            }`}
+            style={{ fontFamily: 'var(--font-display)' }}
+          >
+            {t.label}
+          </a>
+        ))}
+        <button
+          type="button"
+          onClick={copy}
+          className={`rounded-full px-4 py-2 text-[0.92rem] font-semibold transition-colors ${btn}`}
+          style={{ fontFamily: 'var(--font-display)' }}
+        >
+          {copied ? 'Copied' : 'Copy link'}
+        </button>
+      </div>
+
+      <p className={`mt-4 text-[0.88rem] leading-relaxed ${dark ? 'text-white/45' : 'text-muted'}`}>
+        Sends this, with your entry number:{' '}
+        <span className={dark ? 'text-white/70' : 'text-ink-3'}>&ldquo;{text}&rdquo;</span>
+      </p>
     </div>
   )
 }

@@ -36,13 +36,13 @@ globalThis.Deno = {
 }
 
 let src = readFileSync(join(ROOT, 'supabase/functions/_shared/email.ts'), 'utf8')
+// General rather than a list of special cases, so this keeps working when the source module gains
+// another typed parameter instead of failing with an unhelpful syntax error.
 src = src
-  .replace(/^type SendResult[\s\S]*?\n\n/m, '')
-  .replace(/:\s*Promise<SendResult>/g, '')
-  .replace(/\(to: string, subject: string, html: string, text: string\)/g, '(to, subject, html, text)')
-  .replace(/\(headline: string, inner: string\)/g, '(headline, inner)')
+  .replace(/^type\s+\w+\s*=[\s\S]*?\n\}\n/m, '')
+  .replace(/:\s*Promise<[^>]*>/g, '')
   .replace(/opts:\s*\{[^}]*\}/g, 'opts')
-  .replace(/to: string,\s*/g, 'to, ')
+  .replace(/([(,]\s*)([a-zA-Z_]\w*)\s*:\s*[A-Za-z_][\w<>[\]|'"\s]*?(?=[,)])/g, '$1$2')
 
 const tmp = join(ROOT, 'node_modules', '.capsule-email-preview.mjs')
 writeFileSync(tmp, src)
