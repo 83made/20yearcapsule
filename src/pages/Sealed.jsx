@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase, configured } from '../lib/supabase.js'
-import { OPEN_LABEL, SEAL_LABEL, OPENS_AT } from '../lib/capsule.js'
+import { OPEN_LABEL, OPENS_AT, GOAL_ENTRIES } from '../lib/capsule.js'
 import Countdown from '../components/Countdown.jsx'
+import Share from '../components/Share.jsx'
 
 /**
- * Where Stripe drops people after payment. The webhook may not have landed yet, so this polls the
- * public wall for a few seconds rather than promising a row that does not exist. If it never shows,
- * the message is still sealed — the wall row is cosmetic — so the copy says that plainly instead of
- * implying something went wrong.
+ * Where Stripe drops people after payment, and the single highest-intent moment on the site —
+ * someone has just done the thing and feels good about it. That is where the share prompt belongs,
+ * not buried in a footer.
+ *
+ * The webhook may not have landed yet, so this polls the public wall briefly rather than promising
+ * a row that does not exist. If it never appears the message is still sealed — the wall row is
+ * cosmetic — so the copy says that plainly instead of implying something went wrong.
  */
 export default function Sealed() {
   const [params] = useSearchParams()
@@ -19,7 +23,9 @@ export default function Sealed() {
     if (!configured) return
     let alive = true
     let tries = 0
-    const poll = async () => {
+    const id = setInterval(poll, 1500)
+
+    async function poll() {
       tries += 1
       const { data } = await supabase
         .from('capsule_wall')
@@ -27,13 +33,16 @@ export default function Sealed() {
         .order('created_at', { ascending: false })
         .limit(1)
       if (!alive) return
-      if (data?.[0]) setEntry(data[0])
-      if (tries >= 6) {
+      if (data?.[0]) {
+        setEntry(data[0])
+        clearInterval(id)
+        return
+      }
+      if (tries >= 8) {
         setWaited(true)
         clearInterval(id)
       }
     }
-    const id = setInterval(poll, 1500)
     poll()
     return () => {
       alive = false
@@ -42,71 +51,93 @@ export default function Sealed() {
   }, [])
 
   return (
-    <div className="min-h-screen">
-      <header className="bg-ink text-paper">
-        <div className="mx-auto max-w-3xl px-5 py-3">
-          <Link to="/" className="font-mono text-[0.68rem] font-bold tracking-[0.2em] uppercase">
-            20yearcapsule.com
+    <div className="min-h-screen bg-night text-white">
+      <div className="mx-auto max-w-2xl px-5">
+        <div className="py-4">
+          <Link to="/" className="font-display text-[1.02rem] font-bold">
+            The 20 Year Capsule
           </Link>
         </div>
-      </header>
 
-      <main className="mx-auto max-w-3xl px-5 py-16">
-        <span className="stamp">Sealed</span>
-        <h1 className="mt-6 font-display leading-[0.95]" style={{ fontSize: 'clamp(2.6rem,8vw,4.6rem)' }}>
-          Your sentence is
-          <br />
-          in the capsule.
-        </h1>
+        <div className="pb-20 pt-10">
+          <div className="eyebrow" style={{ color: 'var(--color-gold-2)' }}>
+            Sealed
+          </div>
+          <h1 className="mt-4 text-5xl sm:text-6xl">
+            That&rsquo;s it.
+            <br />
+            <span className="text-gold">See you in 2047.</span>
+          </h1>
 
-        <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-2">
-          It will not be shown to anyone — including you — until{' '}
-          <strong className="font-semibold">{OPEN_LABEL}</strong>.
-        </p>
+          <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/70">
+            Your message is in the capsule. Nobody sees it — including you — until{' '}
+            <strong className="font-semibold text-white">{OPEN_LABEL}</strong>.
+          </p>
 
-        {entry && (
-          <div className="mt-10 bg-paper-2 p-7 rounded-sm">
-            <div className="label">Your entry</div>
-            <div className="mt-3 font-mono text-3xl font-bold tabular-nums">
-              #{String(entry.seq).padStart(6, '0')}
-            </div>
-            <div className="mt-4 grid gap-1.5 font-mono text-[0.8rem] text-ink-2">
-              <div>{entry.display_name || 'Anonymous'}{entry.location ? ` · ${entry.location}` : ''}</div>
-              <div className="text-muted">{entry.char_count} characters</div>
-            </div>
-            <div className="mt-5">
-              <div className="label">Fingerprint</div>
-              <p className="mt-1.5 font-mono text-[0.68rem] break-all text-seal leading-relaxed">
+          {entry && (
+            <div className="mt-10 rounded-3xl bg-white/5 p-6 sm:p-8">
+              <div className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-white/45">
+                Your entry
+              </div>
+              <div className="mt-2 font-display text-5xl font-bold tabular-nums">
+                #{String(entry.seq).padStart(6, '0')}
+              </div>
+              <div className="mt-3 text-white/70">
+                {entry.display_name || 'Anonymous'}
+                {entry.location ? ` · ${entry.location}` : ''} · {entry.char_count} characters
+              </div>
+
+              <div className="mt-6 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-white/45">
+                Proof code
+              </div>
+              <p className="mt-2 break-all font-mono text-[0.68rem] leading-relaxed text-gold-2">
                 {entry.message_hash}
               </p>
+
+              <Link
+                to={`/m/${entry.seq}`}
+                className="mt-6 inline-block font-semibold text-white underline underline-offset-4 hover:text-gold-2"
+              >
+                See your entry page
+              </Link>
             </div>
-            <Link to={`/m/${entry.seq}`} className="btn btn-ghost mt-6">
-              View your certificate
-            </Link>
+          )}
+
+          {!entry && waited && (
+            <div className="mt-10 rounded-3xl bg-white/5 p-6 leading-relaxed text-white/70">
+              Your payment went through and your message is sealed. The public wall takes a moment to
+              catch up — refresh in a minute and your entry will be there.
+            </div>
+          )}
+
+          {/* the ask, at the moment it is most likely to land */}
+          <div className="mt-12 rounded-3xl border-2 border-gold/30 p-6 sm:p-8">
+            <h2 className="text-2xl sm:text-3xl">Now the awkward part.</h2>
+            <p className="mt-3 leading-relaxed text-white/70">
+              The capsule only gets sealed if {GOAL_ENTRIES.toLocaleString()} messages go in by
+              December 31. If it doesn&rsquo;t, everyone gets refunded and none of this happens —
+              including yours.
+            </p>
+            <p className="mt-3 leading-relaxed text-white/70">
+              Sending this to one person is genuinely the whole difference.
+            </p>
+            <div className="mt-6">
+              <Share seq={entry?.seq} />
+            </div>
           </div>
-        )}
 
-        {!entry && waited && (
-          <p className="mt-10 bg-paper-2 p-6 rounded-sm text-[0.95rem] leading-relaxed text-ink-2">
-            Your payment went through and your message is sealed. The public wall can take a moment
-            to catch up — refresh in a minute and your entry will be there.
-          </p>
-        )}
+          <div className="mt-14 border-t border-white/10 pt-8">
+            <div className="eyebrow" style={{ color: 'var(--color-gold-2)' }}>
+              Opens in
+            </div>
+            <Countdown target={OPENS_AT} variant="open" className="mt-3" tone="light" />
+          </div>
 
-        <div className="mt-14 rule pt-10">
-          <div className="label">The capsule opens in</div>
-          <Countdown target={OPENS_AT} variant="open" className="mt-3" />
-          <p className="mt-4 font-mono text-[0.75rem] text-muted">
-            Sealed {SEAL_LABEL} · Opens {OPEN_LABEL}
-          </p>
-        </div>
-
-        <div className="mt-12">
-          <Link to="/" className="btn btn-primary">
+          <Link to="/" className="btn btn-gold mt-12">
             Back to the capsule
           </Link>
         </div>
-      </main>
+      </div>
     </div>
   )
 }
