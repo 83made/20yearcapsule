@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Icons. The .ico must exist as a real file: browsers and iOS request /favicon.ico and
+         /apple-touch-icon.png whether or not they are declared, and the SPA catch-all was
+         answering those with index.html, so a home-screen save got a page of HTML as its icon.
+         The .ico carries a different drawing at 16-48px than at 64px+ — with the pressed ring
+         in it, "20" is an unreadable smear in a browser tab. -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>The 20 Year Capsule — one sentence, sealed until 2047</title>
     <meta name="description" content="Write one sentence. It gets sealed on December 31, 2026 and nobody reads it - not even you - until January 1, 2047." />
 
