@@ -1,0 +1,29 @@
+# Your own messages for the capsule. Copy this to my-messages.txt and write your real ones.
+#
+#   node scripts/seal-batch.mjs my-messages.txt            # check them, seal nothing
+#   node scripts/seal-batch.mjs my-messages.txt --execute  # seal them for good
+#
+# One message per line, up to 100 characters. Lines starting with # are ignored.
+# Optional:  message | name | location    — blank name shows as Anonymous.
+#
+# These are published in full on January 1, 2047, under whatever name you put here.
+# Write things you will be glad someone reads then.
+
+# --- things that are true right now, which is what ages best -------------------------------------
+Gas is $3.42 a gallon in Reno and everyone says that is cheap. | Jon | Reno, NV
+Everyone I know is worried AI is coming for their job. | Jon | Reno, NV
+A movie ticket is $14 and the theater was half empty. | Jon | Reno, NV
+
+# --- predictions you are willing to be wrong about -----------------------------------------------
+I think we will still be arguing about exactly the same things. | Jon | Reno, NV
+Somebody reading this is going to be surprised by who I married. | Jon | Reno, NV
+
+# --- to a person ---------------------------------------------------------------------------------
+Mom, if you are reading this, I hope I said it enough while it counted. | Jon | Reno, NV
+
+# --- questions you will never get an answer to ---------------------------------------------------
+Did any of what we were afraid of actually happen? | Jon | Reno, NV
+Is anyone still building websites by hand in 2047? | Jon | Reno, NV
+
+# --- the honest one ------------------------------------------------------------------------------
+I built this and I have no idea if anyone will show up. | Jon | Reno, NV

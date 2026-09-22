@@ -8,3 +8,9 @@ dist
 supabase/.temp/
 supabase/.branches/
 email-preview/
+
+# Your own capsule messages. These are supposed to be secret until 2047 and this repo is public —
+# committing them would publish the thing the entire site promises not to publish.
+my-messages.txt
+my-messages*.txt
+!my-messages.example.txt
