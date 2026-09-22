@@ -31,29 +31,27 @@ function Redaction({ chars }) {
 export function WallRow({ entry }) {
   const when = entry.created_at ? new Date(entry.created_at) : null
   return (
-    <li className="rule py-4 first:border-t-0">
-      <div className="flex items-baseline gap-3 flex-wrap">
-        <Link
-          to={`/m/${entry.seq}`}
-          className="font-mono text-[0.72rem] font-bold text-muted hover:text-ink tabular-nums shrink-0"
-        >
-          #{String(entry.seq).padStart(6, '0')}
-        </Link>
-        <span className="font-sans text-[0.9rem] font-semibold text-ink-2 shrink-0">
+    <li className="rounded-2xl border border-line p-4 transition-colors hover:border-ink-3">
+      <div className="flex flex-wrap items-baseline gap-2.5">
+        <span className="text-[0.95rem] font-semibold text-ink">
           {entry.display_name || 'Anonymous'}
         </span>
-        {entry.location && (
-          <span className="font-sans text-[0.82rem] text-muted shrink-0">{entry.location}</span>
-        )}
+        {entry.location && <span className="text-[0.85rem] text-muted">{entry.location}</span>}
         {when && (
-          <span className="font-mono text-[0.68rem] text-muted ml-auto tabular-nums shrink-0">
-            {when.toISOString().slice(0, 10)}
+          <span className="ml-auto text-[0.78rem] tabular-nums text-muted">
+            {when.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </span>
         )}
       </div>
-      <div className="mt-2 text-ink leading-relaxed" style={{ fontSize: '1.02rem' }}>
+      <div className="mt-2.5 leading-relaxed" style={{ fontSize: '1.02rem' }}>
         <Redaction chars={entry.char_count || 40} />
       </div>
+      <Link
+        to={`/m/${entry.seq}`}
+        className="mt-3 inline-block font-mono text-[0.7rem] font-bold text-muted hover:text-ink"
+      >
+        #{String(entry.seq).padStart(6, '0')}
+      </Link>
     </li>
   )
 }
@@ -61,11 +59,11 @@ export function WallRow({ entry }) {
 export default function Wall({ entries, loading, emptyNote }) {
   if (loading) {
     return (
-      <ul className="mt-2">
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <li key={i} className="rule py-4 first:border-t-0 opacity-30">
-            <div className="h-3 w-40 bg-paper-3 rounded-sm" />
-            <div className="mt-3 h-4 w-full max-w-lg bg-paper-3 rounded-sm" />
+          <li key={i} className="rounded-2xl border border-line p-4 opacity-40">
+            <div className="h-3 w-28 rounded bg-bg-3" />
+            <div className="mt-4 h-4 w-full rounded bg-bg-3" />
           </li>
         ))}
       </ul>
@@ -74,14 +72,16 @@ export default function Wall({ entries, loading, emptyNote }) {
 
   if (!entries?.length) {
     return (
-      <p className="mt-6 font-mono text-sm text-muted">
-        {emptyNote || 'No messages sealed yet. The first one is still available.'}
-      </p>
+      <div className="rounded-2xl border-2 border-dashed border-line p-10 text-center">
+        <p className="text-lg font-semibold text-ink">Nothing sealed yet.</p>
+        <p className="mt-1.5 text-ink-3">{emptyNote || 'Message #1 is still available.'}</p>
+        <a href="#write" className="btn btn-primary mt-6">Write the first one</a>
+      </div>
     )
   }
 
   return (
-    <ul className="mt-2">
+    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {entries.map((e) => (
         <WallRow key={e.seq} entry={e} />
       ))}

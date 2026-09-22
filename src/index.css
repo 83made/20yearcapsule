@@ -1,23 +1,34 @@
 @import 'tailwindcss';
 
-/* The visual idea: a public archive document, not a startup landing page. Cream paper, black
-   redaction bars, one wax-seal red. The redaction bar is the product image — it is the only
-   thing anyone can see of a sealed message, so it has to carry the whole concept. */
+/* Redesigned for the people who will actually be alive to read it — roughly 13 to 45.
+   The previous look was archival: cream paper, serif, museum. Tasteful, but it read as
+   solemn and old. This version keeps the one genuinely good idea (the black redaction bar,
+   which is the only honest picture of a sealed message) and rebuilds everything around it:
+   white, high contrast, big friendly type, one warm accent. Clear beats elegant here. */
 @theme {
-  --color-paper: #f4f1e8;
-  --color-paper-2: #e9e4d6;
-  --color-paper-3: #ded7c4;
-  --color-ink: #12100c;
-  --color-ink-2: #2a2620;
-  --color-ink-3: #56503f;
-  --color-muted: #7d7561;
-  --color-rule: #cfc7b0;
-  --color-seal: #a41f13;
-  --color-seal-2: #c8341f;
+  --color-ink: #16161d;
+  --color-ink-2: #3d3d4a;
+  --color-ink-3: #62626f;
+  --color-muted: #8a8a96;
 
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --color-bg: #ffffff;
+  --color-bg-2: #f6f6f8;
+  --color-bg-3: #ececf0;
+  --color-line: #e2e2e8;
+
+  /* Deep indigo = the sealed side. Used for the hero, the wall, the footer. */
+  --color-night: #15132b;
+  --color-night-2: #221f42;
+  --color-night-3: #37325f;
+
+  /* Warm brass. Time capsule, not startup purple. */
+  --color-gold: #e8a33d;
+  --color-gold-2: #f6c66b;
+  --color-gold-deep: #b97514;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 html {
@@ -25,129 +36,146 @@ html {
 }
 
 body {
-  background-color: var(--color-paper);
+  background-color: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-  /* faint paper grain so large flat areas do not look like a default white page */
-  background-image: radial-gradient(rgba(18, 16, 12, 0.025) 1px, transparent 1px);
-  background-size: 3px 3px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  margin: 0;
 }
 
 @layer components {
-  /* A sealed message. Solid black bar, slightly uneven like a real marker redaction. */
+  /* The sealed message. Still the best thing on the page. */
   .redact {
     display: inline-block;
     background: var(--color-ink);
-    border-radius: 2px;
-    height: 1.05em;
-    vertical-align: -0.18em;
-    position: relative;
-  }
-  .redact::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      92deg,
-      rgba(255, 255, 255, 0.07) 0%,
-      transparent 18%,
-      transparent 82%,
-      rgba(255, 255, 255, 0.05) 100%
-    );
-    border-radius: 2px;
-  }
-
-  .rule {
-    border-top: 1px solid var(--color-rule);
-  }
-
-  .stamp {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--color-seal);
-    border: 2px solid var(--color-seal);
     border-radius: 3px;
-    padding: 5px 11px;
-    display: inline-block;
-    transform: rotate(-2.2deg);
-    opacity: 0.88;
+    height: 1em;
+    vertical-align: -0.15em;
+  }
+  .redact-light {
+    background: rgba(255, 255, 255, 0.82);
   }
 
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.55rem;
-    font-family: var(--font-mono);
+    gap: 0.5rem;
+    font-family: var(--font-display);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    font-size: 0.86rem;
-    padding: 0.95rem 1.7rem;
-    border-radius: 2px;
-    border: 1px solid transparent;
+    font-size: 1rem;
+    padding: 0.95rem 1.8rem;
+    border-radius: 999px;
+    border: 2px solid transparent;
     cursor: pointer;
-    transition: background-color 0.15s, color 0.15s, transform 0.1s;
+    text-decoration: none;
+    transition: transform 0.12s, background-color 0.15s, color 0.15s;
   }
   .btn:active {
     transform: translateY(1px);
   }
   .btn-primary {
     background: var(--color-ink);
-    color: var(--color-paper);
+    color: #fff;
   }
   .btn-primary:hover {
-    background: var(--color-ink-2);
+    background: var(--color-night-2);
   }
   .btn-primary:disabled {
-    background: var(--color-muted);
+    background: var(--color-bg-3);
+    color: var(--color-muted);
     cursor: not-allowed;
   }
-  .btn-ghost {
+  .btn-gold {
+    background: var(--color-gold);
+    color: var(--color-night);
+  }
+  .btn-gold:hover {
+    background: var(--color-gold-2);
+  }
+  .btn-outline {
     background: transparent;
     color: var(--color-ink);
+    border-color: var(--color-line);
+  }
+  .btn-outline:hover {
     border-color: var(--color-ink);
   }
-  .btn-ghost:hover {
-    background: var(--color-ink);
-    color: var(--color-paper);
+
+  /* A tappable example sentence. The main teaching device on the page. */
+  .chip {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: var(--color-bg);
+    border: 1.5px solid var(--color-line);
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+    font-size: 1rem;
+    line-height: 1.45;
+    color: var(--color-ink-2);
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s, transform 0.12s;
+  }
+  .chip:hover {
+    border-color: var(--color-gold);
+    background: #fffdf8;
+    transform: translateY(-1px);
+  }
+  .chip:active {
+    transform: translateY(0);
   }
 
   .field {
     width: 100%;
-    background: var(--color-paper);
-    border: 1px solid var(--color-ink-3);
-    border-radius: 2px;
-    padding: 0.8rem 0.9rem;
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
+    background: #fff;
+    border: 2px solid var(--color-line);
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
     color: var(--color-ink);
+  }
+  .field::placeholder {
+    color: var(--color-muted);
   }
   .field:focus {
     outline: none;
     border-color: var(--color-ink);
-    box-shadow: 0 0 0 3px rgba(18, 16, 12, 0.08);
   }
 
   .label {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-ink-3);
+  }
+
+  .eyebrow {
     font-family: var(--font-mono);
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.16em;
     text-transform: uppercase;
-    color: var(--color-muted);
+    color: var(--color-gold-deep);
   }
 }
 
-/* The counter ticking is the only motion on the page; keep it honest for reduced-motion users. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  * {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }

@@ -7,7 +7,7 @@ import { countdown } from '../lib/capsule.js'
  *  - variant="open"  — twenty years out. Ticks every minute; a seconds counter on a 20-year span
  *                      is noise, and re-rendering it every second for two decades is silly.
  */
-export default function Countdown({ target, variant = 'seal', className = '' }) {
+export default function Countdown({ target, variant = 'seal', className = '', tone = 'dark' }) {
   const [t, setT] = useState(() => countdown(target))
 
   useEffect(() => {
@@ -36,12 +36,20 @@ export default function Countdown({ target, variant = 'seal', className = '' }) 
       {units.map(([label, value]) => (
         <div key={label} className="flex flex-col">
           <span
-            className="font-mono font-bold tabular-nums leading-none text-ink"
-            style={{ fontSize: variant === 'seal' ? 'clamp(2rem,6vw,3.4rem)' : 'clamp(1.6rem,4vw,2.4rem)' }}
+            className={`font-display font-bold tabular-nums leading-none ${
+              tone === 'light' ? 'text-white' : 'text-ink'
+            }`}
+            style={{ fontSize: variant === 'seal' ? 'clamp(1.9rem,5.5vw,3rem)' : 'clamp(1.6rem,4vw,2.3rem)' }}
           >
             {value.toLocaleString()}
           </span>
-          <span className="label mt-2">{label}</span>
+          <span
+            className={`mt-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.12em] ${
+              tone === 'light' ? 'text-white/45' : 'text-muted'
+            }`}
+          >
+            {label}
+          </span>
         </div>
       ))}
     </div>
