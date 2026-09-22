@@ -1,166 +1,145 @@
-# Builds the 20 Year Capsule wax-seal mark and the full icon set.
+# Builds the icon set from the capsule logo.
 #
-# Drawn as geometry rather than generated as an image: the brand hex values come out exact, the
-# output is reproducible, and every size is downsampled from one 4096px master instead of being
-# re-imagined at each size.
+# Source is the commissioned illustration at assets/logo-capsule.png: a time capsule half buried
+# in soil, "20" on its body. Everything below is derived from it, so the logo has one home.
 #
-# OPTICAL SIZING. Two cuts of the same mark, because one drawing cannot serve both ends:
+# WHY IT IS CROPPED. The original carries a band of empty cream around the artwork, which is
+# right for a poster and wasteful for an avatar rendered at about 40px in a feed. The crop is
+# measured from the drawing itself — the bounding box of every dark and red pixel, squared off
+# around its centre with a little air — rather than a guessed ratio.
 #
-#   display  — wax body + a lighter pressed ring + modest numerals. The ring is what makes it
-#              read as wax rather than a red sticker, and it has room to breathe at 180px+.
-#   tiny     — no ring, numerals enlarged to fill the wax. Tested at 16px: with the ring, "20"
-#              mushes into an unreadable smear; without it, it still reads. The ring was the
-#              problem, not the type size.
+# Cropping harder was tried and rejected. At 0.62 of the frame the "20" gets noticeably bigger,
+# but the dome and the carry handle fall outside the frame and the thing stops reading as a
+# capsule at all; it becomes a barrel. The silhouette is what identifies this mark at small
+# sizes, not the numerals, so the silhouette is what gets protected.
 #
-# 16px is the browser tab. If it fails there it fails where people see it most.
+# Accept that the "20" is not legible at feed size. That is inherent to the illustration, and the
+# fix is not a tighter crop, it is that a pale cylinder standing in dark soil is a distinctive
+# enough shape to work as an avatar on its own.
+#
+# The canvas is also renormalised to the exact brand cream. The generator returned (250,247,237)
+# and the site is (244,241,232) — invisible alone, obvious when the avatar sits beside the page.
 
-import math, os, struct, io as _io
+import io
+import os
+import struct
+import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 PAPER = (244, 241, 232)   # #f4f1e8
 INK   = (18, 16, 12)      # #12100c
-SEAL  = (164, 31, 19)     # #a41f13
-SEAL2 = (200, 52, 31)     # #c8341f
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC  = os.path.join(ROOT, "assets", "logo-capsule.png")
 OUT  = os.path.join(ROOT, "public")
-SCR  = os.environ.get("ICON_PREVIEW_DIR", OUT)
-M    = 4096
+PREVIEW = os.environ.get("ICON_PREVIEW_DIR")
 
-# A bold serif with heavy numerals. First one present wins.
-FONT = next(
-    (p for p in (
-        r"C:\Windows\Fonts\cambriab.ttf",
-        r"C:\Windows\Fonts\georgiab.ttf",
-        r"C:\Windows\Fonts\constanb.ttf",
-        "/System/Library/Fonts/Supplemental/Georgia Bold.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSerif-Bold.ttf",
-    ) if os.path.exists(p)),
-    None,
-)
-if FONT is None:
-    raise SystemExit("No bold serif font found - set FONT manually.")
+AIR = 1.06   # a little breathing room around the artwork, so it is not jammed to the edges
 
 
-def wax_polygon(cx, cy, r, points=720, wobble=0.007):
-    """A circle with a gentle irregular edge, the way pressed wax spreads.
+def load_normalised():
+    im = Image.open(SRC).convert("RGB")
+    a = np.asarray(im).astype(int)
+    corner = a[:40, :40].reshape(-1, 3).mean(0)
+    a[np.abs(a - corner).sum(2) < 12] = PAPER      # snap the canvas to brand cream
+    return Image.fromarray(a.astype(np.uint8)), a
 
-    Deterministic — fixed harmonics, no RNG — so regenerating produces identical output and the
-    favicon cannot silently change shape between builds. The wobble is deliberately small: at
-    0.018 it read as an amoeba, and any bulge gets sliced off by the circular avatar crop.
+
+def artwork_box(a):
+    """Bounding box of the drawing, ignoring the pale disc it sits on.
+
+    Dark linework plus the red numerals. The disc is background: including it would just
+    re-measure the canvas and defeat the point.
     """
-    pts = []
-    for i in range(points):
-        a = 2 * math.pi * i / points
-        d = (math.sin(a * 3 + 0.7) * 1.00
-             + math.sin(a * 5 + 2.1) * 0.55
-             + math.sin(a * 7 + 4.3) * 0.30
-             + math.sin(a * 11 + 1.2) * 0.15)
-        rr = r * (1 + wobble * d)
-        pts.append((cx + rr * math.cos(a), cy + rr * math.sin(a)))
-    return pts
+    ink = (a.sum(2) < 330) | ((a[:, :, 0] > 110) & (a[:, :, 1] < 95) & (a[:, :, 2] < 85))
+    ys, xs = np.where(ink)
+    return xs.min(), ys.min(), xs.max(), ys.max()
 
 
-def render(ring=True, diameter=0.76, text=0.32):
-    img = Image.new("RGB", (M, M), PAPER)
-    d = ImageDraw.Draw(img)
-    c = M / 2
-    r = M * diameter / 2
-
-    d.polygon(wax_polygon(c, c, r), fill=SEAL)
-
-    if ring:
-        # Same wobble as the outer edge so the curves stay parallel. With different values the
-        # ring drifts toward the rim on one side and reads as a printing error.
-        rg = wax_polygon(c, c, r * 0.84)
-        d.line(rg + [rg[0]], fill=SEAL2, width=int(M * 0.016), joint="curve")
-
-    # Cream on red, not a tonal deboss: a tonal deboss disappears entirely below about 48px.
-    f = ImageFont.truetype(FONT, int(M * text))
-    b = d.textbbox((0, 0), "20", font=f)
-    d.text((c - (b[2] - b[0]) / 2 - b[0], c - (b[3] - b[1]) / 2 - b[1]), "20", font=f, fill=PAPER)
-    return img
+def square_crop(im, cx, cy, half):
+    w, h = im.size
+    box = (max(0, cx - half), max(0, cy - half), min(w, cx + half), min(h, cy + half))
+    out = Image.new("RGB", (2 * half, 2 * half), PAPER)
+    out.paste(im.crop(box), (max(0, half - cx), max(0, half - cy)))
+    return out
 
 
-display = render(ring=True,  diameter=0.76, text=0.32)
-tiny    = render(ring=False, diameter=0.86, text=0.50)
+im, arr = load_normalised()
+x0, y0, x1, y1 = artwork_box(arr)
+cx, cy = (x0 + x1) // 2, (y0 + y1) // 2
+half = int(max(x1 - x0, y1 - y0) / 2 * AIR)
+mark = square_crop(im, cx, cy, half)
+print(f"  artwork {x1-x0}x{y1-y0} at ({cx},{cy}) -> square crop {2*half}px\n")
 
 os.makedirs(OUT, exist_ok=True)
 made = []
 
 
-def save(img, name, size):
+def save(name, size, quantize=False):
+    """quantize: the logo is flat cream/black/red line art, so a 256-colour palette is visually
+    identical and roughly a fifth the size. Only used where the file is large enough to matter."""
     p = os.path.join(OUT, name)
-    img.resize((size, size), Image.LANCZOS).save(p)
+    img = mark.resize((size, size), Image.LANCZOS)
+    if quantize:
+        img = img.quantize(colors=256, method=Image.MEDIANCUT, dither=Image.NONE)
+    img.save(p, optimize=True)
     made.append((name, os.path.getsize(p)))
 
 
-save(display, "profile-1024.png", 1024)   # social avatars
-save(display, "apple-touch-icon.png", 180)  # iOS home screen; must be opaque
-save(display, "icon-192.png", 192)
-save(display, "icon-512.png", 512)
+save("profile-1024.png", 1024, quantize=True)   # social avatars
+save("apple-touch-icon.png", 180)   # iOS home screen; must be opaque
+save("icon-192.png", 192)
+save("icon-512.png", 512, quantize=True)
 
+def build_ico(path, sizes):
+    """Write the .ico with PNG-compressed entries.
 
-def build_ico(path, entries):
-    """Write a multi-resolution .ico with a DIFFERENT image per size.
-
-    Pillow's own ICO writer resizes a single source, so it cannot do optical sizing. The format
-    is simple enough to emit directly, and PNG-compressed entries are valid in ICO (Vista+),
-    which every browser in use today understands.
+    Pillow stores ICO frames as uncompressed BMP, which made this file 104KB. Browsers fetch
+    /favicon.ico on essentially every visit, so that is 104KB of pure waste on a page whose whole
+    bundle is smaller. PNG-compressed entries are valid in ICO on Vista and later, which covers
+    every browser in use. Only 16/32/48 are included: the larger slots existed for Windows
+    desktop shortcuts, which is not a thing anyone will do with this.
     """
     blobs = []
-    for size, img in entries:
-        buf = _io.BytesIO()
-        img.resize((size, size), Image.LANCZOS).save(buf, format="PNG", optimize=True)
+    for size in sizes:
+        buf = io.BytesIO()
+        mark.resize((size, size), Image.LANCZOS).save(buf, format="PNG", optimize=True)
         blobs.append((size, buf.getvalue()))
 
-    header = struct.pack("<HHH", 0, 1, len(blobs))
     offset = 6 + 16 * len(blobs)
-    directory, data = b"", b""
+    directory = b""
+    data = b""
     for size, blob in blobs:
-        directory += struct.pack("<BBBBHHII",
-                                 size if size < 256 else 0, size if size < 256 else 0,
-                                 0, 0, 1, 32, len(blob), offset)
+        directory += struct.pack("<BBBBHHII", size, size, 0, 0, 1, 32, len(blob), offset)
         offset += len(blob)
         data += blob
     with open(path, "wb") as fh:
-        fh.write(header + directory + data)
+        fh.write(struct.pack("<HHH", 0, 1, len(blobs)) + directory + data)
 
 
 ico = os.path.join(OUT, "favicon.ico")
-build_ico(ico, [(16, tiny), (32, tiny), (48, tiny),
-                (64, display), (128, display), (256, display)])
+build_ico(ico, (16, 32, 48))
 made.append(("favicon.ico", os.path.getsize(ico)))
 
-# Vector favicon. Modern browsers prefer this and scale it to whatever they need, so it uses the
-# tiny cut — the one that survives 16px — rather than the ringed display cut.
-pts = wax_polygon(32, 32, 32 * 0.86, points=96)
-path_d = "M " + " L ".join(f"{x:.2f},{y:.2f}" for x, y in pts) + " Z"
-svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" fill="#f4f1e8"/>
-  <path d="{path_d}" fill="#a41f13"/>
-  <text x="32" y="32" fill="#f4f1e8" font-family="Georgia, 'Times New Roman', serif"
-        font-weight="700" font-size="34" text-anchor="middle"
-        dominant-baseline="central">20</text>
-</svg>
-'''
-with open(os.path.join(OUT, "favicon.svg"), "w", encoding="utf-8", newline="\n") as fh:
-    fh.write(svg)
-made.append(("favicon.svg", os.path.getsize(os.path.join(OUT, "favicon.svg"))))
+# A raster favicon is referenced as PNG rather than SVG: the logo is an illustration with fine
+# linework, and there is no faithful vector of it. Better an honest PNG than a bad trace.
+save("favicon-32.png", 32)
+save("favicon-16.png", 16)
 
 for n, s in made:
     print(f"  {n:<24} {s/1024:7.1f} KB")
 
-# Contact sheet at the sizes people actually see, blown back up with nearest-neighbour so the
-# real pixels are visible rather than smoothed over.
-sheet = Image.new("RGB", (760, 200), PAPER)
-dr = ImageDraw.Draw(sheet)
-lf = ImageFont.truetype(FONT, 20)
-x = 20
-for s in (16, 32, 48, 64, 128):
-    src = tiny if s <= 48 else display
-    sheet.paste(src.resize((s, s), Image.LANCZOS).resize((128, 128), Image.NEAREST), (x, 20))
-    dr.text((x, 158), f"{s}px", fill=INK, font=lf)
-    x += 148
-sheet.save(os.path.join(SCR, "icon-legibility-preview.png"))
-print("\n  legibility preview ->", os.path.join(SCR, "icon-legibility-preview.png"))
+if PREVIEW:
+    sizes = (16, 32, 48, 64, 128)
+    cell = 128
+    sheet = Image.new("RGB", (20 + len(sizes) * (cell + 16), 200), PAPER)
+    d = ImageDraw.Draw(sheet)
+    f = ImageFont.truetype(r"C:\Windows\Fonts\cambriab.ttf", 20)
+    x = 20
+    for s in sizes:
+        sheet.paste(mark.resize((s, s), Image.LANCZOS).resize((cell, cell), Image.NEAREST), (x, 20))
+        d.text((x, 158), f"{s}px", fill=INK, font=f)
+        x += cell + 16
+    p = os.path.join(PREVIEW, "icon-legibility-preview.png")
+    sheet.save(p)
+    print("\n  legibility preview ->", p)
