@@ -51,7 +51,7 @@ export default function Sealed() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-night text-white">
+    <div className="min-h-screen bg-ink text-white">
       <div className="mx-auto max-w-2xl px-5">
         <div className="py-4">
           <Link to="/" className="font-display text-[1.02rem] font-bold">
@@ -60,13 +60,13 @@ export default function Sealed() {
         </div>
 
         <div className="pb-20 pt-10">
-          <div className="eyebrow" style={{ color: 'var(--color-gold-2)' }}>
+          <div className="eyebrow" style={{ color: 'var(--color-sun)' }}>
             Sealed
           </div>
           <h1 className="mt-4 text-5xl sm:text-6xl">
             That&rsquo;s it.
             <br />
-            <span className="text-gold">See you in 2047.</span>
+            <span className="text-sun">See you in 2047.</span>
           </h1>
 
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-white/70">
@@ -90,13 +90,13 @@ export default function Sealed() {
               <div className="mt-6 text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-white/45">
                 Proof code
               </div>
-              <p className="mt-2 break-all font-mono text-[0.68rem] leading-relaxed text-gold-2">
+              <p className="mt-2 break-all font-mono text-[0.68rem] leading-relaxed text-sun">
                 {entry.message_hash}
               </p>
 
               <Link
                 to={`/m/${entry.seq}`}
-                className="mt-6 inline-block font-semibold text-white underline underline-offset-4 hover:text-gold-2"
+                className="mt-6 inline-block font-semibold text-white underline underline-offset-4 hover:text-sun"
               >
                 See your entry page
               </Link>
@@ -111,7 +111,7 @@ export default function Sealed() {
           )}
 
           {/* the ask, at the moment it is most likely to land */}
-          <div className="mt-12 rounded-3xl border-2 border-gold/30 p-6 sm:p-8">
+          <div className="mt-12 rounded-3xl border-2 border-white/20 p-6 sm:p-8">
             <h2 className="text-2xl sm:text-3xl">Now the awkward part.</h2>
             <p className="mt-3 leading-relaxed text-white/70">
               The capsule only gets sealed if {GOAL_ENTRIES.toLocaleString()} messages go in by
@@ -127,13 +127,13 @@ export default function Sealed() {
           </div>
 
           <div className="mt-14 border-t border-white/10 pt-8">
-            <div className="eyebrow" style={{ color: 'var(--color-gold-2)' }}>
+            <div className="eyebrow" style={{ color: 'var(--color-sun)' }}>
               Opens in
             </div>
             <Countdown target={OPENS_AT} variant="open" className="mt-3" tone="light" />
           </div>
 
-          <Link to="/" className="btn btn-gold mt-12">
+          <Link to="/" className="btn btn-pop mt-12">
             Back to the capsule
           </Link>
         </div>

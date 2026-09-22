@@ -1,32 +1,33 @@
 @import 'tailwindcss';
 
-/* Redesigned for the people who will actually be alive to read it — roughly 13 to 45.
-   The previous look was archival: cream paper, serif, museum. Tasteful, but it read as
-   solemn and old. This version keeps the one genuinely good idea (the black redaction bar,
-   which is the only honest picture of a sealed message) and rebuilds everything around it:
-   white, high contrast, big friendly type, one warm accent. Clear beats elegant here. */
+/* Third pass. The first was archival (read as a museum), the second was dark-hero-plus-accent
+   (read as every SaaS landing page — and the indigo/gold combination read fintech).
+   This one is bright, high-energy and built out of colour blocks.
+
+   The thing the previous versions never solved: it has to feel like a CAPSULE, not a product page.
+   The fix is that a sealed message is a coloured TILE, not a row in a list. A wall of hundreds of
+   bright tiles with black bars across them looks like a collection of real objects someone put
+   somewhere — which is exactly what it is. */
 @theme {
-  --color-ink: #16161d;
-  --color-ink-2: #3d3d4a;
-  --color-ink-3: #62626f;
-  --color-muted: #8a8a96;
+  --color-ink: #16161a;
+  --color-ink-2: #3b3b44;
+  --color-ink-3: #5e5e6b;
+  --color-muted: #8d8d9a;
 
   --color-bg: #ffffff;
-  --color-bg-2: #f6f6f8;
-  --color-bg-3: #ececf0;
-  --color-line: #e2e2e8;
+  --color-bg-2: #f7f6f3;
+  --color-bg-3: #ecebe6;
+  --color-line: #e4e3dd;
 
-  /* Deep indigo = the sealed side. Used for the hero, the wall, the footer. */
-  --color-night: #15132b;
-  --color-night-2: #221f42;
-  --color-night-3: #37325f;
+  /* Warm, loud, deliberately not fintech. These rotate across tiles, steps and chips. */
+  --color-tomato: #ff5a45;
+  --color-sun: #ffc043;
+  --color-jade: #00b492;
+  --color-violet: #7b5cff;
+  --color-sky: #3d8bff;
+  --color-bubble: #ff7bac;
 
-  /* Warm brass. Time capsule, not startup purple. */
-  --color-gold: #e8a33d;
-  --color-gold-2: #f6c66b;
-  --color-gold-deep: #b97514;
-
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
   --font-sans: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
@@ -36,7 +37,7 @@ html {
 }
 
 body {
-  background-color: var(--color-bg);
+  background: var(--color-bg);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -46,22 +47,37 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
-  letter-spacing: -0.025em;
-  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
   margin: 0;
 }
 
 @layer components {
-  /* The sealed message. Still the best thing on the page. */
+  /* The black bar. Still the single best thing on the site — it is the only honest picture of a
+     sealed message — but here it sits on colour instead of on paper. */
   .redact {
     display: inline-block;
     background: var(--color-ink);
-    border-radius: 3px;
-    height: 1em;
-    vertical-align: -0.15em;
+    border-radius: 4px;
+    height: 0.95em;
+    vertical-align: -0.12em;
   }
-  .redact-light {
-    background: rgba(255, 255, 255, 0.82);
+
+  /* A sealed message, as an object. */
+  .tile {
+    border-radius: 20px;
+    padding: 1.1rem 1.15rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 132px;
+    color: var(--color-ink);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    text-decoration: none;
+  }
+  .tile:hover {
+    transform: translateY(-3px) rotate(-0.6deg);
+    box-shadow: 0 14px 0 -6px rgba(22, 22, 26, 0.12);
   }
 
   .btn {
@@ -71,77 +87,56 @@ h3 {
     gap: 0.5rem;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 1rem;
-    padding: 0.95rem 1.8rem;
+    font-size: 1.05rem;
+    padding: 1rem 1.9rem;
     border-radius: 999px;
     border: 2px solid transparent;
     cursor: pointer;
     text-decoration: none;
-    transition: transform 0.12s, background-color 0.15s, color 0.15s;
+    transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
   }
   .btn:active {
-    transform: translateY(1px);
+    transform: translateY(2px);
   }
   .btn-primary {
     background: var(--color-ink);
     color: #fff;
+    box-shadow: 0 5px 0 0 rgba(22, 22, 26, 0.25);
   }
   .btn-primary:hover {
-    background: var(--color-night-2);
+    background: #26262e;
   }
   .btn-primary:disabled {
     background: var(--color-bg-3);
     color: var(--color-muted);
+    box-shadow: none;
     cursor: not-allowed;
   }
-  .btn-gold {
-    background: var(--color-gold);
-    color: var(--color-night);
+  .btn-pop {
+    background: var(--color-tomato);
+    color: #fff;
+    box-shadow: 0 5px 0 0 #d63a27;
   }
-  .btn-gold:hover {
-    background: var(--color-gold-2);
+  .btn-pop:hover {
+    background: #ff6d5a;
   }
-  .btn-outline {
-    background: transparent;
+  .btn-soft {
+    background: var(--color-bg-2);
     color: var(--color-ink);
-    border-color: var(--color-line);
   }
-  .btn-outline:hover {
-    border-color: var(--color-ink);
-  }
-
-  /* A tappable example sentence. The main teaching device on the page. */
-  .chip {
-    display: block;
-    width: 100%;
-    text-align: left;
-    background: var(--color-bg);
-    border: 1.5px solid var(--color-line);
-    border-radius: 14px;
-    padding: 0.85rem 1rem;
-    font-size: 1rem;
-    line-height: 1.45;
-    color: var(--color-ink-2);
-    cursor: pointer;
-    transition: border-color 0.15s, background-color 0.15s, transform 0.12s;
-  }
-  .chip:hover {
-    border-color: var(--color-gold);
-    background: #fffdf8;
-    transform: translateY(-1px);
-  }
-  .chip:active {
-    transform: translateY(0);
+  .btn-soft:hover {
+    background: var(--color-bg-3);
   }
 
+  /* The message box, styled as a thing you are filling in rather than a form field. */
   .field {
     width: 100%;
     background: #fff;
-    border: 2px solid var(--color-line);
-    border-radius: 14px;
-    padding: 0.9rem 1rem;
+    border: 2.5px solid var(--color-ink);
+    border-radius: 18px;
+    padding: 1rem 1.1rem;
     font-family: var(--font-sans);
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     color: var(--color-ink);
   }
   .field::placeholder {
@@ -149,23 +144,49 @@ h3 {
   }
   .field:focus {
     outline: none;
-    border-color: var(--color-ink);
+    box-shadow: 0 5px 0 0 rgba(22, 22, 26, 0.16);
+  }
+  .field-sm {
+    border-width: 2px;
+    border-radius: 14px;
+    padding: 0.75rem 0.9rem;
+    font-size: 1rem;
   }
 
   .label {
     font-family: var(--font-display);
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--color-ink-3);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--color-ink-2);
   }
 
   .eyebrow {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
     font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--color-gold-deep);
+    letter-spacing: 0.02em;
+    color: var(--color-ink-3);
+  }
+
+  /* A tappable example. Coloured, so the examples section reads as part of the same object family
+     as the wall tiles. */
+  .chip {
+    display: block;
+    width: 100%;
+    text-align: left;
+    border-radius: 16px;
+    padding: 0.9rem 1.05rem;
+    font-size: 1.02rem;
+    line-height: 1.4;
+    font-weight: 500;
+    color: var(--color-ink);
+    cursor: pointer;
+    border: none;
+    transition: transform 0.13s ease, box-shadow 0.13s ease;
+  }
+  .chip:hover {
+    transform: translateY(-2px) rotate(-0.5deg);
+    box-shadow: 0 10px 0 -5px rgba(22, 22, 26, 0.14);
   }
 }
 

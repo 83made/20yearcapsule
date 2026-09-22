@@ -43,7 +43,7 @@ export default function Share({ seq, tone = 'light' }) {
     <div>
       {/* mobile: one tap into the OS share sheet */}
       {typeof navigator !== 'undefined' && navigator.share && (
-        <button type="button" onClick={nativeShare} className="btn btn-gold w-full sm:w-auto">
+        <button type="button" onClick={nativeShare} className="btn btn-pop w-full sm:w-auto">
           Share
         </button>
       )}
@@ -56,7 +56,7 @@ export default function Share({ seq, tone = 'light' }) {
             target={t.href.startsWith('http') ? '_blank' : undefined}
             rel={t.href.startsWith('http') ? 'noopener noreferrer' : undefined}
             className={`rounded-full px-4 py-2 text-[0.92rem] font-semibold transition-colors ${
-              t.tone === 'primary' ? 'bg-gold text-night hover:bg-gold-2' : btn
+              t.tone === 'primary' ? 'bg-tomato text-white' : btn
             }`}
             style={{ fontFamily: 'var(--font-display)' }}
           >

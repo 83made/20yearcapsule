@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MAX_CHARS, PRICE_USD, OPEN_LABEL, hashMessage } from '../lib/capsule.js'
 import { ALL_EXAMPLES } from '../data/examples.js'
+import { TILE_COLORS } from '../lib/palette.js'
 
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL ?? ''}/functions/v1/create-capsule-checkout`
 
@@ -68,10 +69,8 @@ export default function Compose({ sealed, prefill }) {
 
   if (sealed) {
     return (
-      <div className="rounded-3xl bg-night p-8 text-white sm:p-12">
-        <div className="eyebrow" style={{ color: 'var(--color-gold-2)' }}>
-          Closed
-        </div>
+      <div className="rounded-[32px] p-8 text-white sm:p-12" style={{ background: 'var(--color-ink)' }}>
+        <div className="font-display text-[0.95rem] font-semibold text-white/55">Closed</div>
         <h2 className="mt-4 text-4xl sm:text-5xl">The capsule is sealed.</h2>
         <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/70">
           Entries closed on December 31, 2026. Everything inside opens {OPEN_LABEL}.
@@ -91,7 +90,7 @@ export default function Compose({ sealed, prefill }) {
             id="msg"
             rows={3}
             className="field resize-none text-lg leading-relaxed"
-            style={{ borderColor: over ? 'var(--color-gold-deep)' : undefined }}
+            style={{ borderColor: over ? 'var(--color-tomato)' : undefined }}
             maxLength={MAX_CHARS + 30}
             value={message}
             onChange={(e) => {
@@ -103,7 +102,7 @@ export default function Compose({ sealed, prefill }) {
         </div>
 
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-          <span className={`text-[0.92rem] font-semibold ${over ? 'text-gold-deep' : 'text-muted'}`}>
+          <span className={`text-[0.92rem] font-semibold ${over ? 'text-tomato' : 'text-muted'}`}>
             {over ? `${-left} characters too many` : `${left} characters left`}
           </span>
           {message.trim() && !over && (
@@ -118,9 +117,9 @@ export default function Compose({ sealed, prefill }) {
         </div>
 
         {preview && (
-          <div className="mt-3 rounded-2xl bg-bg-2 p-4">
+          <div className="mt-3 rounded-2xl p-4" style={{ background: TILE_COLORS[1].bg }}>
             <div className="label">Your proof code</div>
-            <p className="mt-1.5 break-all font-mono text-[0.72rem] leading-relaxed text-gold-deep">
+            <p className="mt-1.5 break-all font-mono text-[0.72rem] leading-relaxed text-ink-2">
               {preview}
             </p>
             <p className="mt-2 text-[0.88rem] leading-relaxed text-ink-3">
@@ -137,7 +136,7 @@ export default function Compose({ sealed, prefill }) {
             </label>
             <input
               id="nm"
-              className="field mt-2"
+              className="field field-sm mt-2"
               maxLength={40}
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -150,7 +149,7 @@ export default function Compose({ sealed, prefill }) {
             </label>
             <input
               id="loc"
-              className="field mt-2"
+              className="field field-sm mt-2"
               maxLength={40}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
@@ -166,7 +165,7 @@ export default function Compose({ sealed, prefill }) {
           <input
             id="em"
             type="email"
-            className="field mt-2"
+            className="field field-sm mt-2"
             maxLength={120}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -179,7 +178,7 @@ export default function Compose({ sealed, prefill }) {
       </div>
 
       {/* what you're buying */}
-      <div className="self-start rounded-3xl border-2 border-line p-6 sm:p-7">
+      <div className="self-start rounded-[28px] p-6 sm:p-7" style={{ background: TILE_COLORS[3].bg }}>
         <div className="flex items-baseline gap-2">
           <span className="font-display text-6xl font-bold leading-none">${PRICE_USD}</span>
           <span className="text-[0.95rem] font-semibold text-muted">one message</span>
@@ -193,9 +192,7 @@ export default function Compose({ sealed, prefill }) {
             ['Opens January 1, 2047', 'Published in full, all at once.'],
           ].map(([t, sub]) => (
             <li key={t} className="flex gap-3">
-              <span aria-hidden="true" className="mt-0.5 text-gold">
-                ●
-              </span>
+              <span aria-hidden="true" className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ background: 'var(--color-ink)' }} />
               <span>
                 <span className="font-semibold text-ink">{t}</span>
                 <br />
@@ -206,7 +203,7 @@ export default function Compose({ sealed, prefill }) {
         </ul>
 
         {error && (
-          <p className="mt-5 rounded-xl bg-bg-2 p-3 text-[0.92rem] font-medium text-gold-deep">
+          <p className="mt-5 rounded-xl bg-bg-2 p-3 text-[0.92rem] font-medium text-ink-2">
             {error}
           </p>
         )}

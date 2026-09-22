@@ -4,7 +4,7 @@ import { SEAL_LABEL, OPEN_LABEL, PRICE_USD, MAX_CHARS } from '../lib/capsule.js'
 export default function Terms() {
   return (
     <div className="min-h-screen">
-      <header className="bg-night text-white">
+      <header className="bg-ink text-white">
         <div className="mx-auto max-w-2xl px-5 py-3">
           <Link to="/" className="font-display text-[1.02rem] font-bold">
             The 20 Year Capsule

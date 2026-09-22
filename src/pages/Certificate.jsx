@@ -40,7 +40,7 @@ export default function Certificate() {
 
   return (
     <div className="min-h-screen">
-      <header className="bg-night text-white">
+      <header className="bg-ink text-white">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-5 py-4">
           <Link to="/" className="font-display text-[1.02rem] font-bold">
             The 20 Year Capsule
@@ -70,8 +70,8 @@ export default function Certificate() {
 
         {state === 'ok' && entry && (
           <>
-            <div className="rounded-3xl bg-night p-7 text-white sm:p-10">
-              <div className="eyebrow" style={{ color: 'var(--color-gold-2)' }}>
+            <div className="rounded-3xl bg-ink p-7 text-white sm:p-10">
+              <div className="eyebrow" style={{ color: 'var(--color-sun)' }}>
                 Sealed message
               </div>
               <div className="mt-3 font-display text-6xl font-bold tabular-nums sm:text-7xl">
@@ -91,8 +91,13 @@ export default function Certificate() {
                   {Array.from({ length: Math.max(3, Math.round(entry.char_count / 14)) }).map((_, i) => (
                     <span
                       key={i}
-                      className="redact redact-light mr-[0.3em]"
-                      style={{ width: `${1.4 + ((i * 7) % 4) * 0.8}em` }}
+                      className="mr-[0.3em] inline-block rounded"
+                      style={{
+                        width: `${1.4 + ((i * 7) % 4) * 0.8}em`,
+                        height: '0.95em',
+                        verticalAlign: '-0.12em',
+                        background: 'rgba(255,255,255,0.85)',
+                      }}
                     />
                   ))}
                 </p>
@@ -105,7 +110,7 @@ export default function Certificate() {
                 <div className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-white/45">
                   Proof code
                 </div>
-                <p className="mt-2 break-all font-mono text-[0.68rem] leading-relaxed text-gold-2">
+                <p className="mt-2 break-all font-mono text-[0.68rem] leading-relaxed text-sun">
                   {entry.message_hash}
                 </p>
                 <p className="mt-3 text-[0.88rem] leading-relaxed text-white/50">

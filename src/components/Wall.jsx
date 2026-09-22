@@ -1,70 +1,77 @@
 import { Link } from 'react-router-dom'
+import { tileColor } from '../lib/palette.js'
 
 /**
- * The redaction wall. This is the only view anyone gets of the capsule's contents for twenty years,
- * so it has to do the persuading: real names, real places, real timestamps, and a black bar where
- * the sentence is. The bar width is derived from the message's character count, which is public
- * metadata — so a long message visibly looks long. That small detail is what makes the wall read as
- * real rather than decorative.
+ * The wall — a grid of coloured tiles, one per sealed message.
+ *
+ * This is the change that makes the site feel like a capsule instead of a product page. A list of
+ * rows reads as data; a wall of bright tiles with black bars across them reads as a collection of
+ * real things someone put somewhere. Same information, completely different object.
+ *
+ * Bar widths come from the real character count, so a long message visibly looks long. That detail
+ * is what stops the wall reading as decoration.
  */
 
 function Redaction({ chars }) {
-  // Break the bar into word-ish chunks so it reads as a redacted sentence, not one solid block.
   const chunks = []
   let left = Math.max(chars, 8)
-  let seed = chars * 7919 // deterministic: the same message always renders the same shape
+  let seed = chars * 7919 // deterministic: a message always renders the same shape
   while (left > 0) {
     seed = (seed * 1103515245 + 12345) % 2147483648
-    const size = Math.min(left, 2 + (seed % 9))
+    const size = Math.min(left, 3 + (seed % 8))
     chunks.push(size)
     left -= size
   }
   return (
-    <span className="inline-flex flex-wrap items-center gap-x-[0.34em] gap-y-[0.3em]" aria-label="Sealed message">
+    <span className="flex flex-wrap items-center gap-x-[0.3em] gap-y-[0.34em]" aria-label="Sealed message">
       {chunks.map((c, i) => (
-        <span key={i} className="redact" style={{ width: `${c * 0.52}em` }} />
+        <span key={i} className="redact" style={{ width: `${c * 0.44}em` }} />
       ))}
     </span>
   )
 }
 
-export function WallRow({ entry }) {
+export function WallTile({ entry }) {
+  const c = tileColor(entry.seq)
   const when = entry.created_at ? new Date(entry.created_at) : null
+
   return (
-    <li className="rounded-2xl border border-line p-4 transition-colors hover:border-ink-3">
-      <div className="flex flex-wrap items-baseline gap-2.5">
-        <span className="text-[0.95rem] font-semibold text-ink">
-          {entry.display_name || 'Anonymous'}
+    <Link to={`/m/${entry.seq}`} className="tile" style={{ background: c.bg }}>
+      <div className="text-[0.95rem] font-semibold leading-tight">
+        {entry.display_name || 'Anonymous'}
+      </div>
+      {entry.location && (
+        <div className="mt-0.5 text-[0.82rem] text-ink-3">{entry.location}</div>
+      )}
+
+      <div className="mt-3.5 text-[0.98rem] leading-relaxed">
+        <Redaction chars={entry.char_count || 40} />
+      </div>
+
+      <div className="mt-auto flex items-baseline justify-between gap-2 pt-3.5">
+        <span className="font-mono text-[0.7rem] font-bold text-ink-3">
+          #{String(entry.seq).padStart(6, '0')}
         </span>
-        {entry.location && <span className="text-[0.85rem] text-muted">{entry.location}</span>}
         {when && (
-          <span className="ml-auto text-[0.78rem] tabular-nums text-muted">
+          <span className="text-[0.74rem] text-ink-3">
             {when.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </span>
         )}
       </div>
-      <div className="mt-2.5 leading-relaxed" style={{ fontSize: '1.02rem' }}>
-        <Redaction chars={entry.char_count || 40} />
-      </div>
-      <Link
-        to={`/m/${entry.seq}`}
-        className="mt-3 inline-block font-mono text-[0.7rem] font-bold text-muted hover:text-ink"
-      >
-        #{String(entry.seq).padStart(6, '0')}
-      </Link>
-    </li>
+    </Link>
   )
 }
 
 export default function Wall({ entries, loading, emptyNote }) {
   if (loading) {
     return (
-      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <li key={i} className="rounded-2xl border border-line p-4 opacity-40">
-            <div className="h-3 w-28 rounded bg-bg-3" />
-            <div className="mt-4 h-4 w-full rounded bg-bg-3" />
-          </li>
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <li
+            key={i}
+            className="tile animate-pulse"
+            style={{ background: tileColor(i).bg, opacity: 0.55 }}
+          />
         ))}
       </ul>
     )
@@ -72,18 +79,34 @@ export default function Wall({ entries, loading, emptyNote }) {
 
   if (!entries?.length) {
     return (
-      <div className="rounded-2xl border-2 border-dashed border-line p-10 text-center">
-        <p className="text-lg font-semibold text-ink">Nothing sealed yet.</p>
-        <p className="mt-1.5 text-ink-3">{emptyNote || 'Message #1 is still available.'}</p>
-        <a href="#write" className="btn btn-primary mt-6">Write the first one</a>
+      <div
+        className="rounded-3xl p-10 text-center sm:p-14"
+        style={{ background: 'var(--color-bg-2)' }}
+      >
+        <div className="mx-auto flex max-w-xs flex-wrap justify-center gap-2">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <span
+              key={i}
+              className="h-12 w-12 rounded-xl"
+              style={{ background: tileColor(i).bg, opacity: 0.6 }}
+            />
+          ))}
+        </div>
+        <p className="mt-7 font-display text-2xl font-bold">The capsule is empty.</p>
+        <p className="mt-2 text-ink-3">{emptyNote || 'Message #1 is still available.'}</p>
+        <a href="#write" className="btn btn-pop mt-7">
+          Write the first one
+        </a>
       </div>
     )
   }
 
   return (
-    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
       {entries.map((e) => (
-        <WallRow key={e.seq} entry={e} />
+        <li key={e.seq}>
+          <WallTile entry={e} />
+        </li>
       ))}
     </ul>
   )
