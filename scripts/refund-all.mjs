@@ -15,8 +15,11 @@
 // Worth knowing before you run it: Stripe does NOT return the original processing fee on a refund.
 // At $2 an entry that is about 36 cents per refund out of your pocket, with nothing to show for it.
 //
+// Also emails each person to explain the refund, because a silent $2 reversal from a name they
+// half-remember is how you turn a refund into a dispute. Skipped with --no-email.
+//
 // Needs in .env.local or the environment:
-//   SUPABASE_URL, SUPABASE_SERVICE_KEY, STRIPE_SECRET_KEY
+//   SUPABASE_URL, SUPABASE_SERVICE_KEY, STRIPE_SECRET_KEY, RESEND_API_KEY
 
 import { readFileSync, existsSync } from 'node:fs'
 import { dirname, resolve, join } from 'node:path'
@@ -38,6 +41,9 @@ const KEY = env('SUPABASE_SERVICE_KEY')
 const STRIPE = env('STRIPE_SECRET_KEY')
 
 const execute = process.argv.includes('--execute')
+const noEmail = process.argv.includes('--no-email')
+const RESEND = env('RESEND_API_KEY')
+const GOAL = 1000
 const seqArg = (() => {
   const i = process.argv.indexOf('--seq')
   return i > -1 ? Number(process.argv[i + 1]) : null
@@ -61,6 +67,32 @@ const sb = async (path, init = {}) => {
   })
   if (!res.ok) throw new Error(`Supabase ${res.status}: ${(await res.text()).slice(0, 200)}`)
   return res.status === 204 ? null : res.json()
+}
+
+// Mirrors supabase/functions/_shared/email.ts. Kept deliberately simple here — this runs once,
+// from a laptop, on the worst day of the project.
+const mailRefund = async (to, seq, total) => {
+  if (!RESEND || !to || noEmail) return
+  const num = String(seq).padStart(6, '0')
+  const text = `The capsule did not happen.
+
+It needed ${GOAL.toLocaleString()} messages by December 31 and reached ${total.toLocaleString()}.
+
+Your $2 has been refunded in full - expect it within 5-10 business days. Your message (entry #${num}) has been deleted. It was never shown to anyone.
+
+Thank you for being one of the people who tried.`
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${RESEND}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: 'The 20 Year Capsule <hello@20yearcapsule.com>',
+      to,
+      reply_to: 'jon@83made.com',
+      subject: 'Your 20 Year Capsule entry has been refunded',
+      text,
+    }),
+  })
+  if (!res.ok) throw new Error('email failed: ' + (await res.text()).slice(0, 120))
 }
 
 const stripeCall = async (path, body, idempotencyKey) => {
@@ -145,6 +177,13 @@ if (!rows.length) {
             stripe_payment_intent: paymentIntent,
           }),
         })
+
+        // The refund is what matters; a failed email must not make us retry the refund.
+        try {
+          await mailRefund(r.contact_email, r.seq, rows.length)
+        } catch (mailErr) {
+          console.error(`  (refunded ${label}, but email failed: ${mailErr.message})`)
+        }
 
         ok++
         consecutiveFailures = 0

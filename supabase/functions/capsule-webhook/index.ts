@@ -8,6 +8,7 @@
 
 import Stripe from 'https://esm.sh/stripe@17.7.0?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { sendSealed } from '../_shared/email.ts'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2025-08-27.basil' })
 const WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
@@ -98,6 +99,19 @@ Deno.serve(async (req) => {
     created_at: entry.created_at,
   })
   if (wallErr) console.error('wall insert failed (entry is sealed, backfill later)', wallErr)
+
+  // 3. Confirmation. Deliberately last and deliberately non-fatal: the message is already sealed,
+  //    and returning non-200 here would make Stripe retry the whole webhook and re-run everything
+  //    above just because an email bounced. A failed send is logged and moved on from.
+  const to = session.customer_details?.email
+  if (to) {
+    try {
+      const sent = await sendSealed(to, { seq: entry.seq, hash, name: displayName })
+      if (!sent.ok) console.error('confirmation email failed', entry.seq, sent.error)
+    } catch (err) {
+      console.error('confirmation email threw', entry.seq, err)
+    }
+  }
 
   return new Response(JSON.stringify({ ok: true, seq: entry.seq }), { status: 200 })
 })

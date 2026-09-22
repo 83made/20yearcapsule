@@ -7,3 +7,4 @@ dist
 .netlify
 supabase/.temp/
 supabase/.branches/
+email-preview/
