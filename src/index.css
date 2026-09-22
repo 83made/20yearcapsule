@@ -1,35 +1,23 @@
 @import 'tailwindcss';
 
-/* Third pass. The first was archival (read as a museum), the second was dark-hero-plus-accent
-   (read as every SaaS landing page — and the indigo/gold combination read fintech).
-   This one is bright, high-energy and built out of colour blocks.
-
-   The thing the previous versions never solved: it has to feel like a CAPSULE, not a product page.
-   The fix is that a sealed message is a coloured TILE, not a row in a list. A wall of hundreds of
-   bright tiles with black bars across them looks like a collection of real objects someone put
-   somewhere — which is exactly what it is. */
+/* The visual idea: a public archive document, not a startup landing page. Cream paper, black
+   redaction bars, one wax-seal red. The redaction bar is the product image — it is the only
+   thing anyone can see of a sealed message, so it has to carry the whole concept. */
 @theme {
-  --color-ink: #16161a;
-  --color-ink-2: #3b3b44;
-  --color-ink-3: #5e5e6b;
-  --color-muted: #8d8d9a;
+  --color-paper: #f4f1e8;
+  --color-paper-2: #e9e4d6;
+  --color-paper-3: #ded7c4;
+  --color-ink: #12100c;
+  --color-ink-2: #2a2620;
+  --color-ink-3: #56503f;
+  --color-muted: #7d7561;
+  --color-rule: #cfc7b0;
+  --color-seal: #a41f13;
+  --color-seal-2: #c8341f;
 
-  --color-bg: #ffffff;
-  --color-bg-2: #f7f6f3;
-  --color-bg-3: #ecebe6;
-  --color-line: #e4e3dd;
-
-  /* Warm, loud, deliberately not fintech. These rotate across tiles, steps and chips. */
-  --color-tomato: #ff5a45;
-  --color-sun: #ffc043;
-  --color-jade: #00b492;
-  --color-violet: #7b5cff;
-  --color-sky: #3d8bff;
-  --color-bubble: #ff7bac;
-
-  --font-display: 'Outfit', system-ui, sans-serif;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Instrument Serif', Georgia, serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
 }
 
 html {
@@ -37,166 +25,192 @@ html {
 }
 
 body {
-  background: var(--color-bg);
+  background-color: var(--color-paper);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
-}
-
-h1,
-h2,
-h3 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.02;
-  margin: 0;
+  /* faint paper grain so large flat areas do not look like a default white page */
+  background-image: radial-gradient(rgba(18, 16, 12, 0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
 }
 
 @layer components {
-  /* The black bar. Still the single best thing on the site — it is the only honest picture of a
-     sealed message — but here it sits on colour instead of on paper. */
+  /* A sealed message. Solid black bar, slightly uneven like a real marker redaction. */
   .redact {
     display: inline-block;
     background: var(--color-ink);
-    border-radius: 4px;
-    height: 0.95em;
-    vertical-align: -0.12em;
+    border-radius: 2px;
+    height: 1.05em;
+    vertical-align: -0.18em;
+    position: relative;
+  }
+  .redact::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      92deg,
+      rgba(255, 255, 255, 0.07) 0%,
+      transparent 18%,
+      transparent 82%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    border-radius: 2px;
   }
 
-  /* A sealed message, as an object. */
-  .tile {
-    border-radius: 20px;
-    padding: 1.1rem 1.15rem;
-    display: flex;
-    flex-direction: column;
-    min-height: 132px;
-    color: var(--color-ink);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    text-decoration: none;
+  .rule {
+    border-top: 1px solid var(--color-rule);
   }
-  .tile:hover {
-    transform: translateY(-3px) rotate(-0.6deg);
-    box-shadow: 0 14px 0 -6px rgba(22, 22, 26, 0.12);
+
+  .stamp {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-seal);
+    border: 2px solid var(--color-seal);
+    border-radius: 3px;
+    padding: 5px 11px;
+    display: inline-block;
+    transform: rotate(-2.2deg);
+    opacity: 0.88;
   }
 
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    font-family: var(--font-display);
+    gap: 0.55rem;
+    font-family: var(--font-mono);
     font-weight: 700;
-    font-size: 1.05rem;
-    padding: 1rem 1.9rem;
-    border-radius: 999px;
-    border: 2px solid transparent;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-size: 0.86rem;
+    padding: 0.95rem 1.7rem;
+    border-radius: 2px;
+    border: 1px solid transparent;
     cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.1s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    transition: background-color 0.15s, color 0.15s, transform 0.1s;
   }
   .btn:active {
-    transform: translateY(2px);
+    transform: translateY(1px);
   }
   .btn-primary {
     background: var(--color-ink);
-    color: #fff;
-    box-shadow: 0 5px 0 0 rgba(22, 22, 26, 0.25);
+    color: var(--color-paper);
   }
   .btn-primary:hover {
-    background: #26262e;
+    background: var(--color-ink-2);
   }
   .btn-primary:disabled {
-    background: var(--color-bg-3);
-    color: var(--color-muted);
-    box-shadow: none;
+    background: var(--color-muted);
     cursor: not-allowed;
   }
-  .btn-pop {
-    background: var(--color-tomato);
-    color: #fff;
-    box-shadow: 0 5px 0 0 #d63a27;
-  }
-  .btn-pop:hover {
-    background: #ff6d5a;
-  }
-  .btn-soft {
-    background: var(--color-bg-2);
+  .btn-ghost {
+    background: transparent;
     color: var(--color-ink);
+    border-color: var(--color-ink);
   }
-  .btn-soft:hover {
-    background: var(--color-bg-3);
+  .btn-ghost:hover {
+    background: var(--color-ink);
+    color: var(--color-paper);
   }
 
-  /* The message box, styled as a thing you are filling in rather than a form field. */
   .field {
     width: 100%;
-    background: #fff;
-    border: 2.5px solid var(--color-ink);
-    border-radius: 18px;
-    padding: 1rem 1.1rem;
-    font-family: var(--font-sans);
-    font-size: 1.1rem;
+    background: var(--color-paper);
+    border: 1px solid var(--color-ink-3);
+    border-radius: 2px;
+    padding: 0.8rem 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
     color: var(--color-ink);
-  }
-  .field::placeholder {
-    color: var(--color-muted);
   }
   .field:focus {
     outline: none;
-    box-shadow: 0 5px 0 0 rgba(22, 22, 26, 0.16);
-  }
-  .field-sm {
-    border-width: 2px;
-    border-radius: 14px;
-    padding: 0.75rem 0.9rem;
-    font-size: 1rem;
+    border-color: var(--color-ink);
+    box-shadow: 0 0 0 3px rgba(18, 16, 12, 0.08);
   }
 
   .label {
-    font-family: var(--font-display);
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: var(--color-ink-2);
-  }
-
-  .eyebrow {
-    font-family: var(--font-display);
-    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 0.02em;
-    color: var(--color-ink-3);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-muted);
   }
 
-  /* A tappable example. Coloured, so the examples section reads as part of the same object family
-     as the wall tiles. */
+  /* Tappable example sentence. Added in the content pass — reads as an index card sitting on the
+     page, which fits the archive idea better than a button would. */
   .chip {
     display: block;
     width: 100%;
     text-align: left;
-    border-radius: 16px;
-    padding: 0.9rem 1.05rem;
-    font-size: 1.02rem;
-    line-height: 1.4;
-    font-weight: 500;
-    color: var(--color-ink);
+    background: var(--color-paper);
+    border: 1px solid var(--color-rule);
+    border-radius: 2px;
+    padding: 0.8rem 0.95rem;
+    font-size: 0.98rem;
+    line-height: 1.45;
+    color: var(--color-ink-2);
     cursor: pointer;
-    border: none;
-    transition: transform 0.13s ease, box-shadow 0.13s ease;
+    transition: border-color 0.15s, background-color 0.15s, transform 0.12s;
   }
   .chip:hover {
-    transform: translateY(-2px) rotate(-0.5deg);
-    box-shadow: 0 10px 0 -5px rgba(22, 22, 26, 0.14);
+    border-color: var(--color-ink);
+    background: #fffdf7;
+    transform: translateY(-1px);
+  }
+
+  /* Filter pill for the example categories. */
+  .pill {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    padding: 0.6rem 1rem;
+    border-radius: 2px;
+    border: 1px solid var(--color-rule);
+    background: transparent;
+    color: var(--color-ink-3);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .pill:hover {
+    border-color: var(--color-ink);
+    color: var(--color-ink);
+  }
+  .pill[aria-pressed='true'] {
+    background: var(--color-ink);
+    border-color: var(--color-ink);
+    color: var(--color-paper);
+  }
+
+  /* Progress bar for the funding goal. */
+  .meter {
+    height: 10px;
+    width: 100%;
+    background: var(--color-paper-3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .meter > span {
+    display: block;
+    height: 100%;
+    background: var(--color-seal);
+    transition: width 0.5s ease;
   }
 }
 
+
+/* The counter ticking is the only motion on the page; keep it honest for reduced-motion users. */
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  *,
-  *::before,
-  *::after {
+  * {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
   }

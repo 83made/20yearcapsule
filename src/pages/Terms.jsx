@@ -4,17 +4,17 @@ import { SEAL_LABEL, OPEN_LABEL, PRICE_USD, MAX_CHARS } from '../lib/capsule.js'
 export default function Terms() {
   return (
     <div className="min-h-screen">
-      <header className="bg-ink text-white">
+      <header className="bg-ink text-paper">
         <div className="mx-auto max-w-2xl px-5 py-3">
-          <Link to="/" className="font-display text-[1.02rem] font-bold">
-            The 20 Year Capsule
+          <Link to="/" className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.2em]">
+            20yearcapsule.com
           </Link>
         </div>
       </header>
 
       <main className="mx-auto max-w-2xl px-5 py-14">
         <h1 className="font-display text-5xl">Terms &amp; what you&rsquo;re buying</h1>
-        <p className="mt-4 text-[0.9rem] text-muted">Last updated September 2026</p>
+        <p className="mt-4 font-mono text-[0.75rem] text-muted">Last updated September 2026</p>
 
         <div className="mt-10 grid gap-9">
           <S t="What you are paying for">
@@ -74,7 +74,7 @@ export default function Terms() {
 function S({ t, children }) {
   return (
     <section>
-      <h2 className="text-2xl" dangerouslySetInnerHTML={{ __html: t }} />
+      <h2 className="font-display text-2xl" dangerouslySetInnerHTML={{ __html: t }} />
       <p className="mt-2 leading-relaxed text-ink-2">{children}</p>
     </section>
   )

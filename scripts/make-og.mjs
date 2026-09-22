@@ -34,25 +34,25 @@ const bars = [3.6, 2.1, 4.4, 2.8, 5.2, 1.9]
   .join('')
 
 const html = `<!doctype html><html><head><meta charset="utf-8">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;600&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { width:1200px; height:630px; background:#ffffff; color:#16161a;
+  body { width:1200px; height:630px; background:#f4f1e8; color:#12100c;
          font-family:Inter,sans-serif; overflow:hidden; position:relative; }
   .glow { position:absolute; width:900px; height:900px; right:-320px; top:-380px; border-radius:50%;
-          background:radial-gradient(circle, rgba(255,90,69,.16) 0%, transparent 68%); }
+          background:radial-gradient(circle, rgba(164,31,19,.10) 0%, transparent 68%); }
   .wrap { position:relative; padding:74px 80px; height:100%; display:flex; flex-direction:column; }
   .kicker { font-family:'JetBrains Mono',monospace; font-size:19px; font-weight:700; letter-spacing:.2em;
-            text-transform:uppercase; color:#5e5e6b; }
-  h1 { font-family:Outfit,sans-serif; font-weight:700; font-size:92px; line-height:1.0;
-       letter-spacing:-.03em; margin-top:26px; }
-  h1 .gold { color:#FF5A45; }
+            text-transform:uppercase; color:#7d7561; }
+  h1 { font-family:'Instrument Serif',Georgia,serif; font-weight:400; font-size:104px; line-height:1.0;
+       letter-spacing:-.02em; margin-top:30px; }
+  h1 .gold { color:#12100c; }
   .bars { margin-top:46px; font-size:30px; line-height:1; }
-  .bar { display:inline-block; height:1em; background:#16161a; border-radius:4px;
+  .bar { display:inline-block; height:1em; background:#12100c; border-radius:2px;
          margin-right:.34em; vertical-align:-.12em; }
   .foot { margin-top:auto; display:flex; align-items:baseline; justify-content:space-between; }
-  .site { font-family:Outfit,sans-serif; font-weight:700; font-size:30px; }
-  .meta { font-size:23px; color:#5e5e6b; }
+  .site { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:24px; letter-spacing:.14em; text-transform:uppercase; }
+  .meta { font-size:23px; color:#7d7561; }
 </style></head><body>
   <div class="glow"></div>
   <div class="wrap">

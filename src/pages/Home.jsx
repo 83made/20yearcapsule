@@ -9,11 +9,11 @@ import {
   MAX_CHARS,
   PRICE_USD,
   GOAL_ENTRIES,
+  NET_PER_ENTRY,
   isSealed,
   goalPct,
-  countdown,
 } from '../lib/capsule.js'
-import { BOLD_COLORS, TILE_COLORS } from '../lib/palette.js'
+import Countdown from '../components/Countdown.jsx'
 import Wall from '../components/Wall.jsx'
 import Compose from '../components/Compose.jsx'
 import Examples from '../components/Examples.jsx'
@@ -23,13 +23,7 @@ export default function Home() {
   const [total, setTotal] = useState(null)
   const [loading, setLoading] = useState(true)
   const [prefill, setPrefill] = useState(null)
-  const [t, setT] = useState(() => countdown(SEALS_AT))
   const sealed = isSealed()
-
-  useEffect(() => {
-    const id = setInterval(() => setT(countdown(SEALS_AT)), 1000)
-    return () => clearInterval(id)
-  }, [])
 
   useEffect(() => {
     let alive = true
@@ -43,7 +37,7 @@ export default function Home() {
           .from('capsule_wall')
           .select('seq,display_name,location,char_count,created_at')
           .order('created_at', { ascending: false })
-          .limit(48),
+          .limit(60),
         supabase.rpc('capsule_stats'),
       ])
       if (!alive) return
@@ -67,224 +61,258 @@ export default function Home() {
 
   return (
     <div className="min-h-screen">
-      {/* ---------------- NAV ---------------- */}
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-5">
-        <span className="font-display text-[1.1rem] font-bold">The 20 Year Capsule</span>
-        <a href="#write" className="btn btn-primary !px-5 !py-2.5 !text-[0.95rem]">
-          {sealed ? 'Sealed' : `Write one — $${PRICE_USD}`}
-        </a>
-      </div>
+      {/* masthead */}
+      <header className="bg-ink text-paper">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-5 py-3">
+          <span className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.2em]">
+            20yearcapsule.com
+          </span>
+          <div className="flex items-center gap-5">
+            <span className="font-mono text-[0.68rem] uppercase tracking-[0.14em] opacity-70">
+              {sealed ? 'Sealed' : 'Accepting entries'}
+            </span>
+            {!sealed && (
+              <a
+                href="#write"
+                className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] underline underline-offset-4 hover:opacity-70"
+              >
+                Write yours
+              </a>
+            )}
+          </div>
+        </div>
+      </header>
 
-      <main className="mx-auto max-w-6xl px-5">
-        {/* ---------------- HERO ---------------- */}
-        <section className="pb-14 pt-6 sm:pt-10">
-          <h1 style={{ fontSize: 'clamp(3rem,9vw,6.4rem)' }}>
+      <main className="mx-auto max-w-5xl px-5">
+        {/* hero */}
+        <section className="pb-12 pt-14 md:pt-20">
+          <h1
+            className="font-display leading-[0.92] tracking-tight"
+            style={{ fontSize: 'clamp(3rem,10vw,7rem)' }}
+          >
             Say something
             <br />
             to 2047.
           </h1>
 
-          <p className="mt-6 max-w-xl text-xl leading-relaxed text-ink-2">
-            Write one sentence. It gets sealed on December 31 and{' '}
-            <strong className="font-semibold text-ink">nobody reads it</strong> — not even you —
-            for twenty years.
+          <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink-2">
+            Write one sentence, up to {MAX_CHARS} characters. It goes into the capsule and is{' '}
+            <strong className="font-semibold">not published, shown, or shared with anyone</strong> —
+            including here — until it opens twenty years later.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a href="#write" className="btn btn-pop">
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a href="#write" className="btn btn-primary">
               Write mine — ${PRICE_USD}
             </a>
-            <a href="#wall" className="btn btn-soft">
+            <a href="#wall" className="btn btn-ghost">
               See the capsule
             </a>
           </div>
 
-          {/* the two clocks, as objects rather than a stat bar */}
-          <div className="mt-10 flex flex-wrap gap-3">
-            <div
-              className="rounded-3xl px-6 py-5"
-              style={{ background: TILE_COLORS[0].bg, minWidth: '220px' }}
-            >
-              <div className="eyebrow">Closes in</div>
-              <div className="mt-1 font-display text-4xl font-bold tabular-nums sm:text-5xl">
-                {t.days}
-                <span className="ml-1.5 text-xl font-semibold text-ink-3">days</span>
-              </div>
-              <div className="mt-1 font-mono text-[0.72rem] text-ink-3">
-                {String(t.hours).padStart(2, '0')}:{String(t.minutes).padStart(2, '0')}:
-                {String(t.seconds).padStart(2, '0')}
-              </div>
+          <div className="mt-12 grid gap-8 sm:grid-cols-2">
+            <div>
+              <div className="label">The capsule closes in</div>
+              <Countdown target={SEALS_AT} variant="seal" className="mt-3" />
+              <div className="mt-3 font-mono text-[0.72rem] text-muted">{SEAL_LABEL}</div>
             </div>
-
-            <div
-              className="rounded-3xl px-6 py-5"
-              style={{ background: TILE_COLORS[2].bg, minWidth: '220px' }}
-            >
-              <div className="eyebrow">Then opens</div>
-              <div className="mt-1 font-display text-4xl font-bold sm:text-5xl">2047</div>
-              <div className="mt-1 font-mono text-[0.72rem] text-ink-3">Jan 1 · 12:01 AM PST</div>
+            <div>
+              <div className="label">Then it opens in</div>
+              <Countdown target={OPENS_AT} variant="open" className="mt-3" />
+              <div className="mt-3 font-mono text-[0.72rem] text-muted">{OPEN_LABEL}</div>
             </div>
           </div>
         </section>
 
-        {/* ---------------- EXAMPLES ---------------- */}
-        <section className="py-14">
-          <div className="eyebrow">Not sure what to write?</div>
-          <h2 className="mt-2 text-4xl sm:text-5xl">The good ones are specific.</h2>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-3">
-            There&rsquo;s no wrong answer. People write predictions, tiny details about today, notes
-            to someone they love, and questions they&rsquo;ll never get answered.
+        <div className="rule" />
+
+        {/* examples */}
+        <section className="py-12">
+          <div className="label">Not sure what to write?</div>
+          <h2 className="mt-3 font-display text-4xl md:text-5xl">The good ones are specific.</h2>
+          <p className="mt-4 max-w-2xl text-[1.05rem] leading-relaxed text-ink-3">
+            There is no wrong answer. People write predictions, tiny details about today, notes to
+            someone they love, and questions they will never get answered.
           </p>
           <div className="mt-8">
             <Examples onPick={pickExample} />
           </div>
         </section>
 
-        {/* ---------------- WRITE ---------------- */}
-        <section
-          id="write"
-          className="scroll-mt-4 rounded-[32px] p-6 sm:p-10"
-          style={{ background: 'var(--color-bg-2)' }}
-        >
-          <h2 className="text-4xl sm:text-5xl">Write yours.</h2>
-          <p className="mt-3 max-w-2xl text-lg text-ink-3">
-            One sentence, sealed for twenty years. Make it count or make it silly — both age well.
-          </p>
-          <div className="mt-8">
-            <Compose sealed={sealed} prefill={prefill} />
+        <div className="rule" />
+
+        {/* compose */}
+        <section id="write" className="scroll-mt-4 py-12">
+          <Compose sealed={sealed} prefill={prefill} />
+        </section>
+
+        <div className="rule" />
+
+        {/* funding goal */}
+        <section className="py-12">
+          <div className="bg-paper-2 p-7">
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <div className="label">Messages so far</div>
+                <div className="mt-2 flex items-baseline gap-2.5">
+                  <span className="font-mono text-5xl font-bold tabular-nums leading-none">
+                    {n.toLocaleString()}
+                  </span>
+                  <span className="font-mono text-lg tabular-nums text-muted">
+                    / {GOAL_ENTRIES.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              {n < GOAL_ENTRIES && (
+                <div className="text-right">
+                  <div className="font-mono text-3xl font-bold tabular-nums text-seal">
+                    {(GOAL_ENTRIES - n).toLocaleString()}
+                  </div>
+                  <div className="label mt-1">still needed</div>
+                </div>
+              )}
+            </div>
+
+            <div className="meter mt-6">
+              <span style={{ width: `${Math.max(goalPct(n), n > 0 ? 1.5 : 0)}%` }} />
+            </div>
+
+            <div className="mt-6 grid gap-3 text-[0.95rem] leading-relaxed text-ink-2">
+              <p>
+                {GOAL_ENTRIES.toLocaleString()} entries at ${PRICE_USD} nets about{' '}
+                <strong className="font-semibold">
+                  ${Math.round(GOAL_ENTRIES * NET_PER_ENTRY).toLocaleString()}
+                </strong>{' '}
+                after payment processing. That is what it costs to keep the domain registered and
+                the archive online until 2047, and to email every participant when it opens.
+              </p>
+              <p className="text-ink-3">
+                If we do not reach {GOAL_ENTRIES.toLocaleString()} by December 31,{' '}
+                <strong className="font-semibold text-ink-2">
+                  every payment is refunded and nothing is sealed.
+                </strong>{' '}
+                A twenty-year promise you cannot afford to keep is not worth making.
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* ---------------- HOW IT WORKS ---------------- */}
-        <section className="py-16">
-          <h2 className="text-4xl sm:text-5xl">How it works</h2>
-          <ol className="mt-9 grid gap-4 sm:grid-cols-3">
+        <div className="rule" />
+
+        {/* how it works */}
+        <section className="py-12">
+          <h2 className="font-display text-4xl md:text-5xl">How it works</h2>
+          <ol className="mt-8 grid gap-7 sm:grid-cols-3">
             {[
-              ['You write it', `Up to ${MAX_CHARS} characters and $${PRICE_USD}. Takes a minute.`],
-              ['It gets sealed', 'Hidden the moment you pay. The wall shows only that it exists.'],
-              ['It opens in 2047', 'Every message published at once — including yours.'],
-            ].map(([title, body], i) => (
-              <li
-                key={title}
-                className="rounded-3xl p-6"
-                style={{ background: TILE_COLORS[(i + 3) % TILE_COLORS.length].bg }}
-              >
-                <div
-                  className="flex h-11 w-11 items-center justify-center rounded-full font-display text-lg font-bold text-white"
-                  style={{ background: BOLD_COLORS[(i + 3) % BOLD_COLORS.length] }}
-                >
-                  {i + 1}
-                </div>
-                <h3 className="mt-4 text-2xl">{title}</h3>
-                <p className="mt-2 leading-relaxed text-ink-2">{body}</p>
+              ['01', 'You write it', `Up to ${MAX_CHARS} characters and $${PRICE_USD}. Takes about a minute.`],
+              [
+                '02',
+                'It gets sealed',
+                'Your words are hidden the moment you pay. The wall below shows only that your message exists.',
+              ],
+              [
+                '03',
+                'It opens in 2047',
+                `On ${OPEN_LABEL}, every message is published at once — including yours.`,
+              ],
+            ].map(([num, title, body]) => (
+              <li key={num}>
+                <div className="font-mono text-[0.72rem] font-bold text-seal">{num}</div>
+                <h3 className="mt-2 font-display text-2xl leading-tight">{title}</h3>
+                <p className="mt-2 text-[0.95rem] leading-relaxed text-ink-3">{body}</p>
               </li>
             ))}
           </ol>
         </section>
 
-        {/* ---------------- GOAL ---------------- */}
-        <section
-          className="rounded-[32px] p-6 sm:p-10"
-          style={{ background: 'var(--color-ink)', color: '#fff' }}
-        >
-          <div className="flex flex-wrap items-end justify-between gap-6">
+        <div className="rule" />
+
+        {/* proof */}
+        <section className="py-12">
+          <div className="grid gap-10 md:grid-cols-[1.1fr_1fr]">
             <div>
-              <div className="font-display text-[0.95rem] font-semibold text-white/55">
-                Messages so far
-              </div>
-              <div className="mt-2 flex items-baseline gap-3">
-                <span className="font-display text-6xl font-bold tabular-nums sm:text-7xl">
-                  {n.toLocaleString()}
-                </span>
-                <span className="text-xl font-semibold text-white/45">
-                  of {GOAL_ENTRIES.toLocaleString()}
-                </span>
-              </div>
-            </div>
-            <p className="max-w-md leading-relaxed text-white/65">
-              It takes {GOAL_ENTRIES.toLocaleString()} messages to pay for keeping this online until
-              2047. If we don&rsquo;t get there by December 31,{' '}
-              <strong className="font-semibold text-white">everyone is refunded</strong> and nothing
-              is sealed.
-            </p>
-          </div>
-          <div className="mt-7 h-4 w-full overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full transition-[width] duration-500"
-              style={{
-                width: `${Math.max(goalPct(n), n > 0 ? 2 : 0)}%`,
-                background: 'var(--color-sun)',
-              }}
-            />
-          </div>
-        </section>
-
-        {/* ---------------- WALL ---------------- */}
-        <section id="wall" className="py-16">
-          <div className="eyebrow">Inside the capsule</div>
-          <h2 className="mt-2 text-4xl sm:text-5xl">You can see who. Not what.</h2>
-          <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-3">
-            Every message sealed so far. The black bars are real sentences — they just stay covered
-            for another twenty years.
-          </p>
-
-          {!configured ? (
-            <p className="mt-8 text-muted">Not connected to the database yet.</p>
-          ) : (
-            <div className="mt-8">
-              <Wall entries={entries} loading={loading} />
-            </div>
-          )}
-        </section>
-
-        {/* ---------------- PROOF ---------------- */}
-        <section className="pb-16">
-          <div
-            className="grid gap-8 rounded-[32px] p-7 sm:p-11 md:grid-cols-2"
-            style={{ background: TILE_COLORS[4].bg }}
-          >
-            <div>
-              <div className="eyebrow">How you know it&rsquo;s real</div>
-              <h2 className="mt-2 text-3xl sm:text-4xl">Your words can&rsquo;t be changed.</h2>
+              <h2 className="font-display text-4xl md:text-5xl">
+                How you know it&rsquo;s really sealed
+              </h2>
               <p className="mt-5 leading-relaxed text-ink-2">
-                When you seal a message we publish a <strong>proof code</strong> made from your exact
-                words. It gives nothing away — you can&rsquo;t work backwards from it to the
-                sentence.
+                When your sentence is sealed, we publish a{' '}
+                <strong className="font-semibold">proof code</strong> — a 64-character string
+                derived from your exact text. It reveals nothing about what you wrote.
               </p>
               <p className="mt-4 leading-relaxed text-ink-2">
-                In 2047, anyone can run the same calculation on the published message and check it
-                matches. If one character had changed in twenty years, it wouldn&rsquo;t.
+                In 2047, when the message is published, anyone can run the same calculation and
+                confirm it produces the identical code. If a single character had been changed,
+                added, or removed at any point in twenty years, they would not match.
+              </p>
+              <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-3">
+                It also means the archive does not depend on trusting whoever is running this site
+                in 2047 — the proof is public from the day you write it.
               </p>
             </div>
-            <div className="self-center rounded-3xl bg-white p-6">
-              <div className="eyebrow">You write</div>
-              <p className="mt-2 text-lg font-medium">&ldquo;I will marry Steven R.&rdquo;</p>
-              <div className="eyebrow mt-6">Everyone sees</div>
-              <p className="mt-2 text-lg">
+            <div className="self-start bg-paper-2 p-6">
+              <div className="label">You write</div>
+              <p className="mt-2 font-mono text-[0.9rem]">&ldquo;I will marry Steven R.&rdquo;</p>
+              <div className="label mt-5">Everyone sees</div>
+              <p className="mt-2">
                 <span className="redact mr-1.5" style={{ width: '2.4em' }} />
                 <span className="redact mr-1.5" style={{ width: '3.2em' }} />
                 <span className="redact" style={{ width: '2em' }} />
               </p>
-              <div className="eyebrow mt-6">Plus this code</div>
-              <p className="mt-2 break-all font-mono text-[0.68rem] leading-relaxed text-ink-3">
+              <div className="label mt-5">Plus this code</div>
+              <p className="mt-2 break-all font-mono text-[0.7rem] leading-relaxed text-seal">
                 4f2c9a01b7e5d3f8a6c40be91d27358fa0c6e8b1d4079a2f35c8e16b0da47f92
               </p>
             </div>
           </div>
         </section>
+
+        <div className="rule" />
+
+        {/* the wall */}
+        <section id="wall" className="py-12">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <div className="label">Inside the capsule</div>
+              <h2 className="mt-3 font-display text-4xl md:text-5xl">
+                You can see who. Not what.
+              </h2>
+              <p className="mt-3 text-ink-3">
+                Every sentence sealed so far. The black bars are real messages.
+              </p>
+            </div>
+            {total !== null && (
+              <div className="text-right">
+                <div className="font-mono text-4xl font-bold tabular-nums">
+                  {total.toLocaleString()}
+                </div>
+                <div className="label mt-1">sealed</div>
+              </div>
+            )}
+          </div>
+
+          {!configured ? (
+            <p className="mt-8 font-mono text-sm text-muted">Not connected to the database yet.</p>
+          ) : (
+            <Wall entries={entries} loading={loading} />
+          )}
+
+          {entries.length >= 60 && (
+            <p className="mt-6 font-mono text-[0.75rem] text-muted">Showing the 60 most recent.</p>
+          )}
+        </section>
       </main>
 
-      <footer style={{ background: 'var(--color-ink)' }} className="text-white/60">
-        <div className="mx-auto max-w-6xl px-5 py-12">
-          <div className="font-display text-2xl font-bold text-white">The 20 Year Capsule</div>
-          <p className="mt-3 max-w-lg leading-relaxed">
-            Sealed {SEAL_LABEL}. Opens {OPEN_LABEL}.
+      <footer className="mt-8 bg-ink text-paper">
+        <div className="mx-auto max-w-5xl px-5 py-10">
+          <div className="font-display text-3xl">The 20 Year Capsule</div>
+          <p className="mt-3 max-w-lg text-[0.92rem] leading-relaxed opacity-70">
+            Sealed {SEAL_LABEL}. Opens {OPEN_LABEL}. One sentence, two dollars, twenty years.
           </p>
-          <div className="mt-6 flex flex-wrap gap-5 text-[0.95rem]">
-            <Link to="/terms" className="underline underline-offset-4 hover:text-white">
+          <div className="mt-6 flex flex-wrap gap-5 font-mono text-[0.72rem] uppercase tracking-[0.12em] opacity-70">
+            <Link to="/terms" className="underline underline-offset-4 hover:opacity-100">
               Terms &amp; what you&rsquo;re buying
             </Link>
-            <a href="#write" className="underline underline-offset-4 hover:text-white">
+            <a href="#write" className="underline underline-offset-4 hover:opacity-100">
               Write a message
             </a>
           </div>

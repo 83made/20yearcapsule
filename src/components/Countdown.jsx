@@ -36,16 +36,16 @@ export default function Countdown({ target, variant = 'seal', className = '', to
       {units.map(([label, value]) => (
         <div key={label} className="flex flex-col">
           <span
-            className={`font-display font-bold tabular-nums leading-none ${
-              tone === 'light' ? 'text-white' : 'text-ink'
+            className={`font-mono font-bold tabular-nums leading-none ${
+              tone === 'light' ? 'text-paper' : 'text-ink'
             }`}
-            style={{ fontSize: variant === 'seal' ? 'clamp(1.9rem,5.5vw,3rem)' : 'clamp(1.6rem,4vw,2.3rem)' }}
+            style={{ fontSize: variant === 'seal' ? 'clamp(2rem,6vw,3.4rem)' : 'clamp(1.6rem,4vw,2.4rem)' }}
           >
             {value.toLocaleString()}
           </span>
           <span
-            className={`mt-1.5 text-[0.72rem] font-semibold uppercase tracking-[0.12em] ${
-              tone === 'light' ? 'text-white/45' : 'text-muted'
+            className={`mt-2 font-mono text-[0.68rem] font-bold uppercase tracking-[0.16em] ${
+              tone === 'light' ? 'text-paper/50' : 'text-muted'
             }`}
           >
             {label}

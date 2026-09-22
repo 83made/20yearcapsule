@@ -40,14 +40,14 @@ export default function Certificate() {
 
   return (
     <div className="min-h-screen">
-      <header className="bg-ink text-white">
+      <header className="bg-ink text-paper">
         <div className="mx-auto flex max-w-2xl items-center justify-between gap-4 px-5 py-4">
-          <Link to="/" className="font-display text-[1.02rem] font-bold">
-            The 20 Year Capsule
+          <Link to="/" className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.2em]">
+            20yearcapsule.com
           </Link>
           <Link
             to="/#write"
-            className="rounded-full bg-white/10 px-4 py-2 text-[0.9rem] font-semibold hover:bg-white/20"
+            className="font-mono text-[0.68rem] font-bold uppercase tracking-[0.14em] underline underline-offset-4 hover:opacity-70"
           >
             Write yours
           </Link>
@@ -60,7 +60,7 @@ export default function Certificate() {
 
         {state === 'missing' && (
           <>
-            <h1 className="text-5xl">No entry #{seq}</h1>
+            <h1 className="font-display text-5xl">No entry #{seq}</h1>
             <p className="mt-4 text-ink-3">Nothing has been sealed under that number.</p>
             <Link to="/" className="btn btn-primary mt-8">
               Go to the capsule
@@ -70,21 +70,25 @@ export default function Certificate() {
 
         {state === 'ok' && entry && (
           <>
-            <div className="rounded-3xl bg-ink p-7 text-white sm:p-10">
-              <div className="eyebrow" style={{ color: 'var(--color-sun)' }}>
-                Sealed message
+            <div className="border-2 border-ink bg-paper p-8 md:p-11">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="label">Certificate of sealing</div>
+                  <div className="mt-2 font-display text-2xl leading-tight">The 20 Year Capsule</div>
+                </div>
+                <span className="stamp shrink-0">Sealed</span>
               </div>
-              <div className="mt-3 font-display text-6xl font-bold tabular-nums sm:text-7xl">
+              <div className="mt-9 font-mono text-6xl font-bold tabular-nums leading-none">
                 #{String(entry.seq).padStart(6, '0')}
               </div>
 
-              <div className="mt-6 text-lg">
+              <div className="mt-7 rule pt-6 text-lg">
                 <span className="font-semibold">{entry.display_name || 'Anonymous'}</span>
-                {entry.location && <span className="text-white/60"> · {entry.location}</span>}
+                {entry.location && <span className="text-muted"> · {entry.location}</span>}
               </div>
 
-              <div className="mt-7 border-t border-white/10 pt-6">
-                <div className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-white/45">
+              <div className="mt-7 rule pt-6">
+                <div className="label">
                   What they wrote
                 </div>
                 <p className="mt-3 text-lg">
@@ -96,24 +100,24 @@ export default function Certificate() {
                         width: `${1.4 + ((i * 7) % 4) * 0.8}em`,
                         height: '0.95em',
                         verticalAlign: '-0.12em',
-                        background: 'rgba(255,255,255,0.85)',
+                        background: 'var(--color-ink)',
                       }}
                     />
                   ))}
                 </p>
-                <p className="mt-3 text-[0.9rem] text-white/50">
+                <p className="mt-3 text-[0.9rem] text-muted">
                   {entry.char_count} characters, hidden until {OPEN_LABEL}.
                 </p>
               </div>
 
-              <div className="mt-7 border-t border-white/10 pt-6">
-                <div className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-white/45">
+              <div className="mt-7 rule pt-6">
+                <div className="label">
                   Proof code
                 </div>
-                <p className="mt-2 break-all font-mono text-[0.68rem] leading-relaxed text-sun">
+                <p className="mt-2 break-all font-mono text-[0.7rem] leading-relaxed text-seal">
                   {entry.message_hash}
                 </p>
-                <p className="mt-3 text-[0.88rem] leading-relaxed text-white/50">
+                <p className="mt-3 text-[0.85rem] leading-relaxed text-muted">
                   Made from the exact words inside. When the capsule opens, anyone can check this
                   still matches — proof not one character changed in twenty years.
                 </p>

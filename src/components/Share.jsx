@@ -35,15 +35,16 @@ export default function Share({ seq, tone = 'light' }) {
     }
   }
 
+  // On the dark confirmation panel vs on paper.
   const btn = dark
-    ? 'bg-white/10 text-white hover:bg-white/20'
-    : 'bg-bg-2 text-ink hover:bg-bg-3'
+    ? 'border border-paper/30 text-paper hover:bg-paper hover:text-ink'
+    : 'border border-rule text-ink hover:border-ink'
 
   return (
     <div>
       {/* mobile: one tap into the OS share sheet */}
       {typeof navigator !== 'undefined' && navigator.share && (
-        <button type="button" onClick={nativeShare} className="btn btn-pop w-full sm:w-auto">
+        <button type="button" onClick={nativeShare} className="btn btn-primary w-full sm:w-auto">
           Share
         </button>
       )}
@@ -55,10 +56,9 @@ export default function Share({ seq, tone = 'light' }) {
             href={t.href}
             target={t.href.startsWith('http') ? '_blank' : undefined}
             rel={t.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-            className={`rounded-full px-4 py-2 text-[0.92rem] font-semibold transition-colors ${
-              t.tone === 'primary' ? 'bg-tomato text-white' : btn
+            className={`rounded-sm px-4 py-2 font-mono text-[0.72rem] font-bold uppercase tracking-[0.09em] transition-colors ${
+              t.tone === 'primary' ? 'bg-seal text-paper hover:bg-seal-2' : btn
             }`}
-            style={{ fontFamily: 'var(--font-display)' }}
           >
             {t.label}
           </a>
@@ -66,16 +66,15 @@ export default function Share({ seq, tone = 'light' }) {
         <button
           type="button"
           onClick={copy}
-          className={`rounded-full px-4 py-2 text-[0.92rem] font-semibold transition-colors ${btn}`}
-          style={{ fontFamily: 'var(--font-display)' }}
+          className={`rounded-sm px-4 py-2 font-mono text-[0.72rem] font-bold uppercase tracking-[0.09em] transition-colors ${btn}`}
         >
           {copied ? 'Copied' : 'Copy link'}
         </button>
       </div>
 
-      <p className={`mt-4 text-[0.88rem] leading-relaxed ${dark ? 'text-white/45' : 'text-muted'}`}>
+      <p className={`mt-4 text-[0.88rem] leading-relaxed ${dark ? 'text-paper/50' : 'text-muted'}`}>
         Sends this, with your entry number:{' '}
-        <span className={dark ? 'text-white/70' : 'text-ink-3'}>&ldquo;{text}&rdquo;</span>
+        <span className={dark ? 'text-paper/75' : 'text-ink-3'}>&ldquo;{text}&rdquo;</span>
       </p>
     </div>
   )
