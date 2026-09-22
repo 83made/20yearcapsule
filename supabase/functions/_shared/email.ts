@@ -14,7 +14,7 @@
 
 const RESEND_KEY = Deno.env.get('RESEND_API_KEY')
 const FROM = Deno.env.get('EMAIL_FROM') ?? 'The 20 Year Capsule <hello@20yearcapsule.com>'
-const REPLY_TO = Deno.env.get('EMAIL_REPLY_TO') ?? 'jon@83made.com'
+const REPLY_TO = Deno.env.get('EMAIL_REPLY_TO') ?? 'hello@20yearcapsule.com'
 const SITE = Deno.env.get('SITE_URL') ?? 'https://20yearcapsule.com'
 
 const OPEN_LABEL = 'January 1, 2047'
