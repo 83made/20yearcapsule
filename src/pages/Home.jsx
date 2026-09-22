@@ -89,43 +89,68 @@ export default function Home() {
       <main className="mx-auto max-w-5xl px-5">
         {/* hero */}
         <section className="pb-12 pt-14 md:pt-20">
-          <h1
-            className="font-display leading-[0.92] tracking-tight"
-            style={{ fontSize: 'clamp(3rem,10vw,7rem)' }}
-          >
-            Say something
-            <br />
-            to 2047.
-          </h1>
+          <div className="grid items-center gap-8 lg:grid-cols-[1.3fr_1fr] lg:gap-12">
+            <div>
+              <h1
+                className="font-display leading-[0.92] tracking-tight"
+                style={{ fontSize: 'clamp(3rem,10vw,7rem)' }}
+              >
+                Say something
+                <br />
+                to 2047.
+              </h1>
 
-          <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink-2">
-            Write one sentence, up to {MAX_CHARS} characters. It goes into the capsule and is{' '}
-            <strong className="font-semibold">not published, shown, or shared with anyone</strong> —
-            including here — until it opens twenty years later.
-          </p>
+              <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink-2">
+                Write one sentence, up to {MAX_CHARS} characters. It goes into the capsule and is{' '}
+                <strong className="font-semibold">
+                  not published, shown, or shared with anyone
+                </strong>{' '}
+                — including here — until it opens twenty years later.
+              </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <a href="#write" className="btn btn-primary">
-              Write mine — ${PRICE_USD}
-            </a>
-            <a href="#wall" className="btn btn-ghost">
-              See the capsule
-            </a>
-          </div>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <a href="#write" className="btn btn-primary">
+                  Write mine — ${PRICE_USD}
+                </a>
+                <a href="#wall" className="btn btn-ghost">
+                  See the capsule
+                </a>
+              </div>
 
-          {/* Participation, stated as early as it can honestly be stated. */}
-          {total !== null && (
-            <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-mono text-[0.8rem] font-bold tabular-nums">
-                {n.toLocaleString()} {n === 1 ? 'memory' : 'memories'} sealed
-              </span>
-              {lastAt && (
-                <span className="font-mono text-[0.75rem] text-muted">
-                  · last one {timeAgo(lastAt)}
-                </span>
+              {/* Participation, stated as early as it can honestly be stated. */}
+              {total !== null && (
+                <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span className="font-mono text-[0.8rem] font-bold tabular-nums">
+                    {n.toLocaleString()} {n === 1 ? 'memory' : 'memories'} sealed
+                  </span>
+                  {lastAt && (
+                    <span className="font-mono text-[0.75rem] text-muted">
+                      · last one {timeAgo(lastAt)}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
-          )}
+
+            {/* The capsule, planted. Decorative — the headline already says what this is, so the
+                image is alt="" rather than repeating it to a screen reader. Explicit dimensions
+                and fetchPriority keep it from shifting the layout as it loads: it sits above the
+                fold, and a hero that jumps is worse than a hero with no picture. */}
+            {/* Below lg this falls under the headline and the buttons rather than above them.
+                The sentence is the pitch and mobile space above the fold is scarce, so the words
+                lead and the picture follows. */}
+            <div>
+              <img
+                src="/logo-hero.png"
+                alt=""
+                width="900"
+                height="900"
+                fetchPriority="high"
+                decoding="async"
+                className="mx-auto w-44 max-w-full sm:w-56 lg:w-full"
+              />
+            </div>
+          </div>
 
           <div className="mt-12 grid gap-8 sm:grid-cols-2">
             <div>
