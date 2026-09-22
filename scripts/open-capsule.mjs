@@ -40,6 +40,11 @@ if (!PASS) {
 }
 
 const sha256 = (s) => createHash('sha256').update(s, 'utf8').digest('hex')
+
+// Entries are committed as sha256('capsule-v2|' + nonce + '|' + message). The nonce was secret
+// until today and is in the encrypted archive; publishing it alongside the message is what lets
+// anyone else repeat this verification independently.
+const commit = (nonce, message) => sha256(`capsule-v2|${nonce}|${message}`)
 const esc = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
@@ -71,7 +76,7 @@ console.log(`\n  decrypted ${msgs.length.toLocaleString()} messages, sealed ${ar
 // ---- verify ----------------------------------------------------------------------------------
 let bad = 0
 for (const m of msgs) {
-  if (sha256(m.message) !== m.message_hash) {
+  if (commit(m.nonce, m.message) !== m.message_hash) {
     bad++
     console.error(`  MISMATCH seq ${m.seq}`)
   }
@@ -90,9 +95,9 @@ const cell = (v) => {
 writeFileSync(
   join(OUT, 'capsule-opened.csv'),
   [
-    ['seq', 'display_name', 'location', 'message', 'message_hash', 'sealed_at'].join(','),
+    ['seq', 'display_name', 'location', 'message', 'nonce', 'message_hash', 'sealed_at'].join(','),
     ...msgs.map((m) =>
-      [m.seq, m.display_name, m.location, m.message, m.message_hash, m.sealed_at].map(cell).join(','),
+      [m.seq, m.display_name, m.location, m.message, m.nonce, m.message_hash, m.sealed_at].map(cell).join(','),
     ),
   ].join('\n'),
 )

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MAX_CHARS, PRICE_USD, OPEN_LABEL, hashMessage } from '../lib/capsule.js'
+import { MAX_CHARS, PRICE_USD, OPEN_LABEL } from '../lib/capsule.js'
 import { ALL_EXAMPLES } from '../data/examples.js'
 
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL ?? ''}/functions/v1/create-capsule-checkout`
@@ -9,7 +9,6 @@ export default function Compose({ sealed, prefill }) {
   const [name, setName] = useState('')
   const [location, setLocation] = useState('')
   const [email, setEmail] = useState('')
-  const [preview, setPreview] = useState(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [ph, setPh] = useState(0)
@@ -34,9 +33,6 @@ export default function Compose({ sealed, prefill }) {
   const over = left < 0
   const ready = message.trim().length > 0 && !over
 
-  async function showPreview() {
-    setPreview(await hashMessage(message.trim()))
-  }
 
   async function submit(e) {
     e.preventDefault()
@@ -104,29 +100,13 @@ export default function Compose({ sealed, prefill }) {
           <span className={`text-[0.92rem] font-semibold ${over ? 'text-seal font-bold' : 'text-muted'}`}>
             {over ? `${-left} characters too many` : `${left} characters left`}
           </span>
-          {message.trim() && !over && (
-            <button
-              type="button"
-              onClick={showPreview}
-              className="text-[0.9rem] font-semibold text-ink-3 underline underline-offset-4 hover:text-ink"
-            >
-              See the proof code
-            </button>
-          )}
         </div>
-
-        {preview && (
-          <div className="mt-3 bg-paper-2 p-4">
-            <div className="label">Your proof code</div>
-            <p className="mt-1.5 break-all font-mono text-[0.72rem] leading-relaxed text-ink-2">
-              {preview}
-            </p>
-            <p className="mt-2 text-[0.88rem] leading-relaxed text-ink-3">
-              We publish this next to your entry. It is made from your exact words but cannot be
-              turned back into them — so in 2047 you can prove nothing was changed.
-            </p>
-          </div>
-        )}
+          <p className="mt-3 text-[0.88rem] leading-relaxed text-ink-3">
+            When it is sealed you get a proof code, published next to your entry. It is computed
+            from your words plus a random value that stays sealed with them, so it gives nothing
+            away now — and in 2047 both are published together, so anyone can check the sentence
+            was never altered.
+          </p>
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2">
           <div>

@@ -12,26 +12,85 @@ const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://20yearcapsule.com'
 const SEALS_AT_MS = Date.parse('2027-01-01T07:59:59Z') // 2026-12-31 23:59:59 PST
 const CAPACITY = 1_000_000 // the capsule holds a million; checked here so it cannot be exceeded
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, content-type, x-client-info, apikey',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+// Only the capsule's own pages need to call this. A wildcard let any site on the internet drive
+// live Stripe session creation from a visitor's browser.
+const ALLOWED_ORIGINS = new Set([
+  SITE_URL,
+  'https://20yearcapsule.com',
+  'https://www.20yearcapsule.com',
+  'http://localhost:5173',
+])
+
+const corsFor = (req: Request) => {
+  const origin = req.headers.get('origin') ?? ''
+  return {
+    'Access-Control-Allow-Origin': ALLOWED_ORIGINS.has(origin) ? origin : SITE_URL,
+    'Access-Control-Allow-Headers': 'authorization, content-type, x-client-info, apikey',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    Vary: 'Origin',
+  }
 }
 
-const json = (body: unknown, status = 200) =>
-  new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } })
+// Throttled per IP, storing only a hash of it. A site whose whole pitch is "we do not look at your
+// message" should not be quietly accumulating a table of visitor IP addresses.
+async function ipHash(req: Request) {
+  const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown'
+  const salt = Deno.env.get('STRIPE_WEBHOOK_SECRET') ?? 'capsule'
+  const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${salt}|${ip}`))
+  return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+async function withinRateLimit(req: Request) {
+  try {
+    const res = await fetch(`${Deno.env.get('SUPABASE_URL')}/rest/v1/rpc/capsule_rate_check`, {
+      method: 'POST',
+      headers: {
+        apikey: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+        Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ p_ip_hash: await ipHash(req) }),
+    })
+    if (!res.ok) return true // fail open: a throttle outage must not stop real buyers
+    return (await res.json()) !== false
+  } catch {
+    return true
+  }
+}
+
+const json = (body: unknown, status = 200, cors: Record<string, string> = {}) =>
+  new Response(JSON.stringify(body), { status, headers: { ...cors, 'Content-Type': 'application/json' } })
 
 // Deliberately narrow. Stripe metadata values cap at 500 chars, and these are shown publicly.
+//
+// Strips, beyond the obvious control characters:
+//   U+200B-200F  zero-width and directional marks. Invisible padding, and a display name made
+//                only of these renders as a blank row on the wall.
+//   U+202A-202E  bidirectional overrides. These reverse how following text displays, so a name
+//                can be made to render as something other than what was actually sealed.
+//   U+2066-2069  directional isolates, same problem.
+//   U+FEFF       byte order mark.
+// React escapes HTML, so this is not about injection. It is about the wall showing exactly what
+// went into the capsule, which is the only thing anyone can check for the next twenty years.
+const INVISIBLE = /[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g
 const clean = (s: unknown, max: number) =>
+  typeof s === 'string' ? s.replace(INVISIBLE, '').replace(/\s+/g, ' ').trim().slice(0, max) : ''
   typeof s === 'string' ? s.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max) : ''
 
 Deno.serve(async (req) => {
+  const CORS = corsFor(req)
+  const reply = (body: unknown, status = 200) => json(body, status, CORS)
+
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS })
-  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
+  if (req.method !== 'POST') return reply({ error: 'Method not allowed' }, 405)
 
   try {
+    if (!(await withinRateLimit(req))) {
+      return reply({ error: 'Too many attempts. Give it a few minutes and try again.' }, 429)
+    }
+
     if (Date.now() >= SEALS_AT_MS) {
-      return json({ error: 'The capsule is sealed. It opens January 1, 2047.' }, 410)
+      return reply({ error: 'The capsule is sealed. It opens January 1, 2047.' }, 410)
     }
 
     // Capacity. Realistically unreachable, but a stated limit that is not enforced is not a limit.
@@ -48,23 +107,35 @@ Deno.serve(async (req) => {
     )
     const total = Number((countRes.headers.get('content-range') ?? '').split('/')[1] ?? 0)
     if (total >= CAPACITY) {
-      return json({ error: 'The capsule is full. It holds one million memories.' }, 409)
+      return reply({ error: 'The capsule is full. It holds one million memories.' }, 409)
     }
 
     const body = await req.json().catch(() => ({}))
+
+    // Check the raw length BEFORE truncating. Previously clean() sliced to 100 first, so this
+    // branch could never fire: someone pasting 600 characters was charged $2 and silently had
+    // 500 of them thrown away, with no way to find out until 2047.
+    const rawMessage = typeof body.message === 'string' ? body.message.trim() : ''
+    if ([...rawMessage].length > 100) {
+      return reply(
+        { error: `That is ${[...rawMessage].length} characters. The limit is 100 — trim it and it is yours.` },
+        400,
+      )
+    }
+
     const message = clean(body.message, 100)
     const displayName = clean(body.display_name, 40)
     const location = clean(body.location, 40)
     const email = clean(body.email, 120)
 
-    if (!message) return json({ error: 'A message is required.' }, 400)
-    if (message.length > 100) return json({ error: 'Messages are limited to 100 characters.' }, 400)
+    if (!message) return reply({ error: 'A message is required.' }, 400)
+    if (message.length > 100) return reply({ error: 'Messages are limited to 100 characters.' }, 400)
 
     // Screen BEFORE taking money. A blocked message never becomes a payment, so it never becomes a
     // refund. Flagged messages proceed normally and are queued for review after sealing.
     const verdict = moderate(message)
     if (verdict.action === 'block') {
-      return json({ error: verdict.message ?? 'This message cannot be accepted.' }, 422)
+      return reply({ error: verdict.message ?? 'This message cannot be accepted.' }, 422)
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -103,9 +174,9 @@ Deno.serve(async (req) => {
       },
     })
 
-    return json({ url: session.url })
+    return reply({ url: session.url })
   } catch (err) {
     console.error('create-capsule-checkout failed', err)
-    return json({ error: 'Could not start checkout.' }, 500)
+    return reply({ error: 'Could not start checkout.' }, 500)
   }
 })

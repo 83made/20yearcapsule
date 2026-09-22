@@ -18,10 +18,27 @@ const supabase = createClient(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
 )
 
+const hex = (b: Uint8Array) => [...b].map((x) => x.toString(16).padStart(2, '0')).join('')
+
 async function sha256Hex(text: string) {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
+  return hex(new Uint8Array(digest))
 }
+
+// The published proof code is a commitment, not a digest of the message.
+//
+// sha256(message) on its own was guessable: the wall publishes the exact character count next to
+// the code, the message space is short English sentences, and plain SHA-256 runs at billions of
+// guesses per second on a GPU. Anyone could have hashed a wordlist and read part of the capsule
+// two decades early, silently.
+//
+// With 32 bytes of secret randomness mixed in, every candidate message is equally consistent with
+// the published code, so there is nothing to guess. The nonce is stored in capsule_entries (which
+// anon cannot read) and released in 2047 with the message, so the code still verifies publicly —
+// which is the property the site actually promises.
+const COMMIT_VERSION = 'capsule-v2'
+const newNonce = () => hex(crypto.getRandomValues(new Uint8Array(32)))
+const commit = (nonce: string, message: string) => sha256Hex(`${COMMIT_VERSION}|${nonce}|${message}`)
 
 Deno.serve(async (req) => {
   const sig = req.headers.get('stripe-signature')
@@ -56,7 +73,8 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: 'no message' }), { status: 200 })
   }
 
-  const hash = await sha256Hex(message)
+  const nonce = newNonce()
+  const hash = await commit(nonce, message)
   const displayName = session.metadata?.display_name || null
   const location = session.metadata?.location || null
 
@@ -66,6 +84,8 @@ Deno.serve(async (req) => {
     .insert({
       message,
       message_hash: hash,
+      // Never leaves capsule_entries until 2047. Without it the published code is guessable.
+      nonce,
       display_name: displayName,
       location,
       contact_email: session.customer_details?.email ?? null,

@@ -247,12 +247,15 @@ export default function Home() {
               <p className="mt-5 leading-relaxed text-ink-2">
                 When your sentence is sealed, we publish a{' '}
                 <strong className="font-semibold">proof code</strong> — a 64-character string
-                derived from your exact text. It reveals nothing about what you wrote.
+                computed from your exact words <em>and</em> a random number that is sealed away
+                with them. Because that number stays secret until 2047, the code gives away
+                nothing about what you wrote — not even to someone who guesses it correctly.
               </p>
               <p className="mt-4 leading-relaxed text-ink-2">
-                In 2047, when the message is published, anyone can run the same calculation and
-                confirm it produces the identical code. If a single character had been changed,
-                added, or removed at any point in twenty years, they would not match.
+                In 2047 your sentence and its random number are published together, so anyone can
+                run the same calculation and confirm it produces the identical code. If a single
+                character had been changed, added, or removed at any point in twenty years, they
+                would not match.
               </p>
               <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-3">
                 It also means the archive does not depend on trusting whoever is running this site
@@ -268,7 +271,11 @@ export default function Home() {
                 <span className="redact mr-1.5" style={{ width: '3.2em' }} />
                 <span className="redact" style={{ width: '2em' }} />
               </p>
-              <div className="label mt-5">Plus this code</div>
+              <div className="label mt-5">Plus a sealed random number</div>
+              <p className="mt-2 font-mono text-[0.7rem] text-muted">
+                kept secret until 2047
+              </p>
+              <div className="label mt-5">Which together give this code</div>
               <p className="mt-2 break-all font-mono text-[0.7rem] leading-relaxed text-seal">
                 4f2c9a01b7e5d3f8a6c40be91d27358fa0c6e8b1d4079a2f35c8e16b0da47f92
               </p>

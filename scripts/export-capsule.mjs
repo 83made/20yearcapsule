@@ -60,12 +60,21 @@ if (!PASS && !plaintext) {
 const MAXMEM = 96 * 1024 * 1024
 const sha256 = (s) => createHash('sha256').update(s, 'utf8').digest('hex')
 
+// The published proof code commits to the message AND a per-entry secret nonce. The nonce is what
+// stops the code being brute-forced against a wordlist before 2047 — see the migration
+// 20260922000300 for why the bare sha256(message) was not safe to publish.
+//
+// The nonce therefore MUST travel into the encrypted archive. Without it, 2047 has a published
+// code it cannot verify and no way to prove the text was never altered.
+const COMMIT_VERSION = 'capsule-v2'
+const commit = (nonce, message) => sha256(`${COMMIT_VERSION}|${nonce}|${message}`)
+
 async function fetchAll() {
   const rows = []
   const page = 1000
   for (let from = 0; ; from += page) {
     const res = await fetch(
-      `${URL_}/rest/v1/capsule_entries?select=seq,message,message_hash,display_name,location,contact_email,amount_cents,created_at&order=seq.asc`,
+      `${URL_}/rest/v1/capsule_entries?select=seq,message,message_hash,nonce,display_name,location,contact_email,amount_cents,created_at&order=seq.asc`,
       { headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, Range: `${from}-${from + page - 1}` } },
     )
     if (!res.ok) throw new Error(`Supabase ${res.status}: ${(await res.text()).slice(0, 200)}`)
@@ -114,7 +123,7 @@ mkdirSync(OUT, { recursive: true })
 // Integrity: every stored hash must still match its message.
 let bad = 0
 for (const r of rows) {
-  if (sha256(r.message) !== r.message_hash) {
+  if (commit(r.nonce, r.message) !== r.message_hash) {
     bad++
     console.error(`  MISMATCH seq ${r.seq}: stored hash does not match its message`)
   }
@@ -144,7 +153,10 @@ writeFileSync(
       opens_at: '2047-01-01T00:01:00-08:00',
       manifest_sha256: manifestHash,
       generated_at: new Date().toISOString(),
-      note: 'Public commitment to the capsule contents. Message text is not included. In 2047 each published message can be hashed and matched to its message_hash below.',
+      note: 'Public commitment to the capsule contents. Message text and nonces are NOT included and '
+        + 'must not be published before 2047 — the nonce is what keeps the codes below from being '
+        + 'brute-forced. In 2047, publishing each message with its nonce lets anyone recompute '
+        + "sha256('capsule-v2|' + nonce + '|' + message) and match it to the code here.",
       manifest,
     },
     null,
@@ -169,13 +181,17 @@ const archive = {
   manifest_sha256: manifestHash,
   exported_at: new Date().toISOString(),
   instructions:
-    'Publish every message on 2047-01-01. Email each contact_email. Verify each message against its message_hash (sha256 of the message text, UTF-8).',
+    'Publish every message on 2047-01-01. Email each contact_email. Verify each entry by computing '
+    + "sha256('capsule-v2|' + nonce + '|' + message) in UTF-8 and checking it equals message_hash, "
+    + 'which was published on the wall the day the message was sealed. Publish the nonces too so '
+    + 'anyone else can repeat that check.',
   messages: rows.map((r) => ({
     seq: r.seq,
     display_name: r.display_name || 'Anonymous',
     location: r.location || '',
     message: r.message,
     message_hash: r.message_hash,
+    nonce: r.nonce,
     contact_email: r.contact_email || '',
     sealed_at: r.created_at,
   })),

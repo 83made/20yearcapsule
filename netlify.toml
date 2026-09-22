@@ -14,3 +14,9 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    # The page loads its own bundle, Google Fonts, and talks to Supabase. Nothing else, ever.
+    # 'unsafe-inline' is for styles only: React sets a few inline style attributes (the redaction
+    # bar widths are computed from character counts). No inline script is permitted, which is the
+    # part that actually matters for XSS.
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:; connect-src 'self' https://epuvokgfcxwmpniguzyy.supabase.co; form-action 'self'; frame-src 'none'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"

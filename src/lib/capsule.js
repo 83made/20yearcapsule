@@ -91,9 +91,12 @@ export function countdown(target, now = new Date()) {
   return { days, hours, minutes, seconds, done: ms === 0 }
 }
 
-/** SHA-256 of the exact message text, lowercase hex. This is what gets published as proof. */
-export async function hashMessage(text) {
-  const bytes = new TextEncoder().encode(text)
-  const digest = await crypto.subtle.digest('SHA-256', bytes)
-  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('')
-}
+/**
+ * There is deliberately no hashMessage() here any more.
+ *
+ * The published proof code is sha256('capsule-v2|' + nonce + '|' + message), where the nonce is 32
+ * bytes of randomness generated server-side at seal time and kept in capsule_entries until 2047.
+ * The browser cannot compute it, and it should not try: the old client-side sha256(message) was
+ * guessable from a wordlist, which is exactly the hole this closed. The real code comes back from
+ * the wall on /sealed and /m/:seq.
+ */
