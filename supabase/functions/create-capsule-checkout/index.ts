@@ -10,6 +10,7 @@ import { moderate } from '../_shared/moderate.ts'
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2025-08-27.basil' })
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://20yearcapsule.com'
 const SEALS_AT_MS = Date.parse('2027-01-01T07:59:59Z') // 2026-12-31 23:59:59 PST
+const CAPACITY = 1_000_000 // the capsule holds a million; checked here so it cannot be exceeded
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -31,6 +32,23 @@ Deno.serve(async (req) => {
   try {
     if (Date.now() >= SEALS_AT_MS) {
       return json({ error: 'The capsule is sealed. It opens January 1, 2047.' }, 410)
+    }
+
+    // Capacity. Realistically unreachable, but a stated limit that is not enforced is not a limit.
+    const countRes = await fetch(
+      `${Deno.env.get('SUPABASE_URL')}/rest/v1/capsule_wall?select=seq&limit=1`,
+      {
+        headers: {
+          apikey: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+          Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''}`,
+          Prefer: 'count=exact',
+          Range: '0-0',
+        },
+      },
+    )
+    const total = Number((countRes.headers.get('content-range') ?? '').split('/')[1] ?? 0)
+    if (total >= CAPACITY) {
+      return json({ error: 'The capsule is full. It holds one million memories.' }, 409)
     }
 
     const body = await req.json().catch(() => ({}))

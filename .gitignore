@@ -14,3 +14,10 @@ email-preview/
 my-messages.txt
 my-messages*.txt
 !my-messages.example.txt
+
+# The exported archive. capsule-sealed.json.enc is every sealed message, encrypted — the encryption
+# is the protection, but publishing the ciphertext to a public repo is free exposure and permanent
+# in git history. It also puts the archive in the same place as everything else, which is exactly
+# what the backup advice says not to do. The manifests are safe to publish, but they are generated
+# output and belong wherever you choose to publish them, not in the source tree.
+capsule-archive/

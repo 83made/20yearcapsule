@@ -29,7 +29,25 @@ export const OPEN_LABEL = 'January 1, 2047 · 12:01 AM PST'
  * Note the database is NOT in that list: once the capsule seals it becomes a static archive with
  * nothing to query, so Supabase only has to exist from launch to January 2027.
  */
-export const GOAL_ENTRIES = 1000
+/**
+ * The minimum that has to be reached by December 31 for the capsule to go ahead at all. This is a
+ * funding floor, not a target — it is what twenty years of domain and hosting costs, nothing more.
+ * Below it everyone is refunded and nothing is sealed.
+ *
+ * It is deliberately NOT presented as the goal on the page. A counter reading "146 of 1,000" makes
+ * a thousand look like the ambition, which caps the story at the least interesting number in it.
+ */
+export const MINIMUM_ENTRIES = 1000
+
+/** Kept as an alias so older references keep working. */
+export const GOAL_ENTRIES = MINIMUM_ENTRIES
+
+/**
+ * How many messages the capsule will hold. Round, enormous, and almost certainly never reached —
+ * which is the point. It frames the thing as an archive with room in it rather than a fundraiser
+ * with a bar to fill, and it gives the count somewhere to go.
+ */
+export const CAPACITY = 1000000
 
 /**
  * Human "2 hours ago" style, for the last-sealed line.
@@ -57,7 +75,9 @@ export const NET_PER_ENTRY = 2 - (0.029 * 2 + 0.3)
 
 export const isSealed = (now = new Date()) => now >= SEALS_AT
 export const isOpen = (now = new Date()) => now >= OPENS_AT
-export const goalMet = (count) => (count ?? 0) >= GOAL_ENTRIES
+export const minimumMet = (count) => (count ?? 0) >= MINIMUM_ENTRIES
+export const goalMet = minimumMet
+export const atCapacity = (count) => (count ?? 0) >= CAPACITY
 export const goalPct = (count) => Math.min(100, ((count ?? 0) / GOAL_ENTRIES) * 100)
 
 /** Whole days/hours/minutes/seconds between now and a target. Never negative. */

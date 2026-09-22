@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase, configured } from '../lib/supabase.js'
-import { OPEN_LABEL, OPENS_AT, GOAL_ENTRIES } from '../lib/capsule.js'
+import { OPEN_LABEL, OPENS_AT, MINIMUM_ENTRIES } from '../lib/capsule.js'
 import Countdown from '../components/Countdown.jsx'
 import Share from '../components/Share.jsx'
 
@@ -115,9 +115,9 @@ export default function Sealed() {
           <div className="mt-12 border border-paper/25 p-6 sm:p-8">
             <h2 className="font-display text-3xl">Now the awkward part.</h2>
             <p className="mt-3 leading-relaxed text-paper/70">
-              The capsule only gets sealed if {GOAL_ENTRIES.toLocaleString()} messages go in by
-              December 31. If it doesn&rsquo;t, everyone gets refunded and none of this happens —
-              including yours.
+              The capsule only goes ahead if at least {MINIMUM_ENTRIES.toLocaleString()} messages
+              are in by December 31. If it doesn&rsquo;t get there, everyone is refunded and none of
+              this happens — including yours.
             </p>
             <p className="mt-3 leading-relaxed text-paper/70">
               Sending this to one person is genuinely the whole difference.

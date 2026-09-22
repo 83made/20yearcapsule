@@ -8,11 +8,11 @@ import {
   OPEN_LABEL,
   MAX_CHARS,
   PRICE_USD,
-  GOAL_ENTRIES,
+  MINIMUM_ENTRIES,
+  CAPACITY,
   NET_PER_ENTRY,
   timeAgo,
   isSealed,
-  goalPct,
 } from '../lib/capsule.js'
 import Countdown from '../components/Countdown.jsx'
 import Wall from '../components/Wall.jsx'
@@ -117,7 +117,7 @@ export default function Home() {
           {total !== null && (
             <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="font-mono text-[0.8rem] font-bold tabular-nums">
-                {n.toLocaleString()} of {GOAL_ENTRIES.toLocaleString()} sealed
+                {n.toLocaleString()} {n === 1 ? 'memory' : 'memories'} sealed
               </span>
               {lastAt && (
                 <span className="font-mono text-[0.75rem] text-muted">
@@ -165,56 +165,44 @@ export default function Home() {
 
         <div className="rule" />
 
-        {/* funding goal */}
+        {/* the running count */}
         <section className="py-12">
-          <div className="bg-paper-2 p-7">
-            <div className="flex flex-wrap items-end justify-between gap-6">
+          <div className="bg-paper-2 p-7 md:p-9">
+            <div className="grid gap-8 md:grid-cols-[1fr_1.15fr] md:items-center">
               <div>
-                <div className="label">Messages sealed</div>
-                <div className="mt-2 flex items-baseline gap-2.5">
-                  <span className="font-mono text-5xl font-bold leading-none tabular-nums">
-                    {n.toLocaleString()}
-                  </span>
-                  <span className="font-mono text-lg tabular-nums text-muted">
-                    / {GOAL_ENTRIES.toLocaleString()}
-                  </span>
+                <div className="label">Memories sealed so far</div>
+                <div
+                  className="mt-3 font-mono font-bold leading-none tabular-nums"
+                  style={{ fontSize: 'clamp(3.4rem,11vw,6rem)' }}
+                >
+                  {n.toLocaleString()}
                 </div>
                 {lastAt && (
-                  <div className="mt-2 font-mono text-[0.75rem] text-ink-3">
+                  <div className="mt-3 font-mono text-[0.78rem] text-ink-3">
                     Last one {timeAgo(lastAt)}
                   </div>
                 )}
               </div>
-              {n < GOAL_ENTRIES && (
-                <div className="text-right">
-                  <div className="font-mono text-3xl font-bold tabular-nums text-seal">
-                    {(GOAL_ENTRIES - n).toLocaleString()}
-                  </div>
-                  <div className="label mt-1">still needed</div>
-                </div>
-              )}
-            </div>
 
-            <div className="meter mt-6">
-              <span style={{ width: `${Math.max(goalPct(n), n > 0 ? 1.5 : 0)}%` }} />
-            </div>
-
-            <div className="mt-6 grid gap-3 text-[0.95rem] leading-relaxed text-ink-2">
-              <p>
-                {GOAL_ENTRIES.toLocaleString()} entries at ${PRICE_USD} nets about{' '}
-                <strong className="font-semibold">
-                  ${Math.round(GOAL_ENTRIES * NET_PER_ENTRY).toLocaleString()}
-                </strong>{' '}
-                after payment processing. That is what it costs to keep the domain registered and
-                the archive online until 2047, and to email every participant when it opens.
-              </p>
-              <p className="text-ink-3">
-                If we do not reach {GOAL_ENTRIES.toLocaleString()} by December 31,{' '}
-                <strong className="font-semibold text-ink-2">
-                  every payment is refunded and nothing is sealed.
-                </strong>{' '}
-                A twenty-year promise you cannot afford to keep is not worth making.
-              </p>
+              <div>
+                <h2 className="font-display text-3xl leading-tight md:text-4xl">
+                  Room for {CAPACITY.toLocaleString()} memories.
+                </h2>
+                <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-2">
+                  The capsule holds up to a million of them. Every one gets sealed on the same night
+                  and opened on the same morning twenty years later, whether there are a thousand
+                  inside or a million.
+                </p>
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-3">
+                  It does need at least{' '}
+                  <strong className="font-semibold text-ink-2">
+                    {MINIMUM_ENTRIES.toLocaleString()}
+                  </strong>{' '}
+                  by December 31 to cover twenty years of keeping the archive online. If it does not
+                  get there, every payment is refunded and nothing is sealed — a twenty-year promise
+                  you cannot afford to keep is not worth making.
+                </p>
+              </div>
             </div>
           </div>
         </section>
