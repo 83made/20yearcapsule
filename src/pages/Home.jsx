@@ -10,7 +10,7 @@ import {
   PRICE_USD,
   GOAL_ENTRIES,
   NET_PER_ENTRY,
-  REVEAL_COUNT_AT,
+  timeAgo,
   isSealed,
   goalPct,
 } from '../lib/capsule.js'
@@ -22,6 +22,7 @@ import Examples from '../components/Examples.jsx'
 export default function Home() {
   const [entries, setEntries] = useState([])
   const [total, setTotal] = useState(null)
+  const [lastAt, setLastAt] = useState(null)
   const [loading, setLoading] = useState(true)
   const [prefill, setPrefill] = useState(null)
   const sealed = isSealed()
@@ -44,6 +45,7 @@ export default function Home() {
       if (!alive) return
       setEntries(rows ?? [])
       setTotal(stats?.[0]?.total ?? 0)
+      setLastAt(stats?.[0]?.last_sealed_at ?? null)
       setLoading(false)
     }
     load()
@@ -102,7 +104,7 @@ export default function Home() {
             including here — until it opens twenty years later.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <a href="#write" className="btn btn-primary">
               Write mine — ${PRICE_USD}
             </a>
@@ -110,6 +112,20 @@ export default function Home() {
               See the capsule
             </a>
           </div>
+
+          {/* Participation, stated as early as it can honestly be stated. */}
+          {total !== null && (
+            <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="font-mono text-[0.8rem] font-bold tabular-nums">
+                {n.toLocaleString()} of {GOAL_ENTRIES.toLocaleString()} sealed
+              </span>
+              {lastAt && (
+                <span className="font-mono text-[0.75rem] text-muted">
+                  · last one {timeAgo(lastAt)}
+                </span>
+              )}
+            </div>
+          )}
 
           <div className="mt-12 grid gap-8 sm:grid-cols-2">
             <div>
@@ -152,45 +168,36 @@ export default function Home() {
         {/* funding goal */}
         <section className="py-12">
           <div className="bg-paper-2 p-7">
-            {n >= REVEAL_COUNT_AT ? (
-              /* Enough entries that the number is the most persuasive thing on the block. */
-              <>
-                <div className="flex flex-wrap items-end justify-between gap-6">
-                  <div>
-                    <div className="label">Messages so far</div>
-                    <div className="mt-2 flex items-baseline gap-2.5">
-                      <span className="font-mono text-5xl font-bold leading-none tabular-nums">
-                        {n.toLocaleString()}
-                      </span>
-                      <span className="font-mono text-lg tabular-nums text-muted">
-                        / {GOAL_ENTRIES.toLocaleString()}
-                      </span>
-                    </div>
+            <div className="flex flex-wrap items-end justify-between gap-6">
+              <div>
+                <div className="label">Messages sealed</div>
+                <div className="mt-2 flex items-baseline gap-2.5">
+                  <span className="font-mono text-5xl font-bold leading-none tabular-nums">
+                    {n.toLocaleString()}
+                  </span>
+                  <span className="font-mono text-lg tabular-nums text-muted">
+                    / {GOAL_ENTRIES.toLocaleString()}
+                  </span>
+                </div>
+                {lastAt && (
+                  <div className="mt-2 font-mono text-[0.75rem] text-ink-3">
+                    Last one {timeAgo(lastAt)}
                   </div>
-                  {n < GOAL_ENTRIES && (
-                    <div className="text-right">
-                      <div className="font-mono text-3xl font-bold tabular-nums text-seal">
-                        {(GOAL_ENTRIES - n).toLocaleString()}
-                      </div>
-                      <div className="label mt-1">still needed</div>
-                    </div>
-                  )}
+                )}
+              </div>
+              {n < GOAL_ENTRIES && (
+                <div className="text-right">
+                  <div className="font-mono text-3xl font-bold tabular-nums text-seal">
+                    {(GOAL_ENTRIES - n).toLocaleString()}
+                  </div>
+                  <div className="label mt-1">still needed</div>
                 </div>
-                <div className="meter mt-6">
-                  <span style={{ width: `${Math.max(goalPct(n), 1.5)}%` }} />
-                </div>
-              </>
-            ) : (
-              /* Early on, the deadline and the arithmetic are the story. The count is still stated
-                 plainly below — it is just not the headline while it would only discourage. */
-              <>
-                <div className="label">What has to happen</div>
-                <h2 className="mt-3 font-display text-3xl md:text-4xl">
-                  {GOAL_ENTRIES.toLocaleString()} messages by December 31, or nobody&rsquo;s is
-                  sealed.
-                </h2>
-              </>
-            )}
+              )}
+            </div>
+
+            <div className="meter mt-6">
+              <span style={{ width: `${Math.max(goalPct(n), n > 0 ? 1.5 : 0)}%` }} />
+            </div>
 
             <div className="mt-6 grid gap-3 text-[0.95rem] leading-relaxed text-ink-2">
               <p>
@@ -208,13 +215,6 @@ export default function Home() {
                 </strong>{' '}
                 A twenty-year promise you cannot afford to keep is not worth making.
               </p>
-              {n < REVEAL_COUNT_AT && (
-                <p className="font-mono text-[0.78rem] text-muted">
-                  {n === 0
-                    ? 'No messages sealed yet. Entry #000001 is still open.'
-                    : `${n.toLocaleString()} sealed so far.`}
-                </p>
-              )}
             </div>
           </div>
         </section>

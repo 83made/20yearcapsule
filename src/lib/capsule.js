@@ -32,15 +32,25 @@ export const OPEN_LABEL = 'January 1, 2047 · 12:01 AM PST'
 export const GOAL_ENTRIES = 1000
 
 /**
- * Below this many entries the page does not lead with the count.
+ * Human "2 hours ago" style, for the last-sealed line.
  *
- * Not a trick — the number is still shown, just not given top billing. A counter reading "3 of
- * 1,000" above an almost-empty progress bar is three separate announcements that nothing is
- * happening here, and it buries the things that actually are compelling: the deadline, the price,
- * and the fact that the low entry numbers are still available. Once the number helps rather than
- * hurts, it takes the lead.
+ * Recency is the participation signal that works at low counts: "12 sealed" says little, but
+ * "last one 40 minutes ago" says people are doing this right now, which is the thing a hesitant
+ * visitor is actually looking for.
  */
-export const REVEAL_COUNT_AT = 25
+export function timeAgo(iso, now = new Date()) {
+  if (!iso) return null
+  const secs = Math.max(0, Math.floor((now.getTime() - new Date(iso).getTime()) / 1000))
+  if (secs < 90) return 'just now'
+  const mins = Math.round(secs / 60)
+  if (mins < 60) return `${mins} minute${mins === 1 ? '' : 's'} ago`
+  const hrs = Math.round(mins / 60)
+  if (hrs < 24) return `${hrs} hour${hrs === 1 ? '' : 's'} ago`
+  const days = Math.round(hrs / 24)
+  if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`
+  const months = Math.round(days / 30)
+  return `${months} month${months === 1 ? '' : 's'} ago`
+}
 
 /** What one entry is actually worth after payment processing. Used for the funding readout. */
 export const NET_PER_ENTRY = 2 - (0.029 * 2 + 0.3)
