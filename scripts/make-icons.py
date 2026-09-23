@@ -7,10 +7,15 @@
 # body, on a transparent background. Everything in public/ is derived from it, so the logo has one
 # home and the icons cannot drift away from it. Do not hand-edit the outputs.
 #
-# WHY TRANSPARENT MATTERS. The first cut of this logo came enclosed in a pale disc. Dropping the
-# disc makes the mark free-standing, and because the padding went with it the "20" grew from 22%
-# to 30% of the mark's height — about 11.9px on a 40px feed avatar rather than 8.6px. The capsule
-# body is painted cream rather than left transparent, so the mark still reads on a dark backdrop.
+# WHY TRANSPARENT MATTERS. The first cut came enclosed in a pale disc. Without it the mark is
+# free-standing and still reads on a dark backdrop, because the capsule body is painted cream
+# rather than left transparent — checked against cream, white, ink and seal red.
+#
+# It does NOT make the numerals bigger. Measured properly, by segmenting the saturated-red rows
+# rather than taking a bounding box that swept in the rules and the word YEARS, the numerals are
+# 21.4% of the mark on the disc version and 20.8% here: about 8.5px on a 40px feed avatar either
+# way. They are legible at 32px in this version because the strokes are heavier, not because they
+# are larger.
 #
 # WHY THE CROP IS MEASURED, NOT CHOSEN. The crop comes from the alpha channel: the bounding box of
 # everything visible, squared around its centre with a little air. Cropping harder was tried and
@@ -31,6 +36,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 PAPER = (244, 241, 232)   # #f4f1e8, the site background
 INK   = (18, 16, 12)      # #12100c
+SEAL  = (164, 31, 19)     # #a41f13, the site's wax red
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC  = os.path.join(ROOT, "assets", "logo-capsule.png")
@@ -49,7 +55,29 @@ def square_crop(im, cx, cy, half, fill):
     return out
 
 
+# The illustration comes back with a bright pillarbox red (#c90808). The site's wax red is
+# #a41f13, a darker oxblood, and it is already used for the stamp badge, the step numbers and
+# the proof codes — so an unadjusted logo reads as a slightly different brand sitting on top of
+# the page. The shift is done here rather than baked into the file so the asset in assets/ stays
+# exactly what was delivered, and flipping BRAND_MATCH_RED back to False undoes it.
+BRAND_MATCH_RED = True
+SOURCE_RED = np.array([201.0, 8.0, 8.0])
+
+
+def match_brand_red(im):
+    a = np.asarray(im).astype(float).copy()
+    r, g, b, al = a[:, :, 0], a[:, :, 1], a[:, :, 2], a[:, :, 3]
+    red = (r > 90) & (r > g * 1.6) & (r > b * 1.6) & (al > 8)
+    # Scale each pixel by how red it already is, so the darker pixels inside the glyph edges move
+    # proportionally and the antialiasing stays smooth instead of banding.
+    scale = (r[red] / SOURCE_RED[0]).clip(0, 1.25)[:, None]
+    a[red, 0:3] = (np.array(SEAL, dtype=float)[None, :] * scale).clip(0, 255)
+    return Image.fromarray(a.astype(np.uint8))
+
+
 src = Image.open(SRC).convert("RGBA")
+if BRAND_MATCH_RED:
+    src = match_brand_red(src)
 alpha = np.asarray(src)[:, :, 3]
 ys, xs = np.where(alpha > 8)
 x0, x1, y0, y1 = xs.min(), xs.max(), ys.min(), ys.max()
