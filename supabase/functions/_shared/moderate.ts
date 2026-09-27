@@ -101,7 +101,7 @@ export function moderate(raw: string): Verdict {
       return {
         action: 'block',
         reasons: ['csam_term'],
-        message: 'This message cannot be accepted.',
+        message: 'This note cannot be accepted.',
       }
     }
   }
@@ -113,7 +113,7 @@ export function moderate(raw: string): Verdict {
         action: 'block',
         reasons: ['slur'],
         message:
-          'This message cannot be accepted. The capsule will be published in full in 2047 and is not a place for slurs.',
+          'This note cannot be accepted. The capsule will be published in full in 2047 and is not a place for slurs.',
       }
     }
   }
@@ -123,7 +123,7 @@ export function moderate(raw: string): Verdict {
       return {
         action: 'block',
         reasons: ['threat'],
-        message: 'This message cannot be accepted.',
+        message: 'This note cannot be accepted.',
       }
     }
   }

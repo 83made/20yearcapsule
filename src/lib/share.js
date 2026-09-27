@@ -2,7 +2,7 @@
 //
 // Two rules shaped this:
 //
-// 1. The copy is written to be FORWARDED, not announced. "I just sealed a message in a time capsule
+// 1. The copy is written to be FORWARDED, not announced. "I just sealed a note in a time capsule
 //    that opens in 2047" is a sentence someone says to a friend. "Check out this website" is not.
 //    Including the person's own entry number makes it specific, which is what makes it interesting.
 //
@@ -14,7 +14,7 @@ export const SITE = 'https://20yearcapsule.com'
 
 export function shareText(seq) {
   return seq
-    ? `I just sealed a message in a time capsule that opens on January 1, 2047. It's entry #${String(
+    ? `I just sealed a note in a time capsule that opens on January 1, 2047. It's entry #${String(
         seq,
       ).padStart(6, '0')} — and I'm not allowed to read it again until then.`
     : `You write one sentence, it gets sealed until January 1, 2047, and nobody reads it — not even you.`

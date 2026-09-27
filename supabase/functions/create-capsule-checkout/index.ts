@@ -10,7 +10,7 @@ import { moderate } from '../_shared/moderate.ts'
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2025-08-27.basil' })
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://20yearcapsule.com'
 const SEALS_AT_MS = Date.parse('2027-01-01T07:59:59Z') // 2026-12-31 23:59:59 PST
-const CAPACITY = 1_000_000 // the capsule holds a million; checked here so it cannot be exceeded
+const CAPACITY = 10_000 // a real ceiling, enforced here so it cannot be exceeded by a race
 
 // Only the capsule's own pages need to call this. A wildcard let any site on the internet drive
 // live Stripe session creation from a visitor's browser.
@@ -93,7 +93,9 @@ Deno.serve(async (req) => {
       return reply({ error: 'The capsule is sealed. It opens January 1, 2047.' }, 410)
     }
 
-    // Capacity. Realistically unreachable, but a stated limit that is not enforced is not a limit.
+    // Capacity. Unlike the old million this one is genuinely reachable, so the check matters:
+    // a stated limit that is not enforced is not a limit, and refunding someone who paid for
+    // a slot that did not exist is worse than turning them away.
     const countRes = await fetch(
       `${Deno.env.get('SUPABASE_URL')}/rest/v1/capsule_wall?select=seq&limit=1`,
       {
@@ -107,7 +109,7 @@ Deno.serve(async (req) => {
     )
     const total = Number((countRes.headers.get('content-range') ?? '').split('/')[1] ?? 0)
     if (total >= CAPACITY) {
-      return reply({ error: 'The capsule is full. It holds one million memories.' }, 409)
+      return reply({ error: 'The capsule is full. It holds 10,000 notes and they are all taken.' }, 409)
     }
 
     const body = await req.json().catch(() => ({}))
@@ -128,14 +130,14 @@ Deno.serve(async (req) => {
     const location = clean(body.location, 40)
     const email = clean(body.email, 120)
 
-    if (!message) return reply({ error: 'A message is required.' }, 400)
-    if (message.length > 100) return reply({ error: 'Messages are limited to 100 characters.' }, 400)
+    if (!message) return reply({ error: 'A note is required.' }, 400)
+    if (message.length > 100) return reply({ error: 'Notes are limited to 100 characters.' }, 400)
 
     // Screen BEFORE taking money. A blocked message never becomes a payment, so it never becomes a
     // refund. Flagged messages proceed normally and are queued for review after sealing.
     const verdict = moderate(message)
     if (verdict.action === 'block') {
-      return reply({ error: verdict.message ?? 'This message cannot be accepted.' }, 422)
+      return reply({ error: verdict.message ?? 'This note cannot be accepted.' }, 422)
     }
 
     const session = await stripe.checkout.sessions.create({

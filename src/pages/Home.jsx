@@ -110,7 +110,7 @@ export default function Home() {
 
               <div className="mt-8 flex flex-wrap items-center gap-3">
                 <a href="#write" className="btn btn-primary">
-                  Write mine — ${PRICE_USD}
+                  Write a note — ${PRICE_USD}
                 </a>
                 <a href="#wall" className="btn btn-ghost">
                   See the capsule
@@ -121,7 +121,7 @@ export default function Home() {
               {total !== null && (
                 <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <span className="font-mono text-[0.8rem] font-bold tabular-nums">
-                    {n.toLocaleString()} {n === 1 ? 'memory' : 'memories'} sealed
+                    {n.toLocaleString()} {n === 1 ? 'note' : 'notes'} sealed
                   </span>
                   {lastAt && (
                     <span className="font-mono text-[0.75rem] text-muted">
@@ -135,10 +135,9 @@ export default function Home() {
             {/* The capsule, planted. Decorative — the headline already says what this is, so the
                 image is alt="" rather than repeating it to a screen reader. Explicit dimensions
                 and fetchPriority keep it from shifting the layout as it loads: it sits above the
-                fold, and a hero that jumps is worse than a hero with no picture. */}
-            {/* Below lg this falls under the headline and the buttons rather than above them.
-                The sentence is the pitch and mobile space above the fold is scarce, so the words
-                lead and the picture follows. */}
+                fold, and a hero that jumps is worse than a hero with no picture. Below lg it falls
+                under the headline and buttons rather than above them, because the sentence is the
+                pitch and space above the fold on a phone is scarce. */}
             <div>
               <img
                 src="/logo-hero.png"
@@ -173,7 +172,7 @@ export default function Home() {
           <div className="label">Not sure what to write?</div>
           <h2 className="mt-3 font-display text-4xl md:text-5xl">The good ones are specific.</h2>
           <p className="mt-4 max-w-2xl text-[1.05rem] leading-relaxed text-ink-3">
-            There is no wrong answer. People write predictions, tiny details about today, notes to
+            There is no wrong answer. People write predictions, tiny details about today, a line for
             someone they love, and questions they will never get answered.
           </p>
           <div className="mt-8">
@@ -195,7 +194,7 @@ export default function Home() {
           <div className="bg-paper-2 p-7 md:p-9">
             <div className="grid gap-8 md:grid-cols-[1fr_1.15fr] md:items-center">
               <div>
-                <div className="label">Memories sealed so far</div>
+                <div className="label">Notes sealed so far</div>
                 <div
                   className="mt-3 font-mono font-bold leading-none tabular-nums"
                   style={{ fontSize: 'clamp(3.4rem,11vw,6rem)' }}
@@ -211,12 +210,13 @@ export default function Home() {
 
               <div>
                 <h2 className="font-display text-3xl leading-tight md:text-4xl">
-                  Room for {CAPACITY.toLocaleString()} memories.
+                  {CAPACITY.toLocaleString()} notes, then it closes.
                 </h2>
                 <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-2">
-                  The capsule holds up to a million of them. Every one gets sealed on the same night
-                  and opened on the same morning twenty years later, whether there are a thousand
-                  inside or a million.
+                  That is the whole capsule. Entry numbers are issued in order and never reused, so
+                  whichever one you get is yours alone — and it still says that in 2047. When the
+                  ten thousandth note goes in, or December 31 arrives, whichever comes first, the
+                  lid closes for twenty years.
                 </p>
                 <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-3">
                   It does need at least{' '}
@@ -243,12 +243,12 @@ export default function Home() {
               [
                 '02',
                 'It gets sealed',
-                'Your words are hidden the moment you pay. The wall below shows only that your message exists.',
+                'Your words are hidden the moment you pay. The wall below shows only that your note exists.',
               ],
               [
                 '03',
                 'It opens in 2047',
-                `On ${OPEN_LABEL}, every message is published at once — including yours.`,
+                `On ${OPEN_LABEL}, every note is published at once — including yours.`,
               ],
             ].map(([num, title, body]) => (
               <li key={num}>
@@ -319,7 +319,7 @@ export default function Home() {
                 You can see who. Not what.
               </h2>
               <p className="mt-3 text-ink-3">
-                Every sentence sealed so far. The black bars are real messages.
+                Every sentence sealed so far. The black bars are real notes.
               </p>
             </div>
             {total !== null && total > 0 && (
@@ -355,7 +355,7 @@ export default function Home() {
               Terms &amp; what you&rsquo;re buying
             </Link>
             <a href="#write" className="underline underline-offset-4 hover:opacity-100">
-              Write a message
+              Write a note
             </a>
           </div>
         </div>

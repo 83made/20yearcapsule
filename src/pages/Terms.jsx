@@ -18,13 +18,13 @@ export default function Terms() {
 
         <div className="mt-10 grid gap-9">
           <S t="What you are paying for">
-            ${PRICE_USD} buys one message of up to {MAX_CHARS} characters, stored until {OPEN_LABEL},
+            ${PRICE_USD} buys one note of up to {MAX_CHARS} characters, stored until {OPEN_LABEL},
             at which point it is published in full on this website. That is the entire product.
             Nothing is mailed to you and there is no physical item.
           </S>
 
           <S t="What “sealed” means, precisely">
-            Your message is not published, displayed, or shared with anyone before the opening date.
+            Your note is not published, displayed, or shared with anyone before the opening date.
             It is stored in a database that the operator of this site administers. We are not
             claiming it is encrypted in a way nobody could ever read &mdash; we are committing not to
             publish or share it. Please do not put anything in the capsule that would harm you if it
@@ -32,12 +32,12 @@ export default function Terms() {
           </S>
 
           <S t="The fingerprint">
-            When your message is sealed we publish a SHA-256 code computed from its exact text combined with 32 bytes of randomness generated at that moment and stored with it. The randomness is why the code gives nothing away: without it, a short sentence could simply be guessed and checked against the code. When the capsule opens, your message and its random value are published together so the code can be recomputed by anyone, proving the text was never altered.
+            When your note is sealed we publish a SHA-256 code computed from its exact text combined with 32 bytes of randomness generated at that moment and stored with it. The randomness is why the code gives nothing away: without it, a short sentence could simply be guessed and checked against the code. When the capsule opens, your note and its random value are published together so the code can be recomputed by anyone, proving the text was never altered.
           </S>
 
           <S t="Refunds">
-            Because sealing your message is the whole service and it happens immediately, payments
-            are not refundable once the message is sealed. If something goes wrong &mdash; a double
+            Because sealing your note is the whole service and it happens immediately, payments
+            are not refundable once the note is sealed. If something goes wrong &mdash; a double
             charge, a failed submission &mdash; email us and we will sort it out.
           </S>
 
@@ -45,7 +45,7 @@ export default function Terms() {
             No unlawful content, threats, harassment, sexual content involving minors, personal
             information about other people, or anything you do not have the right to publish. We
             remove entries that break this and the payment is not refunded. Submissions are screened
-            automatically, and we may review a message if it is reported.
+            automatically, and we may review a note if it is reported.
           </S>
 
           <S t="If this site does not exist in 2047">

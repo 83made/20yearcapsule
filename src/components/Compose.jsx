@@ -17,12 +17,11 @@ export default function Compose({ sealed, prefill }) {
   useEffect(() => {
     if (prefill) {
       setMessage(prefill)
-      setPreview(null)
       setError('')
     }
   }, [prefill])
 
-  // Rotating placeholder, so an untouched box still shows what a real message looks like.
+  // Rotating placeholder, so an untouched box still shows what a real note looks like.
   useEffect(() => {
     if (message) return
     const id = setInterval(() => setPh((n) => (n + 1) % ALL_EXAMPLES.length), 3200)
@@ -78,7 +77,7 @@ export default function Compose({ sealed, prefill }) {
     <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1.35fr_1fr]">
       <div>
         <label htmlFor="msg" className="label">
-          Your message
+          Your note
         </label>
         <div className="relative mt-2">
           <textarea
@@ -88,10 +87,7 @@ export default function Compose({ sealed, prefill }) {
             style={{ borderColor: over ? 'var(--color-seal)' : undefined }}
             maxLength={MAX_CHARS + 30}
             value={message}
-            onChange={(e) => {
-              setMessage(e.target.value)
-              setPreview(null)
-            }}
+            onChange={(e) => setMessage(e.target.value)}
             placeholder={ALL_EXAMPLES[ph]}
           />
         </div>
@@ -160,14 +156,14 @@ export default function Compose({ sealed, prefill }) {
       <div className="self-start bg-paper-2 p-6">
         <div className="flex items-baseline gap-2">
           <span className="font-display text-6xl leading-none">${PRICE_USD}</span>
-          <span className="text-[0.95rem] font-semibold text-muted">one message</span>
+          <span className="text-[0.95rem] font-semibold text-muted">one note</span>
         </div>
 
         <ul className="mt-6 grid gap-3.5 text-[0.98rem] leading-snug text-ink-2">
           {[
             [`Up to ${MAX_CHARS} characters`, 'About one sentence.'],
             ['Sealed immediately', 'Nobody sees it — not even you.'],
-            ['Your name on the wall', 'The message stays hidden.'],
+            ['Your name on the wall', 'The note stays hidden.'],
             ['Opens January 1, 2047', 'Published in full, all at once.'],
           ].map(([t, sub]) => (
             <li key={t} className="flex gap-3">

@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 /**
  * The redaction wall. This is the only view anyone gets of the capsule's contents for twenty years,
  * so it has to do the persuading: real names, real places, real timestamps, and a black bar where
- * the sentence is. The bar width is derived from the message's character count, which is public
- * metadata — so a long message visibly looks long. That small detail is what makes the wall read as
+ * the sentence is. The bar width is derived from the note's character count, which is public
+ * metadata — so a long note visibly looks long. That small detail is what makes the wall read as
  * real rather than decorative.
  */
 
@@ -12,7 +12,7 @@ function Redaction({ chars }) {
   // Break the bar into word-ish chunks so it reads as a redacted sentence, not one solid block.
   const chunks = []
   let left = Math.max(chars, 8)
-  let seed = chars * 7919 // deterministic: the same message always renders the same shape
+  let seed = chars * 7919 // deterministic: the same note always renders the same shape
   while (left > 0) {
     seed = (seed * 1103515245 + 12345) % 2147483648
     const size = Math.min(left, 2 + (seed % 9))
@@ -22,7 +22,7 @@ function Redaction({ chars }) {
   return (
     <span
       className="inline-flex flex-wrap items-center gap-x-[0.34em] gap-y-[0.3em]"
-      aria-label="Sealed message"
+      aria-label="Sealed note"
     >
       {chunks.map((c, i) => (
         <span key={i} className="redact" style={{ width: `${c * 0.52}em` }} />

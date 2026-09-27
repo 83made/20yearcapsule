@@ -57,7 +57,7 @@ function shell(headline: string, inner: string) {
           ${inner}
         </td></tr>
         <tr><td style="padding:18px 28px;background:#f6f6f8;font:400 12px/1.5 Helvetica,Arial,sans-serif;color:#8a8a96;">
-          You're getting this because you sealed a message at
+          You're getting this because you sealed a note at
           <a href="${SITE}" style="color:#8a8a96;">20yearcapsule.com</a>.
           This is a one-off receipt, not a mailing list.
         </td></tr>
@@ -75,7 +75,7 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
 
   // Share links have to be plain hrefs — an email client will not run JavaScript, so the site's
   // share component cannot be reused here. Same wording, built from the same shape.
-  const blurb = `I just sealed a message in a time capsule that opens on January 1, 2047. It's entry #${num} - and I'm not allowed to read it again until then.`
+  const blurb = `I just sealed a note in a time capsule that opens on January 1, 2047. It's entry #${num} - and I'm not allowed to read it again until then.`
   const body = `${blurb}\n\n${SITE}`
   const e = (v: string) => encodeURIComponent(v)
   const sms = `sms:?&body=${e(body)}`
@@ -83,7 +83,7 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
   const wa = `https://wa.me/?text=${e(body)}`
 
   const html = shell(
-    'Your message is sealed.',
+    'Your note is sealed.',
     `<p style="margin:0 0 16px;">That's it${who} — it's in, and it stays hidden until <strong style="color:#16161d;">${OPEN_LABEL}</strong>.</p>
 
      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f8;border-radius:12px;margin:22px 0;">
@@ -97,7 +97,7 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
 
      <p style="margin:0 0 16px;">We won't show you what you wrote again — that's rather the point. Keep this email if you want to remember that you were here at all.</p>
 
-     <p style="margin:0 0 22px;">The proof code is made from your exact words. In 2047, when every message is published, anyone can check that code still matches — which is how you'll know not one character changed in twenty years.</p>
+     <p style="margin:0 0 22px;">The proof code is made from your exact words. In 2047, when every note is published, anyone can check that code still matches — which is how you'll know not one character changed in twenty years.</p>
 
      <a href="${url}" style="display:inline-block;background:#16161d;color:#ffffff;font:700 15px/1 Helvetica,Arial,sans-serif;padding:14px 24px;border-radius:999px;text-decoration:none;">See your entry</a>
 
@@ -105,7 +105,7 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
        <tr><td style="padding-top:24px;">
          <div style="font:700 17px/1.3 Helvetica,Arial,sans-serif;color:#16161d;">Now the awkward part.</div>
          <p style="margin:10px 0 0;font:400 14px/1.6 Helvetica,Arial,sans-serif;color:#3d3d4a;">
-           The capsule is only sealed if <strong>1,000 messages</strong> go in by December 31. If it
+           The capsule is only sealed if <strong>1,000 notes</strong> go in by December 31. If it
            doesn't get there, everyone is refunded and none of this happens &mdash; including your
            entry. Sending this to one person is genuinely the whole difference.
          </p>
@@ -131,25 +131,25 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
      </table>`,
   )
 
-  const text = `Your message is sealed.
+  const text = `Your note is sealed.
 
 Entry #${num}
 Proof code: ${opts.hash}
 
 It stays hidden until ${OPEN_LABEL}. We won't show you what you wrote again — that's the point.
 
-The proof code is made from your exact words. In 2047, when every message is published, anyone can check it still matches, which proves nothing changed.
+The proof code is made from your exact words. In 2047, when every note is published, anyone can check it still matches, which proves nothing changed.
 
 See your entry: ${url}
 
 NOW THE AWKWARD PART
-The capsule is only sealed if 1,000 messages go in by December 31. If it doesn't get there, everyone is refunded and none of this happens - including your entry.
+The capsule is only sealed if 1,000 notes go in by December 31. If it doesn't get there, everyone is refunded and none of this happens - including your entry.
 
 Sending this to one person is genuinely the whole difference. Forwarding this email works too.
 
 ${SITE}`
 
-  return { subject: `Your message is sealed — entry #${num}`, html, text }
+  return { subject: `Your note is sealed — entry #${num}`, html, text }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -158,20 +158,20 @@ export function refundedEmail(opts: { seq: number; total: number; goal: number }
 
   const html = shell(
     'The capsule did not happen.',
-    `<p style="margin:0 0 16px;">The 20 Year Capsule needed <strong style="color:#16161d;">${opts.goal.toLocaleString()}</strong> messages by December 31 to cover twenty years of keeping it online. It reached <strong style="color:#16161d;">${opts.total.toLocaleString()}</strong>.</p>
+    `<p style="margin:0 0 16px;">The 20 Year Capsule needed <strong style="color:#16161d;">${opts.goal.toLocaleString()}</strong> notes by December 31 to cover twenty years of keeping it online. It reached <strong style="color:#16161d;">${opts.total.toLocaleString()}</strong>.</p>
 
      <p style="margin:0 0 16px;">So it isn't being sealed, and <strong style="color:#16161d;">your $2 has been refunded in full</strong>. It should appear on your statement within 5–10 business days.</p>
 
-     <p style="margin:0 0 16px;">Your message (entry #${num}) has been deleted rather than kept. It was never shown to anyone, and it never will be.</p>
+     <p style="margin:0 0 16px;">Your note (entry #${num}) has been deleted rather than kept. It was never shown to anyone, and it never will be.</p>
 
      <p style="margin:0;">Promising to keep something safe for twenty years and then not being able to afford it would have been worse than not starting. Thank you for being one of the people who tried.</p>`,
   )
 
   const text = `The capsule did not happen.
 
-It needed ${opts.goal.toLocaleString()} messages by December 31 and reached ${opts.total.toLocaleString()}.
+It needed ${opts.goal.toLocaleString()} notes by December 31 and reached ${opts.total.toLocaleString()}.
 
-Your $2 has been refunded in full — expect it within 5-10 business days. Your message (entry #${num}) has been deleted. It was never shown to anyone.
+Your $2 has been refunded in full — expect it within 5-10 business days. Your note (entry #${num}) has been deleted. It was never shown to anyone.
 
 Thank you for being one of the people who tried.`
 

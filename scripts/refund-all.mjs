@@ -76,9 +76,9 @@ const mailRefund = async (to, seq, total) => {
   const num = String(seq).padStart(6, '0')
   const text = `The capsule did not happen.
 
-It needed ${GOAL.toLocaleString()} messages by December 31 and reached ${total.toLocaleString()}.
+It needed ${GOAL.toLocaleString()} notes by December 31 and reached ${total.toLocaleString()}.
 
-Your $2 has been refunded in full - expect it within 5-10 business days. Your message (entry #${num}) has been deleted. It was never shown to anyone.
+Your $2 has been refunded in full - expect it within 5-10 business days. Your note (entry #${num}) has been deleted. It was never shown to anyone.
 
 Thank you for being one of the people who tried.`
   const res = await fetch('https://api.resend.com/emails', {

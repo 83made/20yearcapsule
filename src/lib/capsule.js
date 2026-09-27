@@ -43,11 +43,17 @@ export const MINIMUM_ENTRIES = 1000
 export const GOAL_ENTRIES = MINIMUM_ENTRIES
 
 /**
- * How many messages the capsule will hold. Round, enormous, and almost certainly never reached —
- * which is the point. It frames the thing as an archive with room in it rather than a fundraiser
- * with a bar to fill, and it gives the count somewhere to go.
+ * How many notes the capsule will hold. Ten thousand is deliberately reachable: a cap nobody could
+ * ever hit is decoration, and this one is meant to be a real limit that closes. It is also ten
+ * times MINIMUM_ENTRIES, so the funding floor and the ceiling tell a coherent story instead of
+ * being two unrelated numbers.
+ *
+ * Do not render this as a progress meter. At 144 sealed a bar against 10,000 reads 1% full, which
+ * says "nobody is here" far louder than the cap says "space is limited". The scarcity that is
+ * actually true and actually persuasive is that entry numbers are issued in order and never
+ * reused — #000145 exists once.
  */
-export const CAPACITY = 1000000
+export const CAPACITY = 10000
 
 /**
  * Human "2 hours ago" style, for the last-sealed line.

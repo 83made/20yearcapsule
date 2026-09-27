@@ -126,7 +126,7 @@ h1 { font-size: 30pt; margin: 0 0 6pt; letter-spacing: -0.5pt; }
 .f { font: 6.5pt ui-monospace, monospace; color: #b0a88f; word-break: break-all; margin-top: 3pt; }
 </style></head><body>
 <h1>The 20 Year Capsule</h1>
-<div class="sub">${msgs.length.toLocaleString()} messages &middot; sealed 31 December 2026 &middot; opened 1 January 2047</div>
+<div class="sub">${msgs.length.toLocaleString()} notes &middot; sealed 31 December 2026 &middot; opened 1 January 2047</div>
 ${msgs
   .map(
     (m) => `<div class="e"><div class="h">#${String(m.seq).padStart(6, '0')} &middot; ${esc(

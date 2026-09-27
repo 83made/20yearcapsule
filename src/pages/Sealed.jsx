@@ -71,7 +71,7 @@ export default function Sealed() {
           </h1>
 
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-paper/70">
-            Your message is in the capsule. Nobody sees it — including you — until{' '}
+            Your note is in the capsule. Nobody sees it — including you — until{' '}
             <strong className="font-semibold text-paper">{OPEN_LABEL}</strong>.
           </p>
 
@@ -106,7 +106,7 @@ export default function Sealed() {
 
           {!entry && waited && (
             <div className="mt-10 border border-paper/15 p-6 leading-relaxed text-paper/70">
-              Your payment went through and your message is sealed. The public wall takes a moment to
+              Your payment went through and your note is sealed. The public wall takes a moment to
               catch up — refresh in a minute and your entry will be there.
             </div>
           )}
@@ -115,7 +115,7 @@ export default function Sealed() {
           <div className="mt-12 border border-paper/25 p-6 sm:p-8">
             <h2 className="font-display text-3xl">Now the awkward part.</h2>
             <p className="mt-3 leading-relaxed text-paper/70">
-              The capsule only goes ahead if at least {MINIMUM_ENTRIES.toLocaleString()} messages
+              The capsule only goes ahead if at least {MINIMUM_ENTRIES.toLocaleString()} notes
               are in by December 31. If it doesn&rsquo;t get there, everyone is refunded and none of
               this happens — including yours.
             </p>

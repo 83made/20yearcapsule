@@ -1,6 +1,6 @@
 # 20yearcapsule.com
 
-One sentence, $1, sealed for twenty years.
+One sentence, $2, sealed for twenty years.
 
 - **Entries close** 2026-12-31 23:59:59 **PST** (= 2027-01-01 07:59:59 UTC)
 - **Capsule opens** 2047-01-01 00:01:00 **PST** (= 2047-01-01 08:01:00 UTC)
@@ -104,6 +104,25 @@ nothing to query, so Supabase only has to exist from launch to January 2027.
 threshold mean something and gives every buyer a reason to recruit the next one. The cost of that
 promise is real: Stripe does not return processing fees on refunds, so a failed run costs ~36c per
 entry out of pocket.
+
+## Capacity, and the word for the thing
+
+`CAPACITY = 10000` in `capsule.js` **and again as a literal in `create-capsule-checkout`** — the
+edge function has to enforce it server-side or a race can sell a slot that does not exist, and
+refunding someone who paid for a non-existent entry is worse than turning them away. Those are the
+two places; change both. It was 1,000,000 until 2026-09-27, which was decoration rather than a
+limit.
+
+**Do not render capacity as a progress meter.** At 144 sealed, a bar against 10,000 reads 1% full,
+which says "nobody is here" much louder than the cap says "space is limited". The scarcity that is
+both true and persuasive is that entry numbers are issued in order and never reused.
+
+**The user-facing noun is "note", everywhere** — not "memory" and not "message". Renamed
+2026-09-27; "memories" was the earlier word and is gone. "Sentence" is still used to describe the
+*form* ("write one sentence"), which reads better than repeating the noun. Code identifiers, the
+`message` JSON field, `capsule_entries.message` and `message_hash` were deliberately **not**
+renamed: the field name is a wire contract with the deployed function and Stripe session metadata,
+and the columns are in the sealed archive's schema.
 
 ## Moderation
 
