@@ -75,7 +75,6 @@ const json = (body: unknown, status = 200, cors: Record<string, string> = {}) =>
 const INVISIBLE = /[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g
 const clean = (s: unknown, max: number) =>
   typeof s === 'string' ? s.replace(INVISIBLE, '').replace(/\s+/g, ' ').trim().slice(0, max) : ''
-  typeof s === 'string' ? s.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max) : ''
 
 Deno.serve(async (req) => {
   const CORS = corsFor(req)
