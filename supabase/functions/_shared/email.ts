@@ -77,7 +77,11 @@ const esc = (v: string) =>
 
 type Gift = {
   recipientName: string
+  /** The announcement actually sent — not merely that an address was supplied. */
   announced: boolean
+  /** An address was supplied and a send was attempted. Separates "no address given" from
+   *  "we tried and it failed": those need different things from the buyer. */
+  attempted: boolean
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -101,7 +105,9 @@ export function sealedEmail(opts: {
       )}</strong>. ${
         gift.announced
           ? 'We have emailed them to say a note exists for them, and that neither of you can read it until 2047.'
-          : 'You did not give us their email, so nobody has told them — that part is yours to do.'
+          : gift.attempted
+            ? 'We tried to email them and it did not go through, so nobody has told them yet — worth saying it yourself.'
+            : 'You did not give us their email, so nobody has told them — that part is yours to do.'
       }</p>`
     : ''
 
@@ -175,7 +181,9 @@ ${
 Sealed as a gift for ${gift.recipientName}. ${
         gift.announced
           ? 'We have emailed them to say it exists.'
-          : 'No email was given for them, so nobody has told them yet.'
+          : gift.attempted
+            ? 'We tried to email them and it did not go through, so nobody has told them yet.'
+            : 'No email was given for them, so nobody has told them yet.'
       }
 `
     : ''

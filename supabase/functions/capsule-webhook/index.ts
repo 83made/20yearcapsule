@@ -130,9 +130,34 @@ Deno.serve(async (req) => {
   })
   if (wallErr) console.error('wall insert failed (entry is sealed, backfill later)', wallErr)
 
-  // 3. Confirmation. Deliberately last and deliberately non-fatal: the message is already sealed,
-  //    and returning non-200 here would make Stripe retry the whole webhook and re-run everything
-  //    above just because an email bounced. A failed send is logged and moved on from.
+  // 3. Tell the recipient something exists for them — BEFORE the buyer's receipt, so the receipt
+  //    can state truthfully whether it arrived. The flag used to be Boolean(recipient_email), which
+  //    meant a typo'd address or a Resend outage still told the buyer "we have emailed them" while
+  //    the recipient heard nothing: the whole gift failing silently at both ends.
+  //
+  //    Non-fatal, like the receipt. The note is already sealed and a bounced announcement must not
+  //    make Stripe retry the webhook and re-run everything above it.
+  //
+  //    It deliberately does NOT contain the note, and says so. Someone finding out that a person
+  //    wrote them something they cannot read for twenty years IS the gift; a preview would spend it
+  //    on the day it arrived. This is the one email the capsule sends to someone who did not pay.
+  const attempted = Boolean(isGift && recipientEmail)
+  let announced = false
+  if (attempted) {
+    try {
+      const sent = await sendGiftAnnouncement(recipientEmail, {
+        seq: entry.seq,
+        recipientName,
+        fromName: displayName,
+      })
+      announced = sent.ok
+      if (!sent.ok) console.error('gift announcement failed', entry.seq, sent.error)
+    } catch (err) {
+      console.error('gift announcement threw', entry.seq, err)
+    }
+  }
+
+  // 4. Confirmation to whoever paid. Also non-fatal, for the same reason.
   const to = session.customer_details?.email
   if (to) {
     try {
@@ -140,31 +165,11 @@ Deno.serve(async (req) => {
         seq: entry.seq,
         hash,
         name: displayName,
-        gift: isGift ? { recipientName, announced: Boolean(recipientEmail) } : null,
+        gift: isGift ? { recipientName, announced, attempted } : null,
       })
       if (!sent.ok) console.error('confirmation email failed', entry.seq, sent.error)
     } catch (err) {
       console.error('confirmation email threw', entry.seq, err)
-    }
-  }
-
-  // 4. Tell the recipient something exists for them. Same non-fatal treatment as the receipt, and
-  //    for the same reason: the note is already sealed and a bounced announcement must not make
-  //    Stripe retry the whole webhook.
-  //
-  //    It deliberately does NOT contain the note, and says so. The recipient finding out that
-  //    someone wrote them something they cannot read for twenty years IS the gift; a preview would
-  //    spend it. This is the one email the capsule sends to someone who did not pay.
-  if (isGift && recipientEmail) {
-    try {
-      const sent = await sendGiftAnnouncement(recipientEmail, {
-        seq: entry.seq,
-        recipientName,
-        fromName: displayName,
-      })
-      if (!sent.ok) console.error('gift announcement failed', entry.seq, sent.error)
-    } catch (err) {
-      console.error('gift announcement threw', entry.seq, err)
     }
   }
 

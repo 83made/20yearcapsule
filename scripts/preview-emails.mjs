@@ -65,7 +65,7 @@ const previews = [
       seq: 145,
       hash: SAMPLE_HASH,
       name: 'Jon',
-      gift: { recipientName: 'Sarah', announced: true },
+      gift: { recipientName: 'Sarah', announced: true, attempted: true },
     }),
   ],
   [
@@ -74,7 +74,16 @@ const previews = [
       seq: 146,
       hash: SAMPLE_HASH,
       name: 'Jon',
-      gift: { recipientName: 'Sarah', announced: false },
+      gift: { recipientName: 'Sarah', announced: false, attempted: false },
+    }),
+  ],
+  [
+    'sealed-gift-failed',
+    mod.sealedEmail({
+      seq: 147,
+      hash: SAMPLE_HASH,
+      name: 'Jon',
+      gift: { recipientName: 'Sarah', announced: false, attempted: true },
     }),
   ],
   [

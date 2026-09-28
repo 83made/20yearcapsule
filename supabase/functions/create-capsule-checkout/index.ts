@@ -12,6 +12,11 @@ const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://20yearcapsule.com'
 const SEALS_AT_MS = Date.parse('2027-01-01T07:59:59Z') // 2026-12-31 23:59:59 PST
 const CAPACITY = 10_000 // a real ceiling, enforced here so it cannot be exceeded by a race
 
+// Deliberately permissive: the job is to catch a typo and an obviously-bogus string, not to
+// adjudicate RFC 5322. Anything stricter rejects real addresses, and the only cost of a loose
+// match is one bounced send.
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
 // Only the capsule's own pages need to call this. A wildcard let any site on the internet drive
 // live Stripe session creation from a visitor's browser.
 const ALLOWED_ORIGINS = new Set([
@@ -142,6 +147,17 @@ Deno.serve(async (req) => {
       return reply({ error: 'Who is it for? A gift needs a name.' }, 400)
     }
 
+    // Checked here rather than trusting type="email" in the browser, which is one fetch away from
+    // being bypassed. A malformed buyer address makes Stripe reject the session, which reached the
+    // buyer as a bare "Could not start checkout." with nothing to act on; a malformed recipient
+    // address means the gift is never announced and nobody finds out.
+    if (email && !EMAIL_RE.test(email)) {
+      return reply({ error: 'That email address does not look right.' }, 400)
+    }
+    if (recipientEmail && !EMAIL_RE.test(recipientEmail)) {
+      return reply({ error: 'Their email address does not look right.' }, 400)
+    }
+
     // Screen BEFORE taking money. A blocked message never becomes a payment, so it never becomes a
     // refund. Flagged messages proceed normally and are queued for review after sealing.
     const verdict = moderate(message)
@@ -149,11 +165,22 @@ Deno.serve(async (req) => {
       return reply({ error: verdict.message ?? 'This note cannot be accepted.' }, 422)
     }
 
-    // The recipient's name is published, so it is screened for blocks. Flags are ignored here on
-    // purpose: the flag list is tuned for sentences, and a name field that trips "possible_address"
-    // or "phone_number" is a false positive far more often than it is a real one.
-    if (recipientName && moderate(recipientName).action === 'block') {
-      return reply({ error: 'That name cannot be accepted.' }, 422)
+    // EVERY field that renders on the public wall is screened, not just the note. display_name and
+    // location were published unscreened until 2026-09-27, which meant $5 bought a slur on a public
+    // page and a permanent line in the 2047 archive. It also made the gift announcement an abuse
+    // primitive: the sender name in an email this site delivers to a stranger is this field.
+    //
+    // Blocks only, no flags. The flag list is tuned for sentences and fires constantly on real
+    // names and places — "possible_address" matches most street names by design.
+    const publicFields: [string, string][] = [
+      ['name', displayName],
+      ['location', location],
+      ['name', recipientName],
+    ]
+    for (const [label, value] of publicFields) {
+      if (value && moderate(value).action === 'block') {
+        return reply({ error: `That ${label} cannot be accepted.` }, 422)
+      }
     }
 
     const session = await stripe.checkout.sessions.create({
