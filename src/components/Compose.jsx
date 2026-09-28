@@ -109,14 +109,27 @@ export default function Compose({ sealed, prefill }) {
             <label htmlFor="nm" className="label">
               Your name <span className="font-normal text-muted">(optional)</span>
             </label>
+            {/* One free-text field rather than first/last. Splitting it would hard-code a
+                two-part Western name, break mononyms and "Grandma Rose", and add friction to a
+                sixty-second impulse buy for nothing free text does not already do. Last names
+                have always been accepted here; the placeholder just never said so.
+
+                The help text is a sibling paragraph, not the placeholder, because a placeholder
+                disappears on focus — exactly when someone is deciding what to put. And the
+                permanence belongs on screen rather than only in /terms: it is the one part of
+                this form nobody can take back. */}
             <input
               id="nm"
               className="field mt-2"
               maxLength={40}
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Shows on the wall. Leave blank for Anonymous."
+              placeholder="First name, full name, or a nickname"
+              aria-describedby="nm-help"
             />
+            <p id="nm-help" className="mt-2 text-[0.88rem] leading-relaxed text-muted">
+              Shown on the wall now and published as-is in 2047. Leave blank for Anonymous.
+            </p>
           </div>
           <div>
             <label htmlFor="loc" className="label">
