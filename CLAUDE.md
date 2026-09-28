@@ -134,38 +134,42 @@ and the columns are in the sealed archive's schema.
 
 ## Gifts
 
-A gift is an ordinary sealed note with a second person attached. **The buyer writes it**; the
-recipient is told it exists and neither of them reads it until 2047. It is deliberately *not* a
-prepaid slot the recipient redeems later — that model needs codes, an expiry before the December 31
-seal, and a rule for a code bought and never used, which lands straight on the refund threshold
-because an unredeemed code is money taken for an entry that does not exist.
+**The buyer pays and writes nothing.** The recipient gets a link, writes their own sentence, and it
+seals under **their** name with no checkout. The point is putting someone in the capsule who would
+not pay $5 for a website themselves.
 
-Three columns, and the split is the same one the whole schema turns on:
+A first version had the buyer write a note *to* someone. That is a different product; it shipped,
+was wrong, and was removed rather than adapted. Do not reintroduce it.
 
-| column | where | published? |
-| --- | --- | --- |
-| `is_gift` | entries + wall | yes |
-| `recipient_name` | entries + wall | **yes** — like `display_name` |
-| `recipient_email` | entries only | **never** — like `contact_email` |
+`capsule_gifts` is a separate table, not columns on `capsule_entries`. A purchased gift is not an
+entry — it is a paid-for right to create one, with no message, hash or wall row until redeemed.
+Modelling it as a half-built entry would mean `capsule_entries` could hold rows with no message,
+which every query and export assumes cannot happen. It also keeps the funding count honest for
+free: **the wall counts entries, so an unredeemed gift is not in it.**
 
-**`recipient_email` must never reach `capsule_wall` or the public manifest.** `recipient_name` is
-public on purpose: "from Jon — for Sarah" on the wall is the point of a gift being visible, and the
-compose form says so before the name is typed.
+**Only `sha256(token)` is stored.** The raw token is a bearer credential — anyone holding it can
+write into the capsule. It is minted in `create-capsule-checkout` (not the webhook) and carried in
+the Stripe session metadata, so a buyer whose email fails can recover it from their own paid session
+via `kind: 'gift_link'`. A value invented by the webhook and only hashed would be unrecoverable.
 
-**The 2047 send has two people to reach per gift.** The recipient never paid, so they are in no
-Stripe record — `capsule-emails.csv` from `open-capsule.mjs` is the only place they exist. It now
-emits a `role` column (`author` / `recipient`) so the two can be worded differently, and skips the
-recipient row when it duplicates the buyer's address.
+**Redemption is one transaction** (`capsule_redeem_gift`). Splitting it has no safe order: entry
+first and a lost race leaves an orphan entry one payment bought twice; claim first and the row
+violates its own `redeemed_at`/`entry_seq` constraint mid-window. The entry reuses the gift's
+`stripe_session_id`, so the existing unique constraint still guarantees one payment cannot become
+two entries by either path.
 
-`giftAnnouncementEmail` is the one email this site sends to someone who did not pay. It must never
-contain the note or a hint of it — being told someone wrote you something you cannot read for
-twenty years *is* the gift — and it carries an opt-out, because the recipient never agreed to
-appear on a public wall. `/terms` states that they can have the name or the entry removed and the
-payment refunded on their request.
+**Capacity counts outstanding gifts** (`capsule_slots_taken`). Counting only the wall would let the
+capsule oversell, and the person turned away would be the recipient of a present already paid for.
 
-**Names are escaped now.** `email.ts` has an `esc()` and every name interpolation goes through it.
-Before gifts, `display_name` went into the receipt HTML raw; that was self-inflicted at worst, and
-it is not a standard worth keeping once a third party is the reader.
+**Lapsed gifts are refunded at seal** by `scripts/refund-lapsed-gifts.mjs`, run once after
+2026-12-31. Deliberately not part of `refund-all.mjs`: that script is for the funding floor being
+missed, this one runs whether or not the floor was met, because the money bought an entry that can
+now never exist.
+
+Routes: `/gift` (buy), `/gifted` (buyer's link + card), `/g/:token` (redeem), `/g/:token/card`
+(printable). **`/g/:token` gets printed onto physical cards in December — never change its shape.**
+
+`GIFTS_ENABLED` in `capsule.js` hides the entry points only; existing links keep working.
 
 ## Moderation
 

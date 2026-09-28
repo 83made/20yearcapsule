@@ -11,17 +11,17 @@ export const OPENS_AT = new Date('2047-01-01T08:01:00Z')
 export const PRICE_USD = 5
 
 /**
- * Gifts are off while the flow is rebuilt.
+ * Gifts: a prepaid entry the recipient writes themselves.
  *
- * The first version shipped the wrong product: the buyer wrote a note *to* someone. What a gift is
- * meant to be here is a prepaid entry the recipient redeems and writes themselves, so someone can
- * put their mum in the capsule without making her pay or handle checkout. Those are different
- * schemas, different emails and a different page, so the old UI is hidden rather than adapted.
+ * The buyer pays and writes nothing. The recipient gets a link (/g/:token), writes their own
+ * sentence, and it seals under THEIR name with no checkout — so you can put your mum in the capsule
+ * without making her pay or face Stripe.
  *
- * The backend columns stay in place and inert — is_gift defaults false and nothing sets it while
- * this is off.
+ * An earlier version had the buyer write a note *to* someone, which is a different product and was
+ * removed rather than adapted. If this flag ever goes back to false, /gift and /g/:token keep
+ * working for links already in the wild; it only hides the entry points.
  */
-export const GIFTS_ENABLED = false
+export const GIFTS_ENABLED = true
 export const MAX_CHARS = 100
 
 export const SEAL_LABEL = 'December 31, 2026 · 11:59 PM PST'

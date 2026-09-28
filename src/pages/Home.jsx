@@ -183,57 +183,62 @@ export default function Home() {
 
         <div className="rule" />
 
-        {GIFTS_ENABLED && (<>{/* The gift case, placed BEFORE the compose form rather than after it. The form opens on
-            "who is this for?", so the answer has to have been offered already — a gift section
-            below the box is a section nobody reads until they have finished writing to themselves.
+        <div className="rule" />
 
-            Pitched on the one thing it has that no other present has: it cannot be opened. Every
-            other gift is consumed on the day it is given. */}
-        <section className="py-12">
-          <div className="bg-paper-2 p-7 md:p-9">
-            <div className="label">Or give one away</div>
-            <h2 className="mt-3 max-w-2xl font-display text-4xl leading-tight md:text-5xl">
-              The only present they can&rsquo;t open.
-            </h2>
-            <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-ink-2">
-              Write one sentence to someone and seal it in their name. They are told today that it
-              exists and that it is for them &mdash; and then neither of you reads it until{' '}
-              {OPEN_LABEL.split(' · ')[0]}. Not a card they skim and recycle. A thing that sits
-              there for twenty years with their name on it.
-            </p>
+        {/* The gift case, placed BEFORE the compose form. The form is for writing your own, so the
+            alternative has to be offered before someone starts composing — a gift section below the
+            box is a section nobody reads until they have already written to themselves.
 
-            <div className="mt-8 grid gap-7 sm:grid-cols-3">
-              {[
-                [
-                  'For a birthday',
-                  'They get older on the same day every year. This one comes back once, two decades later.',
-                ],
-                [
-                  'For Christmas',
-                  `The capsule seals ${SEAL_LABEL.split(' · ')[0]}, six days after. It is the last thing that goes in this year.`,
-                ],
-                [
-                  'For someone you love',
-                  'Say the thing you would not say out loud yet. It keeps. You are not there when they read it, and that is rather the point.',
-                ],
-              ].map(([t, body]) => (
-                <div key={t}>
-                  <h3 className="font-display text-2xl leading-tight">{t}</h3>
-                  <p className="mt-2 text-[0.95rem] leading-relaxed text-ink-3">{body}</p>
-                </div>
-              ))}
+            Pitched on what it actually is, which took a rewrite to get right: you are not writing
+            something for them, you are buying them a seat. The distinctive thing is that the
+            present is a question they have to answer, not an object they receive. */}
+        {GIFTS_ENABLED && (
+          <section className="py-12">
+            <div className="bg-paper-2 p-7 md:p-9">
+              <div className="label">Or give one away</div>
+              <h2 className="mt-3 max-w-2xl font-display text-4xl leading-tight md:text-5xl">
+                Buy someone a seat. They write it.
+              </h2>
+              <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-ink-2">
+                You pay the ${PRICE_USD}; they write their own sentence, in their own words, under
+                their own name. No checkout for them and nothing to sign up for &mdash; just a link.
+                Most presents are over by the evening. This one asks them a question they have to
+                sit with, and then keeps the answer for twenty years.
+              </p>
+
+              <div className="mt-8 grid gap-7 sm:grid-cols-3">
+                {[
+                  [
+                    'For a birthday',
+                    'They get one every year. This is the one that comes back in 2047 in their own handwriting.',
+                  ],
+                  [
+                    'For Christmas',
+                    `Print the card and put it in an envelope. The capsule seals ${SEAL_LABEL.split(' · ')[0]}, six days after, so there is just enough time.`,
+                  ],
+                  [
+                    'For someone older',
+                    'The person whose sentence you would most want to read in twenty years is rarely the one who would pay $5 for a website.',
+                  ],
+                ].map(([t, body]) => (
+                  <div key={t}>
+                    <h3 className="font-display text-2xl leading-tight">{t}</h3>
+                    <p className="mt-2 text-[0.95rem] leading-relaxed text-ink-3">{body}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link to="/gift" className="btn btn-primary">
+                  Give an entry &mdash; ${PRICE_USD}
+                </Link>
+                <span className="text-[0.9rem] text-ink-3">
+                  Unused by {SEAL_LABEL.split(' · ')[0]}? Refunded in full.
+                </span>
+              </div>
             </div>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <a href="#write" className="btn btn-primary">
-                Write one for someone &mdash; ${PRICE_USD}
-              </a>
-              <span className="text-[0.9rem] text-ink-3">
-                Their name goes on the wall. The sentence does not.
-              </span>
-            </div>
-          </div>
-        </section></>)}
+          </section>
+        )}
 
         {/* compose */}
         <section id="write" className="scroll-mt-4 py-12">

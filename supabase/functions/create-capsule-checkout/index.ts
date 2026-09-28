@@ -129,6 +129,31 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}))
 
     // ---------------------------------------------------------------------------------------
+    // Recovering a gift link from the buyer's own paid session.
+    // ---------------------------------------------------------------------------------------
+    // The success page needs the raw token, and we deliberately never stored one. Stripe did, in
+    // the session metadata, so it is read back from there. The session id is the credential: it
+    // appears in the buyer's own success URL and their Stripe receipt, and nowhere else.
+    //
+    // Gated on the session actually being paid, so an abandoned checkout cannot be used to mint a
+    // working entry link for free.
+    if (body.kind === 'gift_link') {
+      const sessionId = typeof body.session_id === 'string' ? body.session_id.trim() : ''
+      if (!sessionId || sessionId.length > 200) return reply({ error: 'Not found.' }, 404)
+
+      const paid = await stripe.checkout.sessions.retrieve(sessionId).catch(() => null)
+      if (!paid || paid.payment_status !== 'paid' || paid.metadata?.kind !== 'capsule_gift') {
+        return reply({ error: 'Not found.' }, 404)
+      }
+
+      return reply({
+        token: paid.metadata?.gift_token ?? '',
+        recipient_name: paid.metadata?.recipient_name || null,
+        invited: Boolean(paid.metadata?.recipient_email),
+      })
+    }
+
+    // ---------------------------------------------------------------------------------------
     // Gift purchase. Buys the right to create an entry; writes nothing.
     // ---------------------------------------------------------------------------------------
     // Nothing here is sealed, so there is no message to validate or screen. What IS screened is
