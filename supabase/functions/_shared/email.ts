@@ -105,7 +105,7 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
        <tr><td style="padding-top:24px;">
          <div style="font:700 17px/1.3 Helvetica,Arial,sans-serif;color:#16161d;">Now the awkward part.</div>
          <p style="margin:10px 0 0;font:400 14px/1.6 Helvetica,Arial,sans-serif;color:#3d3d4a;">
-           The capsule is only sealed if <strong>1,000 notes</strong> go in by December 31. If it
+           The capsule is only sealed if <strong>380 notes</strong> go in by December 31. If it
            doesn't get there, everyone is refunded and none of this happens &mdash; including your
            entry. Sending this to one person is genuinely the whole difference.
          </p>
@@ -143,7 +143,7 @@ The proof code is made from your exact words. In 2047, when every note is publis
 See your entry: ${url}
 
 NOW THE AWKWARD PART
-The capsule is only sealed if 1,000 notes go in by December 31. If it doesn't get there, everyone is refunded and none of this happens - including your entry.
+The capsule is only sealed if 380 notes go in by December 31. If it doesn't get there, everyone is refunded and none of this happens - including your entry.
 
 Sending this to one person is genuinely the whole difference. Forwarding this email works too.
 
@@ -160,7 +160,7 @@ export function refundedEmail(opts: { seq: number; total: number; goal: number }
     'The capsule did not happen.',
     `<p style="margin:0 0 16px;">The 20 Year Capsule needed <strong style="color:#16161d;">${opts.goal.toLocaleString()}</strong> notes by December 31 to cover twenty years of keeping it online. It reached <strong style="color:#16161d;">${opts.total.toLocaleString()}</strong>.</p>
 
-     <p style="margin:0 0 16px;">So it isn't being sealed, and <strong style="color:#16161d;">your $2 has been refunded in full</strong>. It should appear on your statement within 5–10 business days.</p>
+     <p style="margin:0 0 16px;">So it isn't being sealed, and <strong style="color:#16161d;">your $5 has been refunded in full</strong>. It should appear on your statement within 5–10 business days.</p>
 
      <p style="margin:0 0 16px;">Your note (entry #${num}) has been deleted rather than kept. It was never shown to anyone, and it never will be.</p>
 
@@ -171,7 +171,7 @@ export function refundedEmail(opts: { seq: number; total: number; goal: number }
 
 It needed ${opts.goal.toLocaleString()} notes by December 31 and reached ${opts.total.toLocaleString()}.
 
-Your $2 has been refunded in full — expect it within 5-10 business days. Your note (entry #${num}) has been deleted. It was never shown to anyone.
+Your $5 has been refunded in full — expect it within 5-10 business days. Your note (entry #${num}) has been deleted. It was never shown to anyone.
 
 Thank you for being one of the people who tried.`
 

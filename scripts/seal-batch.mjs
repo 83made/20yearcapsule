@@ -7,10 +7,10 @@
 // published in 2047 alongside everyone else's. The only difference from a normal entry is that the
 // payment did not go through Stripe Checkout, because you are the one running the capsule.
 //
-// That means the money has to be real too. 1,000 entries at $2 is what pays for twenty years of
-// domain and hosting; if entries go in without the $2 behind them, the funding number on the site
-// stops being true. So each row is still recorded at 200 cents, and the honest thing is to actually
-// put that money aside. 30 entries is $60 of your own money going into your own project.
+// That means the money has to be real too. 380 entries at $5 is what pays for twenty years of
+// domain and hosting; if entries go in without the $5 behind them, the funding number on the site
+// stops being true. So each row is still recorded at 500 cents, and the honest thing is to actually
+// put that money aside. 30 entries is $150 of your own money going into your own project.
 //
 // FILE FORMAT — one message per line, up to 100 characters:
 //
@@ -123,7 +123,7 @@ for (const p of parsed) {
 console.log('')
 console.log(`  file          ${fileArg}`)
 console.log(`  messages      ${parsed.length}`)
-console.log(`  cost at $2    $${(parsed.length * 2).toFixed(2)}`)
+console.log(`  cost at $5    $${(parsed.length * 5).toFixed(2)}`)
 
 const flagged = parsed.filter((p) => p.flags.length)
 if (flagged.length) {
@@ -188,7 +188,7 @@ for (const [i, p] of parsed.entries()) {
       // Marks the row as sealed by the owner rather than through Stripe Checkout, so the books
       // stay legible later. Unique per run, so the idempotency constraint still protects you.
       stripe_session_id: `owner-${stamp}-${i}`,
-      amount_cents: 200,
+      amount_cents: 500,
       flagged: p.flags.length > 0,
       flag_reasons: p.flags,
     })

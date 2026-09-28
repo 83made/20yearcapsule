@@ -1,6 +1,6 @@
 # 20yearcapsule.com
 
-One sentence, $2, sealed for twenty years.
+One sentence, $5, sealed for twenty years.
 
 - **Entries close** 2026-12-31 23:59:59 **PST** (= 2027-01-01 07:59:59 UTC)
 - **Capsule opens** 2047-01-01 00:01:00 **PST** (= 2047-01-01 08:01:00 UTC)
@@ -92,17 +92,25 @@ npm run preview
 
 ## Funding threshold
 
-`GOAL_ENTRIES = 1000` in `capsule.js`, derived from real 20-year cost, not picked for looks:
+`MINIMUM_ENTRIES = 380` in `capsule.js`, derived from real 20-year cost, not picked for looks:
 domain renewals ~$496 + worst-case paid static hosting ~$1,200 + the 2047 email send ~$25 = ~$1,721.
-At $2 an entry Stripe leaves $1.642, so 1,000 entries nets $1,642. Break-even on the *realistic*
-case (free static hosting) is 318.
+At $5 an entry Stripe leaves $4.555, so 380 entries nets $1,731. Break-even on the *realistic*
+case (free static hosting, ~$521) is 115.
+
+**The floor is a function of the price.** Price went $2 -> $5 on 2026-09-27 and the floor fell
+1,000 -> 380 in the same change. If the price moves again, re-derive the floor rather than leaving
+it: a floor above what the obligation costs makes the page claim a number it does not need, and
+that sentence is on the homepage, in `/terms` and in the confirmation email.
+
+**`email.ts` and `refund-all.mjs` hardcode the floor** (380) because a Deno edge function and a
+standalone script cannot import `src/lib/capsule.js`. Three places, not one.
 
 There is no database in that model on purpose: once the capsule seals it is a static archive with
 nothing to query, so Supabase only has to exist from launch to January 2027.
 
 **If the threshold is missed, everyone is refunded and nothing is sealed.** That is what makes the
 threshold mean something and gives every buyer a reason to recruit the next one. The cost of that
-promise is real: Stripe does not return processing fees on refunds, so a failed run costs ~36c per
+promise is real: Stripe does not return processing fees on refunds, so a failed run costs ~45c per
 entry out of pocket.
 
 ## Capacity, and the word for the thing
@@ -184,4 +192,4 @@ the internet drive live Stripe session creation from a visitor's browser.
   handful of genuine entries before telling anyone.
 - **No transactional email.** Nothing notifies participants of a refund, or of anything else. If the
   threshold is missed, people get a Stripe refund with no explanation from you.
-- Fees: at $2, ~36c per sale. Accepted in favour of impulse-price simplicity.
+- Fees: at $5, ~45c per sale (2.9% + 30c). Accepted in favour of impulse-price simplicity.

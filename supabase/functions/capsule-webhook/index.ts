@@ -92,7 +92,7 @@ Deno.serve(async (req) => {
       stripe_session_id: session.id,
       stripe_payment_intent:
         typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null,
-      amount_cents: session.amount_total ?? 200,
+      amount_cents: session.amount_total ?? 500,
       flagged: session.metadata?.flagged === '1',
       flag_reasons: (session.metadata?.flag_reasons ?? '').split(',').filter(Boolean),
     })

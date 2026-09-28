@@ -8,7 +8,7 @@ export const SEALS_AT = new Date('2027-01-01T07:59:59Z')
 /** The capsule opens 2047-01-01 00:01:00 PST */
 export const OPENS_AT = new Date('2047-01-01T08:01:00Z')
 
-export const PRICE_USD = 2
+export const PRICE_USD = 5
 export const MAX_CHARS = 100
 
 export const SEAL_LABEL = 'December 31, 2026 · 11:59 PM PST'
@@ -24,7 +24,11 @@ export const OPEN_LABEL = 'January 1, 2047 · 12:01 AM PST'
  *                                                             ---------
  *                                                              ~$1,721
  *
- * At $2 an entry Stripe takes 2.9% + 30¢, leaving $1.642. 1,000 entries nets $1,642.
+ * At $5 an entry Stripe takes 2.9% + 30¢, leaving $4.555. 380 entries nets $1,731.
+ *
+ * The price moved $2 -> $5 on 2026-09-27 and the floor fell with it, because the floor is a
+ * function of the price, not a separate decision: 1,000 at $5 would collect $4,555 for a $1,721
+ * obligation, and the page would be claiming a number it did not need.
  *
  * Note the database is NOT in that list: once the capsule seals it becomes a static archive with
  * nothing to query, so Supabase only has to exist from launch to January 2027.
@@ -34,19 +38,18 @@ export const OPEN_LABEL = 'January 1, 2047 · 12:01 AM PST'
  * funding floor, not a target — it is what twenty years of domain and hosting costs, nothing more.
  * Below it everyone is refunded and nothing is sealed.
  *
- * It is deliberately NOT presented as the goal on the page. A counter reading "146 of 1,000" makes
- * a thousand look like the ambition, which caps the story at the least interesting number in it.
+ * It is deliberately NOT presented as the goal on the page. A counter reading "146 of 380" makes
+ * 380 look like the ambition, which caps the story at the least interesting number in it.
  */
-export const MINIMUM_ENTRIES = 1000
+export const MINIMUM_ENTRIES = 380
 
 /** Kept as an alias so older references keep working. */
 export const GOAL_ENTRIES = MINIMUM_ENTRIES
 
 /**
  * How many notes the capsule will hold. Ten thousand is deliberately reachable: a cap nobody could
- * ever hit is decoration, and this one is meant to be a real limit that closes. It is also ten
- * times MINIMUM_ENTRIES, so the funding floor and the ceiling tell a coherent story instead of
- * being two unrelated numbers.
+ * ever hit is decoration, and this one is meant to be a real limit that closes. It sits well above
+ * MINIMUM_ENTRIES so the floor reads as a floor and the ceiling as a ceiling.
  *
  * Do not render this as a progress meter. At 144 sealed a bar against 10,000 reads 1% full, which
  * says "nobody is here" far louder than the cap says "space is limited". The scarcity that is

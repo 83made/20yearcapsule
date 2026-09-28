@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}))
 
     // Check the raw length BEFORE truncating. Previously clean() sliced to 100 first, so this
-    // branch could never fire: someone pasting 600 characters was charged $2 and silently had
+    // branch could never fire: someone pasting 600 characters was charged $5 and silently had
     // 500 of them thrown away, with no way to find out until 2047.
     const rawMessage = typeof body.message === 'string' ? body.message.trim() : ''
     if ([...rawMessage].length > 100) {
@@ -145,13 +145,13 @@ Deno.serve(async (req) => {
       cancel_url: `${SITE_URL}/?canceled=1`,
       customer_email: email || undefined,
       // Collecting an email gives us a way to actually tell people in 2047. Optional on purpose —
-      // requiring it would cost conversions on a $1 impulse purchase.
+      // requiring it would cost conversions on a $5 impulse purchase.
       line_items: [
         {
           quantity: 1,
           price_data: {
             currency: 'usd',
-            unit_amount: 200,
+            unit_amount: 500,
             product_data: {
               name: 'One sentence in The 20 Year Capsule',
               description: 'Sealed December 31, 2026. Opens January 1, 2047.',

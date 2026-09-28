@@ -61,7 +61,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8">
     <div class="bars">${bars}</div>
     <div class="foot">
       <span class="site">20yearcapsule.com</span>
-      <span class="meta">$2 &middot; 100 characters &middot; 20 years</span>
+      <span class="meta">$5 &middot; 100 characters &middot; 20 years</span>
     </div>
   </div>
 </body></html>`

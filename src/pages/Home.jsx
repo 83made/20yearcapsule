@@ -348,7 +348,7 @@ export default function Home() {
         <div className="mx-auto max-w-5xl px-5 py-10">
           <div className="font-display text-3xl">The 20 Year Capsule</div>
           <p className="mt-3 max-w-lg text-[0.92rem] leading-relaxed opacity-70">
-            Sealed {SEAL_LABEL}. Opens {OPEN_LABEL}. One sentence, two dollars, twenty years.
+            Sealed {SEAL_LABEL}. Opens {OPEN_LABEL}. One sentence, five dollars, twenty years.
           </p>
           <div className="mt-6 flex flex-wrap gap-5 font-mono text-[0.72rem] uppercase tracking-[0.12em] opacity-70">
             <Link to="/terms" className="underline underline-offset-4 hover:opacity-100">

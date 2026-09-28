@@ -13,9 +13,9 @@
 //   - Stops on repeated failures rather than grinding through hundreds of errors.
 //
 // Worth knowing before you run it: Stripe does NOT return the original processing fee on a refund.
-// At $2 an entry that is about 36 cents per refund out of your pocket, with nothing to show for it.
+// At $5 an entry that is about 45 cents per refund out of your pocket, with nothing to show for it.
 //
-// Also emails each person to explain the refund, because a silent $2 reversal from a name they
+// Also emails each person to explain the refund, because a silent $5 reversal from a name they
 // half-remember is how you turn a refund into a dispute. Skipped with --no-email.
 //
 // Needs in .env.local or the environment:
@@ -43,7 +43,7 @@ const STRIPE = env('STRIPE_SECRET_KEY')
 const execute = process.argv.includes('--execute')
 const noEmail = process.argv.includes('--no-email')
 const RESEND = env('RESEND_API_KEY')
-const GOAL = 1000
+const GOAL = 380
 const seqArg = (() => {
   const i = process.argv.indexOf('--seq')
   return i > -1 ? Number(process.argv[i + 1]) : null
@@ -78,7 +78,7 @@ const mailRefund = async (to, seq, total) => {
 
 It needed ${GOAL.toLocaleString()} notes by December 31 and reached ${total.toLocaleString()}.
 
-Your $2 has been refunded in full - expect it within 5-10 business days. Your note (entry #${num}) has been deleted. It was never shown to anyone.
+Your $5 has been refunded in full - expect it within 5-10 business days. Your note (entry #${num}) has been deleted. It was never shown to anyone.
 
 Thank you for being one of the people who tried.`
   const res = await fetch('https://api.resend.com/emails', {
