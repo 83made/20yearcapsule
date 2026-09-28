@@ -35,6 +35,17 @@ export default function Terms() {
             When your note is sealed we publish a SHA-256 code computed from its exact text combined with 32 bytes of randomness generated at that moment and stored with it. The randomness is why the code gives nothing away: without it, a short sentence could simply be guessed and checked against the code. When the capsule opens, your note and its random value are published together so the code can be recomputed by anyone, proving the text was never altered.
           </S>
 
+          <S t="Gifts">
+            A gift entry is an ordinary sealed note with someone else&rsquo;s name attached. You write
+            it, we publish their first name on the public wall beside your entry, and neither of you
+            reads it until {OPEN_LABEL}. If you give us their email we tell them the same day that a
+            note exists for them &mdash; never what it says. If you do not, nobody tells them.
+            Because a gift names a person who never agreed to any of this, the recipient can have
+            their name or the whole entry removed at any time by emailing us, and the payment is
+            refunded if the entry is removed on their request. Do not put someone in the capsule who
+            would not want to be in it.
+          </S>
+
           <S t="Refunds">
             Because sealing your note is the whole service and it happens immediately, payments
             are not refundable once the note is sealed. If something goes wrong &mdash; a double

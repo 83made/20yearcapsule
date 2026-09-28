@@ -29,7 +29,7 @@ export default function Sealed() {
       tries += 1
       const { data } = await supabase
         .from('capsule_wall')
-        .select('seq,display_name,location,char_count,message_hash,created_at')
+        .select('seq,display_name,location,char_count,message_hash,created_at,is_gift,recipient_name')
         .order('created_at', { ascending: false })
         .limit(1)
       if (!alive) return

@@ -39,7 +39,13 @@ let src = readFileSync(join(ROOT, 'supabase/functions/_shared/email.ts'), 'utf8'
 // General rather than a list of special cases, so this keeps working when the source module gains
 // another typed parameter instead of failing with an unhelpful syntax error.
 src = src
-  .replace(/^type\s+\w+\s*=[\s\S]*?\n\}\n/m, '')
+  // Type aliases, single-line and block form. Anchored on a closing brace at column 0 rather than
+  // scanning forward for the next brace-on-its-own-line anywhere in the file: the old pattern was
+  // non-greedy from the first `type` and ran straight past the single-line SendResult alias into
+  // the body of send(), deleting it. Nothing ever noticed, because the previews do not call
+  // send() - which is exactly the kind of silent damage worth not shipping.
+  .replace(/^type\s+\w+\s*=\s*\{[^\n}]*\}[^\n]*$/gm, '')
+  .replace(/^type\s+\w+\s*=\s*\{[\s\S]*?^\}[^\n]*$/gm, '')
   .replace(/:\s*Promise<[^>]*>/g, '')
   .replace(/opts:\s*\{[^}]*\}/g, 'opts')
   .replace(/([(,]\s*)([a-zA-Z_]\w*)\s*:\s*[A-Za-z_][\w<>[\]|'"\s]*?(?=[,)])/g, '$1$2')
@@ -53,7 +59,29 @@ const SAMPLE_HASH = '60a66eaf98d78b72c10b41d9b3a867e0bb63f47b20341a93a02f4495af9
 const previews = [
   ['sealed', mod.sealedEmail({ seq: 1, hash: SAMPLE_HASH, name: 'Jon' })],
   ['sealed-anonymous', mod.sealedEmail({ seq: 428, hash: SAMPLE_HASH, name: null })],
-  ['refunded', mod.refundedEmail({ seq: 428, total: 612, goal: 1000 })],
+  [
+    'sealed-gift',
+    mod.sealedEmail({
+      seq: 145,
+      hash: SAMPLE_HASH,
+      name: 'Jon',
+      gift: { recipientName: 'Sarah', announced: true },
+    }),
+  ],
+  [
+    'sealed-gift-untold',
+    mod.sealedEmail({
+      seq: 146,
+      hash: SAMPLE_HASH,
+      name: 'Jon',
+      gift: { recipientName: 'Sarah', announced: false },
+    }),
+  ],
+  [
+    'gift-announcement',
+    mod.giftAnnouncementEmail({ seq: 145, recipientName: 'Sarah', fromName: 'Jon' }),
+  ],
+  ['refunded', mod.refundedEmail({ seq: 428, total: 612, goal: 380 })],
 ]
 
 mkdirSync(OUT, { recursive: true })

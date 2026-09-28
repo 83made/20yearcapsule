@@ -74,7 +74,7 @@ async function fetchAll() {
   const page = 1000
   for (let from = 0; ; from += page) {
     const res = await fetch(
-      `${URL_}/rest/v1/capsule_entries?select=seq,message,message_hash,nonce,display_name,location,contact_email,amount_cents,created_at&order=seq.asc`,
+      `${URL_}/rest/v1/capsule_entries?select=seq,message,message_hash,nonce,display_name,location,contact_email,is_gift,recipient_name,recipient_email,amount_cents,created_at&order=seq.asc`,
       { headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, Range: `${from}-${from + page - 1}` } },
     )
     if (!res.ok) throw new Error(`Supabase ${res.status}: ${(await res.text()).slice(0, 200)}`)
@@ -132,10 +132,15 @@ for (const r of rows) {
 const sealedAt = rows.reduce((a, r) => (r.created_at > a ? r.created_at : a), rows[0].created_at)
 
 // 1. Public manifest -------------------------------------------------------------------------
+// recipient_name is in here because it is already public on the wall, so the commitment has to
+// cover it. recipient_email is NOT, for the same reason contact_email is not: the manifest is
+// published the day the capsule seals.
 const manifest = rows.map((r) => ({
   seq: r.seq,
   display_name: r.display_name || 'Anonymous',
   location: r.location || '',
+  is_gift: Boolean(r.is_gift),
+  recipient_name: r.recipient_name || '',
   char_count: r.message.length,
   message_hash: r.message_hash,
   sealed_at: r.created_at,
@@ -165,9 +170,9 @@ writeFileSync(
 )
 
 const csv = [
-  ['seq', 'display_name', 'location', 'char_count', 'message_hash', 'sealed_at'].join(','),
+  ['seq', 'display_name', 'location', 'is_gift', 'recipient_name', 'char_count', 'message_hash', 'sealed_at'].join(','),
   ...manifest.map((m) =>
-    [m.seq, m.display_name, m.location, m.char_count, m.message_hash, m.sealed_at].map(csvCell).join(','),
+    [m.seq, m.display_name, m.location, m.is_gift, m.recipient_name, m.char_count, m.message_hash, m.sealed_at].map(csvCell).join(','),
   ),
 ].join('\n')
 writeFileSync(join(OUT, 'capsule-manifest.csv'), csv)
@@ -181,7 +186,9 @@ const archive = {
   manifest_sha256: manifestHash,
   exported_at: new Date().toISOString(),
   instructions:
-    'Publish every message on 2047-01-01. Email each contact_email. Verify each entry by computing '
+    'Publish every message on 2047-01-01. Email each contact_email AND each recipient_email — a '
+    + 'gift entry has two people to reach and the recipient never paid, so they are not in the '
+    + 'payment records. Verify each entry by computing '
     + "sha256('capsule-v2|' + nonce + '|' + message) in UTF-8 and checking it equals message_hash, "
     + 'which was published on the wall the day the message was sealed. Publish the nonces too so '
     + 'anyone else can repeat that check.',
@@ -189,6 +196,9 @@ const archive = {
     seq: r.seq,
     display_name: r.display_name || 'Anonymous',
     location: r.location || '',
+    is_gift: Boolean(r.is_gift),
+    recipient_name: r.recipient_name || '',
+    recipient_email: r.recipient_email || '',
     message: r.message,
     message_hash: r.message_hash,
     nonce: r.nonce,

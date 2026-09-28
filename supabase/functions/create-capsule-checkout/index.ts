@@ -129,14 +129,31 @@ Deno.serve(async (req) => {
     const location = clean(body.location, 40)
     const email = clean(body.email, 120)
 
+    // A gift is the same sealed note with a second person attached. The recipient's name is
+    // published on the wall, so it goes through clean() and moderation exactly like the message —
+    // an unscreened free-text field that renders publicly is the same hole wherever it is.
+    const isGift = body.is_gift === true || body.is_gift === 'true'
+    const recipientName = isGift ? clean(body.recipient_name, 40) : ''
+    const recipientEmail = isGift ? clean(body.recipient_email, 120) : ''
+
     if (!message) return reply({ error: 'A note is required.' }, 400)
     if (message.length > 100) return reply({ error: 'Notes are limited to 100 characters.' }, 400)
+    if (isGift && !recipientName) {
+      return reply({ error: 'Who is it for? A gift needs a name.' }, 400)
+    }
 
     // Screen BEFORE taking money. A blocked message never becomes a payment, so it never becomes a
     // refund. Flagged messages proceed normally and are queued for review after sealing.
     const verdict = moderate(message)
     if (verdict.action === 'block') {
       return reply({ error: verdict.message ?? 'This note cannot be accepted.' }, 422)
+    }
+
+    // The recipient's name is published, so it is screened for blocks. Flags are ignored here on
+    // purpose: the flag list is tuned for sentences, and a name field that trips "possible_address"
+    // or "phone_number" is a false positive far more often than it is a real one.
+    if (recipientName && moderate(recipientName).action === 'block') {
+      return reply({ error: 'That name cannot be accepted.' }, 422)
     }
 
     const session = await stripe.checkout.sessions.create({
@@ -153,7 +170,11 @@ Deno.serve(async (req) => {
             currency: 'usd',
             unit_amount: 500,
             product_data: {
-              name: 'One sentence in The 20 Year Capsule',
+              // Named for what it is on the buyer's card statement and Stripe receipt. Someone
+              // buying a present in December should not have to decode their own line item.
+              name: isGift
+                ? `One sentence in The 20 Year Capsule — a gift for ${recipientName}`.slice(0, 250)
+                : 'One sentence in The 20 Year Capsule',
               description: 'Sealed December 31, 2026. Opens January 1, 2047.',
               // Required because this account has Managed Payments enabled — without a tax code
               // Stripe rejects the line item outright. "General - Electronically Supplied Services"
@@ -168,6 +189,9 @@ Deno.serve(async (req) => {
         display_name: displayName,
         location,
         kind: 'capsule_entry',
+        is_gift: isGift ? '1' : '0',
+        recipient_name: recipientName,
+        recipient_email: recipientEmail,
         // Carried through so the webhook does not have to re-run moderation on a different
         // code path and risk the two disagreeing.
         flagged: verdict.action === 'flag' ? '1' : '0',

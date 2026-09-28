@@ -67,11 +67,43 @@ function shell(headline: string, inner: string) {
 </body></html>`
 }
 
+// Names are user input and they land in HTML that is delivered to someone's inbox — for a gift,
+// to the inbox of a third party who never used this site. Every interpolation of a name below goes
+// through this. It was missing entirely before gifts existed: display_name was dropped into the
+// receipt raw, which was self-inflicted at worst, and is not a standard worth keeping once a
+// stranger is the reader.
+const esc = (v: string) =>
+  v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+type Gift = {
+  recipientName: string
+  announced: boolean
+}
+
 // ------------------------------------------------------------------------------------------------
-export function sealedEmail(opts: { seq: number; hash: string; name?: string | null }) {
+export function sealedEmail(opts: {
+  seq: number
+  hash: string
+  name?: string | null
+  gift?: Gift | null
+}) {
   const num = String(opts.seq).padStart(6, '0')
-  const who = opts.name ? `, ${opts.name}` : ''
+  const who = opts.name ? `, ${esc(opts.name)}` : ''
   const url = `${SITE}/m/${opts.seq}`
+  const gift = opts.gift ?? null
+
+  // A gifter needs two things the ordinary receipt does not give them: confirmation that the
+  // right name went in, and whether the recipient has been told yet. If no email was supplied,
+  // nobody has told them and the buyer is the only one who can.
+  const giftLine = gift
+    ? `<p style="margin:0 0 16px;">It is sealed as a gift for <strong style="color:#16161d;">${esc(
+        gift.recipientName,
+      )}</strong>. ${
+        gift.announced
+          ? 'We have emailed them to say a note exists for them, and that neither of you can read it until 2047.'
+          : 'You did not give us their email, so nobody has told them — that part is yours to do.'
+      }</p>`
+    : ''
 
   // Share links have to be plain hrefs — an email client will not run JavaScript, so the site's
   // share component cannot be reused here. Same wording, built from the same shape.
@@ -85,6 +117,8 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
   const html = shell(
     'Your note is sealed.',
     `<p style="margin:0 0 16px;">That's it${who} — it's in, and it stays hidden until <strong style="color:#16161d;">${OPEN_LABEL}</strong>.</p>
+
+     ${giftLine}
 
      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f8;border-radius:12px;margin:22px 0;">
        <tr><td style="padding:20px 22px;">
@@ -135,7 +169,17 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
 
 Entry #${num}
 Proof code: ${opts.hash}
-
+${
+  gift
+    ? `
+Sealed as a gift for ${gift.recipientName}. ${
+        gift.announced
+          ? 'We have emailed them to say it exists.'
+          : 'No email was given for them, so nobody has told them yet.'
+      }
+`
+    : ''
+}
 It stays hidden until ${OPEN_LABEL}. We won't show you what you wrote again — that's the point.
 
 The proof code is made from your exact words. In 2047, when every note is published, anyone can check it still matches, which proves nothing changed.
@@ -149,7 +193,78 @@ Sending this to one person is genuinely the whole difference. Forwarding this em
 
 ${SITE}`
 
-  return { subject: `Your note is sealed — entry #${num}`, html, text }
+  return {
+    subject: gift
+      ? `Your gift for ${gift.recipientName} is sealed — entry #${num}`
+      : `Your note is sealed — entry #${num}`,
+    html,
+    text,
+  }
+}
+
+// ------------------------------------------------------------------------------------------------
+// The one email this capsule sends to someone who did not pay for anything.
+//
+// It must not contain the note, or any hint of it, and it says so outright. Someone telling you
+// they wrote you something you cannot read for twenty years IS the present; a preview would spend
+// it on the day it arrived. It also has to survive being read by a person with no idea what this
+// site is, so it explains the whole thing in the first two sentences and never assumes goodwill.
+export function giftAnnouncementEmail(opts: {
+  seq: number
+  recipientName: string
+  fromName?: string | null
+}) {
+  const num = String(opts.seq).padStart(6, '0')
+  const from = opts.fromName ? esc(opts.fromName) : 'Someone'
+  const name = esc(opts.recipientName)
+  const url = `${SITE}/m/${opts.seq}`
+
+  const html = shell(
+    'Someone wrote you something.',
+    `<p style="margin:0 0 16px;">${name} — <strong style="color:#16161d;">${from}</strong> has sealed a note for you in The 20 Year Capsule.</p>
+
+     <p style="margin:0 0 16px;">It is one sentence, written for you, and it is locked until <strong style="color:#16161d;">${OPEN_LABEL}</strong>. Not a teaser, not a preview: nobody reads it before then. Not you, not them, not us.</p>
+
+     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f8;border-radius:12px;margin:22px 0;">
+       <tr><td style="padding:20px 22px;">
+         <div style="font:700 12px/1 Helvetica,Arial,sans-serif;color:#8a8a96;letter-spacing:1px;text-transform:uppercase;">Your entry</div>
+         <div style="font:700 30px/1.1 Helvetica,Arial,sans-serif;color:#16161d;margin-top:7px;">#${num}</div>
+         <div style="font:400 14px/1.5 Helvetica,Arial,sans-serif;color:#3d3d4a;margin-top:10px;">Sealed for you by ${from}</div>
+       </td></tr>
+     </table>
+
+     <p style="margin:0 0 22px;">You can see that it exists — the entry number, the date, a blacked-out bar where the sentence is — but not what it says. That is the entire idea.</p>
+
+     <a href="${url}" style="display:inline-block;background:#16161d;color:#ffffff;font:700 15px/1 Helvetica,Arial,sans-serif;padding:14px 24px;border-radius:999px;text-decoration:none;">See your entry</a>
+
+     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0 0;border-top:1px solid #e2e2e8;">
+       <tr><td style="padding-top:24px;">
+         <p style="margin:0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8a8a96;">
+           Your name appears on the public wall beside the entry, with the sentence blacked out.
+           If you would rather it did not, reply to this email and it comes down.
+         </p>
+       </td></tr>
+     </table>`,
+  )
+
+  const text = `Someone wrote you something.
+
+${opts.recipientName} - ${opts.fromName || 'Someone'} has sealed a note for you in The 20 Year Capsule.
+
+It is one sentence, written for you, locked until ${OPEN_LABEL}. Nobody reads it before then. Not you, not them, not us.
+
+Your entry: #${num}
+See it (blacked out, as it will stay): ${url}
+
+Your name appears on the public wall beside the entry, with the sentence blacked out. If you would rather it did not, reply to this email and it comes down.
+
+${SITE}`
+
+  return {
+    subject: `${opts.fromName || 'Someone'} sealed a note for you — it opens in 2047`,
+    html,
+    text,
+  }
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -179,8 +294,19 @@ Thank you for being one of the people who tried.`
 }
 
 // ------------------------------------------------------------------------------------------------
-export async function sendSealed(to: string, opts: { seq: number; hash: string; name?: string | null }) {
+export async function sendSealed(
+  to: string,
+  opts: { seq: number; hash: string; name?: string | null; gift?: Gift | null },
+) {
   const { subject, html, text } = sealedEmail(opts)
+  return await send(to, subject, html, text)
+}
+
+export async function sendGiftAnnouncement(
+  to: string,
+  opts: { seq: number; recipientName: string; fromName?: string | null },
+) {
+  const { subject, html, text } = giftAnnouncementEmail(opts)
   return await send(to, subject, html, text)
 }
 

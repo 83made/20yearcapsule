@@ -8,7 +8,7 @@
 
 import Stripe from 'https://esm.sh/stripe@17.7.0?target=deno'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { sendSealed } from '../_shared/email.ts'
+import { sendSealed, sendGiftAnnouncement } from '../_shared/email.ts'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2025-08-27.basil' })
 const WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
@@ -77,6 +77,9 @@ Deno.serve(async (req) => {
   const hash = await commit(nonce, message)
   const displayName = session.metadata?.display_name || null
   const location = session.metadata?.location || null
+  const isGift = session.metadata?.is_gift === '1'
+  const recipientName = isGift ? session.metadata?.recipient_name ?? '' : ''
+  const recipientEmail = isGift ? session.metadata?.recipient_email ?? '' : ''
 
   // 1. Seal the message.
   const { data: entry, error: entryErr } = await supabase
@@ -89,6 +92,11 @@ Deno.serve(async (req) => {
       display_name: displayName,
       location,
       contact_email: session.customer_details?.email ?? null,
+      is_gift: isGift,
+      recipient_name: recipientName || null,
+      // Never reaches capsule_wall. It exists so the 2047 send reaches the person the note was
+      // written for, not only the person who paid for it.
+      recipient_email: recipientEmail || null,
       stripe_session_id: session.id,
       stripe_payment_intent:
         typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null,
@@ -114,6 +122,8 @@ Deno.serve(async (req) => {
     seq: entry.seq,
     display_name: displayName,
     location,
+    is_gift: isGift,
+    recipient_name: recipientName || null,
     char_count: message.length,
     message_hash: hash,
     created_at: entry.created_at,
@@ -126,10 +136,35 @@ Deno.serve(async (req) => {
   const to = session.customer_details?.email
   if (to) {
     try {
-      const sent = await sendSealed(to, { seq: entry.seq, hash, name: displayName })
+      const sent = await sendSealed(to, {
+        seq: entry.seq,
+        hash,
+        name: displayName,
+        gift: isGift ? { recipientName, announced: Boolean(recipientEmail) } : null,
+      })
       if (!sent.ok) console.error('confirmation email failed', entry.seq, sent.error)
     } catch (err) {
       console.error('confirmation email threw', entry.seq, err)
+    }
+  }
+
+  // 4. Tell the recipient something exists for them. Same non-fatal treatment as the receipt, and
+  //    for the same reason: the note is already sealed and a bounced announcement must not make
+  //    Stripe retry the whole webhook.
+  //
+  //    It deliberately does NOT contain the note, and says so. The recipient finding out that
+  //    someone wrote them something they cannot read for twenty years IS the gift; a preview would
+  //    spend it. This is the one email the capsule sends to someone who did not pay.
+  if (isGift && recipientEmail) {
+    try {
+      const sent = await sendGiftAnnouncement(recipientEmail, {
+        seq: entry.seq,
+        recipientName,
+        fromName: displayName,
+      })
+      if (!sent.ok) console.error('gift announcement failed', entry.seq, sent.error)
+    } catch (err) {
+      console.error('gift announcement threw', entry.seq, err)
     }
   }
 

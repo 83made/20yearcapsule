@@ -95,20 +95,32 @@ const cell = (v) => {
 writeFileSync(
   join(OUT, 'capsule-opened.csv'),
   [
-    ['seq', 'display_name', 'location', 'message', 'nonce', 'message_hash', 'sealed_at'].join(','),
+    ['seq', 'display_name', 'location', 'is_gift', 'recipient_name', 'message', 'nonce', 'message_hash', 'sealed_at'].join(','),
     ...msgs.map((m) =>
-      [m.seq, m.display_name, m.location, m.message, m.nonce, m.message_hash, m.sealed_at].map(cell).join(','),
+      [m.seq, m.display_name, m.location, m.is_gift ? 'yes' : '', m.recipient_name || '', m.message, m.nonce, m.message_hash, m.sealed_at].map(cell).join(','),
     ),
   ].join('\n'),
 )
 
 // ---- mail merge --------------------------------------------------------------------------------
-const withEmail = msgs.filter((m) => m.contact_email)
+// A gift has two people to reach: whoever paid, and whoever it was written for. The recipient
+// never made a payment, so they appear nowhere in the Stripe records — this file is the only
+// place they exist. `role` is there so the 2047 send can word the two differently: one person
+// wrote the note, the other has been waiting twenty years to read it.
+const mailRows = []
+for (const m of msgs) {
+  if (m.contact_email) {
+    mailRows.push([m.contact_email, 'author', m.seq, m.display_name, m.recipient_name || '', m.message])
+  }
+  if (m.is_gift && m.recipient_email && m.recipient_email !== m.contact_email) {
+    mailRows.push([m.recipient_email, 'recipient', m.seq, m.display_name, m.recipient_name || '', m.message])
+  }
+}
 writeFileSync(
   join(OUT, 'capsule-emails.csv'),
   [
-    ['email', 'seq', 'display_name', 'message'].join(','),
-    ...withEmail.map((m) => [m.contact_email, m.seq, m.display_name, m.message].map(cell).join(',')),
+    ['email', 'role', 'seq', 'display_name', 'recipient_name', 'message'].join(','),
+    ...mailRows.map((r) => r.map(cell).join(',')),
   ].join('\n'),
 )
 
@@ -131,7 +143,9 @@ ${msgs
   .map(
     (m) => `<div class="e"><div class="h">#${String(m.seq).padStart(6, '0')} &middot; ${esc(
       m.display_name,
-    )}${m.location ? ' &middot; ' + esc(m.location) : ''} &middot; ${String(m.sealed_at).slice(0, 10)}</div>
+    )}${m.location ? ' &middot; ' + esc(m.location) : ''}${
+      m.is_gift && m.recipient_name ? ' &middot; for ' + esc(m.recipient_name) : ''
+    } &middot; ${String(m.sealed_at).slice(0, 10)}</div>
 <div class="m">${esc(m.message)}</div><div class="f">${m.message_hash}</div></div>`,
   )
   .join('\n')}

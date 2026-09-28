@@ -132,6 +132,41 @@ both true and persuasive is that entry numbers are issued in order and never reu
 renamed: the field name is a wire contract with the deployed function and Stripe session metadata,
 and the columns are in the sealed archive's schema.
 
+## Gifts
+
+A gift is an ordinary sealed note with a second person attached. **The buyer writes it**; the
+recipient is told it exists and neither of them reads it until 2047. It is deliberately *not* a
+prepaid slot the recipient redeems later — that model needs codes, an expiry before the December 31
+seal, and a rule for a code bought and never used, which lands straight on the refund threshold
+because an unredeemed code is money taken for an entry that does not exist.
+
+Three columns, and the split is the same one the whole schema turns on:
+
+| column | where | published? |
+| --- | --- | --- |
+| `is_gift` | entries + wall | yes |
+| `recipient_name` | entries + wall | **yes** — like `display_name` |
+| `recipient_email` | entries only | **never** — like `contact_email` |
+
+**`recipient_email` must never reach `capsule_wall` or the public manifest.** `recipient_name` is
+public on purpose: "from Jon — for Sarah" on the wall is the point of a gift being visible, and the
+compose form says so before the name is typed.
+
+**The 2047 send has two people to reach per gift.** The recipient never paid, so they are in no
+Stripe record — `capsule-emails.csv` from `open-capsule.mjs` is the only place they exist. It now
+emits a `role` column (`author` / `recipient`) so the two can be worded differently, and skips the
+recipient row when it duplicates the buyer's address.
+
+`giftAnnouncementEmail` is the one email this site sends to someone who did not pay. It must never
+contain the note or a hint of it — being told someone wrote you something you cannot read for
+twenty years *is* the gift — and it carries an opt-out, because the recipient never agreed to
+appear on a public wall. `/terms` states that they can have the name or the entry removed and the
+payment refunded on their request.
+
+**Names are escaped now.** `email.ts` has an `esc()` and every name interpolation goes through it.
+Before gifts, `display_name` went into the receipt HTML raw; that was self-inflicted at worst, and
+it is not a standard worth keeping once a third party is the reader.
+
 ## Moderation
 
 `supabase/functions/_shared/moderate.ts`, called from `create-capsule-checkout` **before** Stripe —

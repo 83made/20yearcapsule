@@ -21,7 +21,7 @@ export default function Certificate() {
     const load = async () => {
       const { data, error } = await supabase
         .from('capsule_wall')
-        .select('seq,display_name,location,char_count,message_hash,created_at')
+        .select('seq,display_name,location,char_count,message_hash,created_at,is_gift,recipient_name')
         .eq('seq', Number(seq))
         .maybeSingle()
       if (!alive) return

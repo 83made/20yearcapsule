@@ -45,6 +45,13 @@ export function WallRow({ entry }) {
         <span className="shrink-0 text-[0.9rem] font-semibold text-ink-2">
           {entry.display_name || 'Anonymous'}
         </span>
+        {/* A gift is the only row on the wall that names two people. Shown in the seal red because
+            it is the one thing here that is about somebody other than the writer. */}
+        {entry.is_gift && entry.recipient_name && (
+          <span className="shrink-0 text-[0.82rem] font-semibold text-seal">
+            for {entry.recipient_name}
+          </span>
+        )}
         {entry.location && (
           <span className="shrink-0 text-[0.82rem] text-muted">{entry.location}</span>
         )}

@@ -37,7 +37,7 @@ export default function Home() {
       const [{ data: rows }, { data: stats }] = await Promise.all([
         supabase
           .from('capsule_wall')
-          .select('seq,display_name,location,char_count,created_at')
+          .select('seq,display_name,location,char_count,created_at,is_gift,recipient_name')
           .order('created_at', { ascending: false })
           .limit(60),
         supabase.rpc('capsule_stats'),
@@ -181,6 +181,58 @@ export default function Home() {
         </section>
 
         <div className="rule" />
+
+        {/* The gift case, placed BEFORE the compose form rather than after it. The form opens on
+            "who is this for?", so the answer has to have been offered already — a gift section
+            below the box is a section nobody reads until they have finished writing to themselves.
+
+            Pitched on the one thing it has that no other present has: it cannot be opened. Every
+            other gift is consumed on the day it is given. */}
+        <section className="py-12">
+          <div className="bg-paper-2 p-7 md:p-9">
+            <div className="label">Or give one away</div>
+            <h2 className="mt-3 max-w-2xl font-display text-4xl leading-tight md:text-5xl">
+              The only present they can&rsquo;t open.
+            </h2>
+            <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-ink-2">
+              Write one sentence to someone and seal it in their name. They are told today that it
+              exists and that it is for them &mdash; and then neither of you reads it until{' '}
+              {OPEN_LABEL.split(' · ')[0]}. Not a card they skim and recycle. A thing that sits
+              there for twenty years with their name on it.
+            </p>
+
+            <div className="mt-8 grid gap-7 sm:grid-cols-3">
+              {[
+                [
+                  'For a birthday',
+                  'They get older on the same day every year. This one comes back once, two decades later.',
+                ],
+                [
+                  'For Christmas',
+                  `The capsule seals ${SEAL_LABEL.split(' · ')[0]}, six days after. It is the last thing that goes in this year.`,
+                ],
+                [
+                  'For someone you love',
+                  'Say the thing you would not say out loud yet. It keeps. You are not there when they read it, and that is rather the point.',
+                ],
+              ].map(([t, body]) => (
+                <div key={t}>
+                  <h3 className="font-display text-2xl leading-tight">{t}</h3>
+                  <p className="mt-2 text-[0.95rem] leading-relaxed text-ink-3">{body}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <a href="#write" className="btn btn-primary">
+                Write one for someone &mdash; ${PRICE_USD}
+              </a>
+              <span className="text-[0.9rem] text-ink-3">
+                Their name goes on the wall. The sentence does not.
+              </span>
+            </div>
+          </div>
+        </section>
 
         {/* compose */}
         <section id="write" className="scroll-mt-4 py-12">

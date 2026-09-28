@@ -9,6 +9,9 @@ export default function Compose({ sealed, prefill }) {
   const [name, setName] = useState('')
   const [location, setLocation] = useState('')
   const [email, setEmail] = useState('')
+  const [isGift, setIsGift] = useState(false)
+  const [recipientName, setRecipientName] = useState('')
+  const [recipientEmail, setRecipientEmail] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [ph, setPh] = useState(0)
@@ -30,7 +33,7 @@ export default function Compose({ sealed, prefill }) {
 
   const left = MAX_CHARS - message.length
   const over = left < 0
-  const ready = message.trim().length > 0 && !over
+  const ready = message.trim().length > 0 && !over && (!isGift || recipientName.trim().length > 0)
 
 
   async function submit(e) {
@@ -50,6 +53,9 @@ export default function Compose({ sealed, prefill }) {
           display_name: name.trim(),
           location: location.trim(),
           email: email.trim(),
+          is_gift: isGift,
+          recipient_name: isGift ? recipientName.trim() : '',
+          recipient_email: isGift ? recipientEmail.trim() : '',
         }),
       })
       const data = await res.json().catch(() => ({}))
@@ -76,8 +82,38 @@ export default function Compose({ sealed, prefill }) {
   return (
     <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1.35fr_1fr]">
       <div>
+        {/* Who it is for, asked BEFORE the sentence rather than after it. Putting this below the
+            textarea would mean asking someone who has just written a note to the future to go back
+            and rewrite it for a person — the choice changes the sentence, so it has to come first. */}
+        <div className="mb-6">
+          <div className="label">Who is this for?</div>
+          <div className="mt-2 flex flex-wrap gap-2" role="group" aria-label="Who this note is for">
+            {[
+              [false, 'The future', 'A note to 2047'],
+              [true, 'Someone you love', 'Seal it as a gift'],
+            ].map(([v, title, sub]) => (
+              <button
+                key={title}
+                type="button"
+                onClick={() => setIsGift(v)}
+                aria-pressed={isGift === v}
+                className="flex-1 border px-4 py-3 text-left transition-colors"
+                style={{
+                  minWidth: '11rem',
+                  borderColor: isGift === v ? 'var(--color-ink)' : 'var(--color-rule)',
+                  background: isGift === v ? 'var(--color-ink)' : 'transparent',
+                  color: isGift === v ? 'var(--color-paper)' : 'var(--color-ink-2)',
+                }}
+              >
+                <span className="block text-[0.98rem] font-semibold">{title}</span>
+                <span className="block text-[0.85rem] opacity-70">{sub}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <label htmlFor="msg" className="label">
-          Your note
+          {isGift && recipientName.trim() ? `Your note to ${recipientName.trim()}` : 'Your note'}
         </label>
         <div className="relative mt-2">
           <textarea
@@ -146,9 +182,56 @@ export default function Compose({ sealed, prefill }) {
           </div>
         </div>
 
+
+        {isGift && (
+          <div className="mt-6 border-l-2 pl-5" style={{ borderColor: 'var(--color-seal)' }}>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="rn" className="label">
+                  Their name
+                </label>
+                <input
+                  id="rn"
+                  className="field mt-2"
+                  maxLength={40}
+                  value={recipientName}
+                  onChange={(e) => setRecipientName(e.target.value)}
+                  placeholder="Sarah"
+                  aria-describedby="rn-help"
+                />
+                <p id="rn-help" className="mt-2 text-[0.88rem] leading-relaxed text-muted">
+                  Shown on the wall beside your entry, and published in 2047.
+                </p>
+              </div>
+              <div>
+                <label htmlFor="re" className="label">
+                  Their email <span className="font-normal text-muted">(optional)</span>
+                </label>
+                <input
+                  id="re"
+                  type="email"
+                  className="field mt-2"
+                  maxLength={120}
+                  value={recipientEmail}
+                  onChange={(e) => setRecipientEmail(e.target.value)}
+                  placeholder="So we can tell them today"
+                  aria-describedby="re-help"
+                />
+                {/* The one thing a gifter most needs to understand: supplying this spoils nothing,
+                    and withholding it means the present sits in a database nobody knows about. */}
+                <p id="re-help" className="mt-2 text-[0.88rem] leading-relaxed text-muted">
+                  We email them that a note exists and that it opens in 2047 — never what it says.
+                  Leave it blank to tell them yourself.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="mt-4">
           <label htmlFor="em" className="label">
-            Email <span className="font-normal text-muted">(optional)</span>
+            {isGift ? 'Your email' : 'Email'}{' '}
+            <span className="font-normal text-muted">(optional)</span>
           </label>
           <input
             id="em"
@@ -169,14 +252,20 @@ export default function Compose({ sealed, prefill }) {
       <div className="self-start bg-paper-2 p-6">
         <div className="flex items-baseline gap-2">
           <span className="font-display text-6xl leading-none">${PRICE_USD}</span>
-          <span className="text-[0.95rem] font-semibold text-muted">one note</span>
+          <span className="text-[0.95rem] font-semibold text-muted">
+            {isGift ? 'one gift' : 'one note'}
+          </span>
         </div>
 
         <ul className="mt-6 grid gap-3.5 text-[0.98rem] leading-snug text-ink-2">
           {[
             [`Up to ${MAX_CHARS} characters`, 'About one sentence.'],
-            ['Sealed immediately', 'Nobody sees it — not even you.'],
-            ['Your name on the wall', 'The note stays hidden.'],
+            isGift
+              ? ['Sealed immediately', 'Not even they can read it.']
+              : ['Sealed immediately', 'Nobody sees it — not even you.'],
+            isGift
+              ? ['Both names on the wall', 'The note stays hidden.']
+              : ['Your name on the wall', 'The note stays hidden.'],
             ['Opens January 1, 2047', 'Published in full, all at once.'],
           ].map(([t, sub]) => (
             <li key={t} className="flex gap-3">
@@ -197,7 +286,7 @@ export default function Compose({ sealed, prefill }) {
         )}
 
         <button type="submit" disabled={!ready || busy} className="btn btn-primary mt-6 w-full">
-          {busy ? 'Opening checkout…' : `Seal it — $${PRICE_USD}`}
+          {busy ? 'Opening checkout…' : isGift ? `Seal the gift — $${PRICE_USD}` : `Seal it — $${PRICE_USD}`}
         </button>
 
         <p className="mt-3 text-center text-[0.85rem] text-muted">
