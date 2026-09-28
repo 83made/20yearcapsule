@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MAX_CHARS, PRICE_USD, OPEN_LABEL } from '../lib/capsule.js'
+import { MAX_CHARS, PRICE_USD, OPEN_LABEL, GIFTS_ENABLED } from '../lib/capsule.js'
 import { ALL_EXAMPLES } from '../data/examples.js'
 
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL ?? ''}/functions/v1/create-capsule-checkout`
@@ -82,7 +82,7 @@ export default function Compose({ sealed, prefill }) {
   return (
     <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1.35fr_1fr]">
       <div>
-        {/* Who it is for, asked BEFORE the sentence rather than after it. Putting this below the
+        {GIFTS_ENABLED && (<>{/* Who it is for, asked BEFORE the sentence rather than after it. Putting this below the
             textarea would mean asking someone who has just written a note to the future to go back
             and rewrite it for a person — the choice changes the sentence, so it has to come first. */}
         <div className="mb-6">
@@ -110,7 +110,7 @@ export default function Compose({ sealed, prefill }) {
               </button>
             ))}
           </div>
-        </div>
+        </div></>)}
 
         <label htmlFor="msg" className="label">
           {isGift && recipientName.trim() ? `Your note to ${recipientName.trim()}` : 'Your note'}
@@ -183,7 +183,7 @@ export default function Compose({ sealed, prefill }) {
         </div>
 
 
-        {isGift && (
+        {GIFTS_ENABLED && isGift && (
           <div className="mt-6 border-l-2 pl-5" style={{ borderColor: 'var(--color-seal)' }}>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>

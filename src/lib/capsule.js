@@ -9,6 +9,19 @@ export const SEALS_AT = new Date('2027-01-01T07:59:59Z')
 export const OPENS_AT = new Date('2047-01-01T08:01:00Z')
 
 export const PRICE_USD = 5
+
+/**
+ * Gifts are off while the flow is rebuilt.
+ *
+ * The first version shipped the wrong product: the buyer wrote a note *to* someone. What a gift is
+ * meant to be here is a prepaid entry the recipient redeems and writes themselves, so someone can
+ * put their mum in the capsule without making her pay or handle checkout. Those are different
+ * schemas, different emails and a different page, so the old UI is hidden rather than adapted.
+ *
+ * The backend columns stay in place and inert — is_gift defaults false and nothing sets it while
+ * this is off.
+ */
+export const GIFTS_ENABLED = false
 export const MAX_CHARS = 100
 
 export const SEAL_LABEL = 'December 31, 2026 · 11:59 PM PST'

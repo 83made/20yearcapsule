@@ -5,6 +5,7 @@ import {
   SEALS_AT,
   OPENS_AT,
   SEAL_LABEL,
+  GIFTS_ENABLED,
   OPEN_LABEL,
   MAX_CHARS,
   PRICE_USD,
@@ -182,7 +183,7 @@ export default function Home() {
 
         <div className="rule" />
 
-        {/* The gift case, placed BEFORE the compose form rather than after it. The form opens on
+        {GIFTS_ENABLED && (<>{/* The gift case, placed BEFORE the compose form rather than after it. The form opens on
             "who is this for?", so the answer has to have been offered already — a gift section
             below the box is a section nobody reads until they have finished writing to themselves.
 
@@ -232,7 +233,7 @@ export default function Home() {
               </span>
             </div>
           </div>
-        </section>
+        </section></>)}
 
         {/* compose */}
         <section id="write" className="scroll-mt-4 py-12">
