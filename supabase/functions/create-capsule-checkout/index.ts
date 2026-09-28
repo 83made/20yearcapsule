@@ -17,6 +17,16 @@ const CAPACITY = 10_000 // a real ceiling, enforced here so it cannot be exceede
 // match is one bounced send.
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
+// Gift tokens are generated HERE, before payment, and travel in the Stripe session metadata.
+//
+// Only sha256(token) is ever written to capsule_gifts, so a leak of our database hands nobody a
+// usable redemption link. The raw token reaches the buyer by email and, if that fails, by reading
+// it back off their own paid Stripe session on the success page — which is why it rides in
+// metadata rather than being minted in the webhook where nothing could recover it.
+const b64url = (b: Uint8Array) =>
+  btoa(String.fromCharCode(...b)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+const newGiftToken = () => b64url(crypto.getRandomValues(new Uint8Array(24)))
+
 // Only the capsule's own pages need to call this. A wildcard let any site on the internet drive
 // live Stripe session creation from a visitor's browser.
 const ALLOWED_ORIGINS = new Set([
@@ -117,6 +127,67 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json().catch(() => ({}))
+
+    // ---------------------------------------------------------------------------------------
+    // Gift purchase. Buys the right to create an entry; writes nothing.
+    // ---------------------------------------------------------------------------------------
+    // Nothing here is sealed, so there is no message to validate or screen. What IS screened is
+    // every field a stranger will later read on the redemption page: the buyer's name and their
+    // note are shown to the recipient, and an unscreened field shown to a third party is how the
+    // last version of gifts became an abuse primitive.
+    if (body.kind === 'gift') {
+      const purchaserName = clean(body.purchaser_name, 40)
+      const giftRecipientName = clean(body.recipient_name, 40)
+      const giftRecipientEmail = clean(body.recipient_email, 120)
+      const giftNote = clean(body.gift_note, 200)
+
+      if (giftRecipientEmail && !EMAIL_RE.test(giftRecipientEmail)) {
+        return reply({ error: 'Their email address does not look right.' }, 400)
+      }
+      for (const [label, value] of [
+        ['name', purchaserName],
+        ['name', giftRecipientName],
+        ['message', giftNote],
+      ] as [string, string][]) {
+        if (value && moderate(value).action === 'block') {
+          return reply({ error: `That ${label} cannot be accepted.` }, 422)
+        }
+      }
+
+      const giftToken = newGiftToken()
+      const giftSession = await stripe.checkout.sessions.create({
+        mode: 'payment',
+        success_url: `${SITE_URL}/gifted?session={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${SITE_URL}/?canceled=1`,
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: 'usd',
+              unit_amount: 500,
+              product_data: {
+                name: giftRecipientName
+                  ? `An entry in The 20 Year Capsule — a gift for ${giftRecipientName}`.slice(0, 250)
+                  : 'An entry in The 20 Year Capsule — a gift',
+                description: 'They write it. Sealed December 31, 2026. Opens January 1, 2047.',
+                tax_code: 'txcd_10000000',
+              },
+            },
+          },
+        ],
+        metadata: {
+          kind: 'capsule_gift',
+          gift_token: giftToken,
+          purchaser_name: purchaserName,
+          recipient_name: giftRecipientName,
+          recipient_email: giftRecipientEmail,
+          gift_note: giftNote,
+        },
+      })
+
+      return reply({ url: giftSession.url })
+    }
+
 
     // Check the raw length BEFORE truncating. Previously clean() sliced to 100 first, so this
     // branch could never fire: someone pasting 600 characters was charged $5 and silently had

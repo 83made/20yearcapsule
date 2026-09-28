@@ -18,6 +18,7 @@ const REPLY_TO = Deno.env.get('EMAIL_REPLY_TO') ?? 'hello@20yearcapsule.com'
 const SITE = Deno.env.get('SITE_URL') ?? 'https://20yearcapsule.com'
 
 const OPEN_LABEL = 'January 1, 2047'
+const SEAL_SHORT = 'December 31, 2026'
 
 type SendResult = { ok: boolean; id?: string; error?: string }
 
@@ -75,46 +76,18 @@ function shell(headline: string, inner: string) {
 const esc = (v: string) =>
   v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
-type Gift = {
-  recipientName: string
-  /** The announcement actually sent — not merely that an address was supplied. */
-  announced: boolean
-  /** An address was supplied and a send was attempted. Separates "no address given" from
-   *  "we tried and it failed": those need different things from the buyer. */
-  attempted: boolean
-}
-
 // ------------------------------------------------------------------------------------------------
-export function sealedEmail(opts: {
-  seq: number
-  hash: string
-  name?: string | null
-  gift?: Gift | null
-}) {
+export function sealedEmail(opts: { seq: number; hash: string; name?: string | null }) {
   const num = String(opts.seq).padStart(6, '0')
   const who = opts.name ? `, ${esc(opts.name)}` : ''
   const url = `${SITE}/m/${opts.seq}`
-  const gift = opts.gift ?? null
 
-  // A gifter needs two things the ordinary receipt does not give them: confirmation that the
-  // right name went in, and whether the recipient has been told yet. If no email was supplied,
-  // nobody has told them and the buyer is the only one who can.
-  const giftLine = gift
-    ? `<p style="margin:0 0 16px;">It is sealed as a gift for <strong style="color:#16161d;">${esc(
-        gift.recipientName,
-      )}</strong>. ${
-        gift.announced
-          ? 'We have emailed them to say a note exists for them, and that neither of you can read it until 2047.'
-          : gift.attempted
-            ? 'We tried to email them and it did not go through, so nobody has told them yet — worth saying it yourself.'
-            : 'You did not give us their email, so nobody has told them — that part is yours to do.'
-      }</p>`
-    : ''
-
-  // Share links have to be plain hrefs — an email client will not run JavaScript, so the site's
+  // Share links have to be plain hrefs: an email client will not run JavaScript, so the site's
   // share component cannot be reused here. Same wording, built from the same shape.
   const blurb = `I just sealed a note in a time capsule that opens on January 1, 2047. It's entry #${num} - and I'm not allowed to read it again until then.`
-  const body = `${blurb}\n\n${SITE}`
+  const body = `${blurb}
+
+${SITE}`
   const e = (v: string) => encodeURIComponent(v)
   const sms = `sms:?&body=${e(body)}`
   const x = `https://twitter.com/intent/tweet?text=${e(blurb)}&url=${e(SITE)}`
@@ -123,8 +96,6 @@ export function sealedEmail(opts: {
   const html = shell(
     'Your note is sealed.',
     `<p style="margin:0 0 16px;">That's it${who} — it's in, and it stays hidden until <strong style="color:#16161d;">${OPEN_LABEL}</strong>.</p>
-
-     ${giftLine}
 
      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f8;border-radius:12px;margin:22px 0;">
        <tr><td style="padding:20px 22px;">
@@ -175,19 +146,7 @@ export function sealedEmail(opts: {
 
 Entry #${num}
 Proof code: ${opts.hash}
-${
-  gift
-    ? `
-Sealed as a gift for ${gift.recipientName}. ${
-        gift.announced
-          ? 'We have emailed them to say it exists.'
-          : gift.attempted
-            ? 'We tried to email them and it did not go through, so nobody has told them yet.'
-            : 'No email was given for them, so nobody has told them yet.'
-      }
-`
-    : ''
-}
+
 It stays hidden until ${OPEN_LABEL}. We won't show you what you wrote again — that's the point.
 
 The proof code is made from your exact words. In 2047, when every note is published, anyone can check it still matches, which proves nothing changed.
@@ -201,78 +160,150 @@ Sending this to one person is genuinely the whole difference. Forwarding this em
 
 ${SITE}`
 
+  return { subject: `Your note is sealed — entry #${num}`, html, text }
+}
+
+// ------------------------------------------------------------------------------------------------
+// Gift emails.
+//
+// A gift here is a prepaid entry, not a note written for someone. Two emails, aimed at two people
+// with completely different amounts of context:
+//
+//   giftInvite    -> the recipient, who may have no idea what this site is and never asked for mail
+//                    from it. It explains the whole thing before asking for anything, and it makes
+//                    clear that ignoring it costs the buyer nothing.
+//   giftPurchased -> the buyer, and it carries the redemption link. If they meant to hand a card
+//                    over on Christmas morning, THIS EMAIL IS THE PRESENT, so the link is the most
+//                    prominent thing in it and the mail says plainly not to lose it.
+// ------------------------------------------------------------------------------------------------
+export function giftInviteEmail(opts: {
+  link: string
+  recipientName?: string | null
+  purchaserName?: string | null
+  giftNote?: string | null
+}) {
+  const who = opts.recipientName ? `${esc(opts.recipientName)} — ` : ''
+  const from = opts.purchaserName ? esc(opts.purchaserName) : 'Someone'
+  const note = opts.giftNote
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f8;border-radius:12px;margin:22px 0;"><tr><td style="padding:18px 22px;font:italic 400 15px/1.6 Georgia,serif;color:#3d3d4a;">${esc(
+        opts.giftNote,
+      )}</td></tr></table>`
+    : ''
+
+  const html = shell(
+    'Someone bought you a place in 2047.',
+    `<p style="margin:0 0 16px;">${who}<strong style="color:#16161d;">${from}</strong> has paid for an entry in The 20 Year Capsule and put your name on it.</p>
+
+     <p style="margin:0 0 16px;">Here is how it works: you write one sentence, up to 100 characters. It is sealed on ${SEAL_SHORT}, nobody reads it — not you, not them, not us — and it is published on ${OPEN_LABEL}, twenty years later, alongside everyone else's.</p>
+
+     ${note}
+
+     <p style="margin:0 0 22px;">It is already paid for. There is no checkout and nothing to fill in but the sentence.</p>
+
+     <a href="${opts.link}" style="display:inline-block;background:#16161d;color:#ffffff;font:700 15px/1 Helvetica,Arial,sans-serif;padding:14px 24px;border-radius:999px;text-decoration:none;">Write your sentence</a>
+
+     <p style="margin:24px 0 0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8a8a96;">
+       This link is yours alone and works once. If you would rather not take part, simply ignore it —
+       nothing is published, nobody is told, and ${from} is refunded when the capsule seals.
+     </p>`,
+  )
+
+  const text = `Someone bought you a place in 2047.
+
+${opts.recipientName ? opts.recipientName + ' - ' : ''}${opts.purchaserName || 'Someone'} has paid for an entry in The 20 Year Capsule and put your name on it.
+
+You write one sentence, up to 100 characters. It is sealed on ${SEAL_SHORT}, nobody reads it - not you, not them, not us - and it is published on ${OPEN_LABEL}, twenty years later.
+${opts.giftNote ? '\n"' + opts.giftNote + '"\n' : ''}
+It is already paid for. No checkout, nothing to fill in but the sentence.
+
+Write it: ${opts.link}
+
+This link is yours alone and works once. If you would rather not take part, ignore it - nothing is published, nobody is told, and the buyer is refunded when the capsule seals.`
+
   return {
-    subject: gift
-      ? `Your gift for ${gift.recipientName} is sealed — entry #${num}`
-      : `Your note is sealed — entry #${num}`,
+    subject: `${opts.purchaserName || 'Someone'} bought you an entry in a time capsule`,
     html,
     text,
   }
 }
 
-// ------------------------------------------------------------------------------------------------
-// The one email this capsule sends to someone who did not pay for anything.
-//
-// It must not contain the note, or any hint of it, and it says so outright. Someone telling you
-// they wrote you something you cannot read for twenty years IS the present; a preview would spend
-// it on the day it arrived. It also has to survive being read by a person with no idea what this
-// site is, so it explains the whole thing in the first two sentences and never assumes goodwill.
-export function giftAnnouncementEmail(opts: {
-  seq: number
-  recipientName: string
-  fromName?: string | null
+export function giftPurchasedEmail(opts: {
+  link: string
+  recipientName?: string | null
+  invited: boolean
+  wantsInvite: boolean
 }) {
-  const num = String(opts.seq).padStart(6, '0')
-  const from = opts.fromName ? esc(opts.fromName) : 'Someone'
-  const name = esc(opts.recipientName)
-  const url = `${SITE}/m/${opts.seq}`
+  const forWhom = opts.recipientName ? ` for ${esc(opts.recipientName)}` : ''
+  const delivery = opts.invited
+    ? `<p style="margin:0 0 16px;">We have emailed them the link, so they can write it whenever they like.</p>`
+    : opts.wantsInvite
+      ? `<p style="margin:0 0 16px;"><strong style="color:#16161d;">We could not deliver the email to them</strong>, so nobody has told them yet — send them the link below yourself.</p>`
+      : `<p style="margin:0 0 16px;">You did not give us their email, which is the right call if you want to hand this over in person. The link below is the present — give it however you like.</p>`
 
   const html = shell(
-    'Someone wrote you something.',
-    `<p style="margin:0 0 16px;">${name} — <strong style="color:#16161d;">${from}</strong> has sealed a note for you in The 20 Year Capsule.</p>
+    'The entry is paid for.',
+    `<p style="margin:0 0 16px;">You have bought an entry in The 20 Year Capsule${forWhom}. They write the sentence; it seals on ${SEAL_SHORT} and opens on ${OPEN_LABEL}.</p>
 
-     <p style="margin:0 0 16px;">It is one sentence, written for you, and it is locked until <strong style="color:#16161d;">${OPEN_LABEL}</strong>. Not a teaser, not a preview: nobody reads it before then. Not you, not them, not us.</p>
+     ${delivery}
 
      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f6f6f8;border-radius:12px;margin:22px 0;">
        <tr><td style="padding:20px 22px;">
-         <div style="font:700 12px/1 Helvetica,Arial,sans-serif;color:#8a8a96;letter-spacing:1px;text-transform:uppercase;">Your entry</div>
-         <div style="font:700 30px/1.1 Helvetica,Arial,sans-serif;color:#16161d;margin-top:7px;">#${num}</div>
-         <div style="font:400 14px/1.5 Helvetica,Arial,sans-serif;color:#3d3d4a;margin-top:10px;">Sealed for you by ${from}</div>
+         <div style="font:700 12px/1 Helvetica,Arial,sans-serif;color:#8a8a96;letter-spacing:1px;text-transform:uppercase;">Their link</div>
+         <div style="font:400 14px/1.5 monospace;color:#16161d;word-break:break-all;margin-top:8px;">${opts.link}</div>
        </td></tr>
      </table>
 
-     <p style="margin:0 0 22px;">You can see that it exists — the entry number, the date, a blacked-out bar where the sentence is — but not what it says. That is the entire idea.</p>
+     <p style="margin:0 0 22px;"><strong style="color:#16161d;">Keep this email.</strong> That link is the only way in, it works once, and we cannot send you another copy if it is lost.</p>
 
-     <a href="${url}" style="display:inline-block;background:#16161d;color:#ffffff;font:700 15px/1 Helvetica,Arial,sans-serif;padding:14px 24px;border-radius:999px;text-decoration:none;">See your entry</a>
+     <a href="${opts.link}/card" style="display:inline-block;background:#16161d;color:#ffffff;font:700 15px/1 Helvetica,Arial,sans-serif;padding:14px 24px;border-radius:999px;text-decoration:none;">Print a card to give them</a>
 
-     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0 0;border-top:1px solid #e2e2e8;">
-       <tr><td style="padding-top:24px;">
-         <p style="margin:0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8a8a96;">
-           Your name appears on the public wall beside the entry, with the sentence blacked out.
-           If you would rather it did not, reply to this email and it comes down.
-         </p>
-       </td></tr>
-     </table>`,
+     <p style="margin:26px 0 0;font:400 13px/1.6 Helvetica,Arial,sans-serif;color:#8a8a96;">
+       If they have not written it by ${SEAL_SHORT} the capsule seals without it and you are refunded
+       in full, automatically. There is nothing to chase.
+     </p>`,
   )
 
-  const text = `Someone wrote you something.
+  const text = `The entry is paid for.
 
-${opts.recipientName} - ${opts.fromName || 'Someone'} has sealed a note for you in The 20 Year Capsule.
+You have bought an entry in The 20 Year Capsule${opts.recipientName ? ' for ' + opts.recipientName : ''}. They write the sentence; it seals on ${SEAL_SHORT} and opens on ${OPEN_LABEL}.
 
-It is one sentence, written for you, locked until ${OPEN_LABEL}. Nobody reads it before then. Not you, not them, not us.
+${opts.invited ? 'We have emailed them the link.' : opts.wantsInvite ? 'We could NOT deliver the email to them - send them the link yourself.' : 'You did not give us their email, so the link below is the present. Give it however you like.'}
 
-Your entry: #${num}
-See it (blacked out, as it will stay): ${url}
+THEIR LINK
+${opts.link}
 
-Your name appears on the public wall beside the entry, with the sentence blacked out. If you would rather it did not, reply to this email and it comes down.
+Keep this email. That link is the only way in, it works once, and we cannot send another copy if it is lost.
 
-${SITE}`
+Printable card: ${opts.link}/card
+
+If they have not written it by ${SEAL_SHORT} the capsule seals without it and you are refunded in full, automatically.`
 
   return {
-    subject: `${opts.fromName || 'Someone'} sealed a note for you — it opens in 2047`,
+    subject: `Your gift entry is ready${opts.recipientName ? ' for ' + opts.recipientName : ''}`,
     html,
     text,
   }
+}
+
+export async function sendGiftInvite(
+  to: string,
+  opts: {
+    link: string
+    recipientName?: string | null
+    purchaserName?: string | null
+    giftNote?: string | null
+  },
+) {
+  const { subject, html, text } = giftInviteEmail(opts)
+  return await send(to, subject, html, text)
+}
+
+export async function sendGiftPurchased(
+  to: string,
+  opts: { link: string; recipientName?: string | null; invited: boolean; wantsInvite: boolean },
+) {
+  const { subject, html, text } = giftPurchasedEmail(opts)
+  return await send(to, subject, html, text)
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -302,19 +333,8 @@ Thank you for being one of the people who tried.`
 }
 
 // ------------------------------------------------------------------------------------------------
-export async function sendSealed(
-  to: string,
-  opts: { seq: number; hash: string; name?: string | null; gift?: Gift | null },
-) {
+export async function sendSealed(to: string, opts: { seq: number; hash: string; name?: string | null }) {
   const { subject, html, text } = sealedEmail(opts)
-  return await send(to, subject, html, text)
-}
-
-export async function sendGiftAnnouncement(
-  to: string,
-  opts: { seq: number; recipientName: string; fromName?: string | null },
-) {
-  const { subject, html, text } = giftAnnouncementEmail(opts)
   return await send(to, subject, html, text)
 }
 

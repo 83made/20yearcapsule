@@ -60,37 +60,51 @@ const previews = [
   ['sealed', mod.sealedEmail({ seq: 1, hash: SAMPLE_HASH, name: 'Jon' })],
   ['sealed-anonymous', mod.sealedEmail({ seq: 428, hash: SAMPLE_HASH, name: null })],
   [
-    'sealed-gift',
-    mod.sealedEmail({
-      seq: 145,
-      hash: SAMPLE_HASH,
-      name: 'Jon',
-      gift: { recipientName: 'Sarah', announced: true, attempted: true },
+    'gift-invite',
+    mod.giftInviteEmail({
+      link: 'https://20yearcapsule.com/g/Kv3xQ1aB7nZr9TfLmW2pYd6s',
+      recipientName: 'Mum',
+      purchaserName: 'Jon',
+      giftNote: 'Thought you should be in this one. No pressure on what to write. x',
     }),
   ],
   [
-    'sealed-gift-untold',
-    mod.sealedEmail({
-      seq: 146,
-      hash: SAMPLE_HASH,
-      name: 'Jon',
-      gift: { recipientName: 'Sarah', announced: false, attempted: false },
+    'gift-invite-bare',
+    mod.giftInviteEmail({
+      link: 'https://20yearcapsule.com/g/Kv3xQ1aB7nZr9TfLmW2pYd6s',
+      recipientName: null,
+      purchaserName: null,
+      giftNote: null,
     }),
   ],
   [
-    'sealed-gift-failed',
-    mod.sealedEmail({
-      seq: 147,
-      hash: SAMPLE_HASH,
-      name: 'Jon',
-      gift: { recipientName: 'Sarah', announced: false, attempted: true },
+    'gift-purchased-emailed',
+    mod.giftPurchasedEmail({
+      link: 'https://20yearcapsule.com/g/Kv3xQ1aB7nZr9TfLmW2pYd6s',
+      recipientName: 'Mum',
+      invited: true,
+      wantsInvite: true,
     }),
   ],
   [
-    'gift-announcement',
-    mod.giftAnnouncementEmail({ seq: 145, recipientName: 'Sarah', fromName: 'Jon' }),
+    'gift-purchased-handover',
+    mod.giftPurchasedEmail({
+      link: 'https://20yearcapsule.com/g/Kv3xQ1aB7nZr9TfLmW2pYd6s',
+      recipientName: 'Mum',
+      invited: false,
+      wantsInvite: false,
+    }),
   ],
-  ['refunded', mod.refundedEmail({ seq: 428, total: 612, goal: 380 })],
+  [
+    'gift-purchased-failed',
+    mod.giftPurchasedEmail({
+      link: 'https://20yearcapsule.com/g/Kv3xQ1aB7nZr9TfLmW2pYd6s',
+      recipientName: 'Mum',
+      invited: false,
+      wantsInvite: true,
+    }),
+  ],
+  ['refunded', mod.refundedEmail({ seq: 428, total: 190, goal: 380 })],
 ]
 
 mkdirSync(OUT, { recursive: true })
