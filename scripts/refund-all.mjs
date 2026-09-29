@@ -85,9 +85,11 @@ Thank you for being one of the people who tried.`
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      from: 'The 20 Year Capsule <hello@20yearcapsule.com>',
+      from: env('EMAIL_FROM') || 'The 20 Year Capsule <hello@20yearcapsule.com>',
       to,
-      reply_to: 'jon@83made.com',
+      // Same address as every other email the project sends. Refunds are the moment people are
+      // most likely to write back, so a reply must not land somewhere nobody is watching.
+      reply_to: env('EMAIL_REPLY_TO') || 'hello@20yearcapsule.com',
       subject: 'Your 20 Year Capsule entry has been refunded',
       text,
     }),
