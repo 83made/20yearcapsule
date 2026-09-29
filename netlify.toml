@@ -2,7 +2,24 @@
   command = "npm run build"
   publish = "dist"
 
-# SPA: every route falls through to index.html so /m/123, /sealed and /terms work on refresh.
+# Routes that have their own pre-rendered HTML (scripts/build-seo.mjs) must be matched BEFORE the
+# SPA catch-all below, because redirect rules are evaluated in order and the catch-all would
+# otherwise swallow them. Without these, /gift served the homepage's markup while only /gift/ got
+# the right one — and the link people actually share has no trailing slash.
+#
+# Adding a route to build-seo.mjs means adding a rule here too.
+[[redirects]]
+  from = "/gift"
+  to = "/gift/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/terms"
+  to = "/terms/index.html"
+  status = 200
+
+# SPA: every other route falls through to index.html so /m/123, /g/:token and /sealed work on
+# refresh.
 [[redirects]]
   from = "/*"
   to = "/index.html"
