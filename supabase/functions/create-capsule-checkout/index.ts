@@ -230,18 +230,9 @@ Deno.serve(async (req) => {
     const location = clean(body.location, 40)
     const email = clean(body.email, 120)
 
-    // A gift is the same sealed note with a second person attached. The recipient's name is
-    // published on the wall, so it goes through clean() and moderation exactly like the message —
-    // an unscreened free-text field that renders publicly is the same hole wherever it is.
-    const isGift = body.is_gift === true || body.is_gift === 'true'
-    const recipientName = isGift ? clean(body.recipient_name, 40) : ''
-    const recipientEmail = isGift ? clean(body.recipient_email, 120) : ''
 
     if (!message) return reply({ error: 'A note is required.' }, 400)
     if (message.length > 100) return reply({ error: 'Notes are limited to 100 characters.' }, 400)
-    if (isGift && !recipientName) {
-      return reply({ error: 'Who is it for? A gift needs a name.' }, 400)
-    }
 
     // Checked here rather than trusting type="email" in the browser, which is one fetch away from
     // being bypassed. A malformed buyer address makes Stripe reject the session, which reached the
@@ -249,9 +240,6 @@ Deno.serve(async (req) => {
     // address means the gift is never announced and nobody finds out.
     if (email && !EMAIL_RE.test(email)) {
       return reply({ error: 'That email address does not look right.' }, 400)
-    }
-    if (recipientEmail && !EMAIL_RE.test(recipientEmail)) {
-      return reply({ error: 'Their email address does not look right.' }, 400)
     }
 
     // Screen BEFORE taking money. A blocked message never becomes a payment, so it never becomes a
@@ -271,7 +259,6 @@ Deno.serve(async (req) => {
     const publicFields: [string, string][] = [
       ['name', displayName],
       ['location', location],
-      ['name', recipientName],
     ]
     for (const [label, value] of publicFields) {
       if (value && moderate(value).action === 'block') {
@@ -283,9 +270,15 @@ Deno.serve(async (req) => {
       mode: 'payment',
       success_url: `${SITE_URL}/sealed?session={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/?canceled=1`,
-      customer_email: email || undefined,
-      // Collecting an email gives us a way to actually tell people in 2047. Optional on purpose —
-      // requiring it would cost conversions on a $5 impulse purchase.
+      // customer_email is deliberately NOT set.
+      //
+      // Stripe pre-fills it and makes it read-only, so passing the writer's address meant whoever
+      // actually paid could not correct it. That misrouted the Stripe receipt, our own confirmation
+      // and the Link SMS verification to the wrong person the first time someone bought a note on
+      // somebody else's behalf — and the payer had no way to fix it at checkout.
+      //
+      // The payer now enters their own address for the receipt; the writer's address rides in
+      // metadata below and is what the webhook stores as the 2047 contact.
       line_items: [
         {
           quantity: 1,
@@ -295,9 +288,7 @@ Deno.serve(async (req) => {
             product_data: {
               // Named for what it is on the buyer's card statement and Stripe receipt. Someone
               // buying a present in December should not have to decode their own line item.
-              name: isGift
-                ? `One sentence in The 20 Year Capsule — a gift for ${recipientName}`.slice(0, 250)
-                : 'One sentence in The 20 Year Capsule',
+              name: 'One sentence in The 20 Year Capsule',
               description: 'Sealed December 31, 2026. Opens January 1, 2047.',
               // Required because this account has Managed Payments enabled — without a tax code
               // Stripe rejects the line item outright. "General - Electronically Supplied Services"
@@ -312,9 +303,8 @@ Deno.serve(async (req) => {
         display_name: displayName,
         location,
         kind: 'capsule_entry',
-        is_gift: isGift ? '1' : '0',
-        recipient_name: recipientName,
-        recipient_email: recipientEmail,
+        // Who to tell in 2047 — the person who wrote it, which is not necessarily whoever paid.
+        contact_email: email,
         // Carried through so the webhook does not have to re-run moderation on a different
         // code path and risk the two disagreeing.
         flagged: verdict.action === 'flag' ? '1' : '0',

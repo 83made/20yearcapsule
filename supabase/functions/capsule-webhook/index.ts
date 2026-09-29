@@ -171,7 +171,10 @@ Deno.serve(async (req) => {
       nonce,
       display_name: displayName,
       location,
-      contact_email: session.customer_details?.email ?? null,
+      // The writer's own address if they gave one, otherwise whoever paid. These are the same
+      // person for a normal purchase and different when someone buys on a friend's behalf, and it
+      // is the writer who needs telling in 2047.
+      contact_email: session.metadata?.contact_email || session.customer_details?.email || null,
       stripe_session_id: session.id,
       stripe_payment_intent:
         typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null,

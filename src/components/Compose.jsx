@@ -160,8 +160,12 @@ export default function Compose({ sealed, prefill }) {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="So we can tell you when it opens"
           />
-          <p className="mt-2 text-[0.88rem] text-muted">
-            Never shown publicly. Only used once, in 2047.
+          {/* Explicitly "yours", because this is not the payment email. Someone buying a note for
+              a friend put their own address here once and Stripe pre-filled it as the payer's,
+              which sent the receipt and the card verification to the wrong person entirely. */}
+          <p className="mt-2 text-[0.88rem] leading-relaxed text-muted">
+            The writer&rsquo;s address, not the card holder&rsquo;s &mdash; it is only used once, in
+            2047, to say the capsule has opened. Never shown publicly.
           </p>
         </div>
       </div>
