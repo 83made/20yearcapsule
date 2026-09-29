@@ -1,0 +1,19 @@
+# The 20 Year Capsule — 20yearcapsule.com
+#
+# This file has to exist as a real file. Netlify's SPA catch-all rewrites every unmatched path to
+# index.html with a 200, so /robots.txt was answering crawlers with a page of HTML.
+
+User-agent: *
+Allow: /
+
+# Gift redemption links are bearer credentials: anyone holding one can write into the capsule,
+# once, for free. They must never be crawled or retained in a search index. The real protection is
+# that the tokens are 24 random bytes and single-use — this is the belt to that pair of braces.
+Disallow: /g/
+
+# Transactional pages. Both carry a session id in the query string and mean nothing to anyone but
+# the person who just paid.
+Disallow: /gifted
+Disallow: /sealed
+
+Sitemap: https://20yearcapsule.com/sitemap.xml
