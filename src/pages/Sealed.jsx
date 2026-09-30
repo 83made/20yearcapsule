@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase, configured } from '../lib/supabase.js'
+import { trackPurchase } from '../lib/analytics.js'
 import { OPEN_LABEL, OPENS_AT, MINIMUM_ENTRIES } from '../lib/capsule.js'
 import Countdown from '../components/Countdown.jsx'
 import Share from '../components/Share.jsx'
@@ -18,6 +19,14 @@ export default function Sealed() {
   const [params] = useSearchParams()
   const [entry, setEntry] = useState(null)
   const [waited, setWaited] = useState(false)
+
+  // Fired here rather than from the webhook so it lands in the same GA session as the utm_* tags
+  // that brought them in — which is the whole point of measuring it. Keyed off the session id
+  // Stripe puts in the redirect, so it does not depend on the wall row having caught up yet.
+  useEffect(() => {
+    const session = params.get('session')
+    if (session) trackPurchase(session, 'note')
+  }, [params])
 
   useEffect(() => {
     if (!configured) return

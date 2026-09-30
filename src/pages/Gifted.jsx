@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { SEAL_LABEL } from '../lib/capsule.js'
+import { trackPurchase } from '../lib/analytics.js'
 
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL ?? ''}/functions/v1/create-capsule-checkout`
 const SITE = typeof window === 'undefined' ? '' : window.location.origin
@@ -48,6 +49,9 @@ export default function Gifted() {
           if (res.ok && d.token) {
             setData(d)
             setState('ready')
+            // Only now: gift_link returns a token solely for a session Stripe has confirmed paid,
+            // so reaching here is proof of payment rather than proof of a redirect.
+            trackPurchase(session, 'gift')
             return
           }
         } catch {
