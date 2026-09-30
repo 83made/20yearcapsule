@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { supabase, configured } from '../lib/supabase.js'
 import { trackPurchase } from '../lib/analytics.js'
+
+const FN_URL = `${import.meta.env.VITE_SUPABASE_URL ?? ''}/functions/v1/create-capsule-checkout`
 import { OPEN_LABEL, OPENS_AT, MINIMUM_ENTRIES } from '../lib/capsule.js'
 import Countdown from '../components/Countdown.jsx'
 import Share from '../components/Share.jsx'
@@ -28,36 +30,72 @@ export default function Sealed() {
     if (session) trackPurchase(session, 'note')
   }, [params])
 
+  // Which entry is MINE.
+  //
+  // This used to take the newest wall row and assume it was yours. With two people buying within a
+  // few seconds it was not: the second to load saw a stranger's entry number and proof code shown
+  // as their own, contradicting the confirmation email they had just been sent. capsule_wall holds
+  // no payment columns by design, so the session has to be resolved to a seq server-side first.
   useEffect(() => {
     if (!configured) return
+    const session = params.get('session')
+
+    // Landed here without a session — a bookmark, or a back button. There is nothing to look up,
+    // so say so rather than showing somebody else's entry.
+    if (!session) {
+      setWaited(true)
+      return
+    }
+
     let alive = true
     let tries = 0
     const id = setInterval(poll, 1500)
 
     async function poll() {
       tries += 1
-      const { data } = await supabase
-        .from('capsule_wall')
-        .select('seq,display_name,location,char_count,message_hash,created_at,is_gift,recipient_name')
-        .order('created_at', { ascending: false })
-        .limit(1)
-      if (!alive) return
-      if (data?.[0]) {
-        setEntry(data[0])
-        clearInterval(id)
-        return
+      try {
+        const res = await fetch(FN_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY ?? ''}`,
+          },
+          body: JSON.stringify({ kind: 'entry_link', session_id: session }),
+        })
+        const d = await res.json().catch(() => ({}))
+        if (!alive) return
+
+        if (d?.seq) {
+          const { data } = await supabase
+            .from('capsule_wall')
+            .select('seq,display_name,location,char_count,message_hash,created_at,is_gift,recipient_name')
+            .eq('seq', d.seq)
+            .maybeSingle()
+          if (!alive) return
+          if (data) {
+            setEntry(data)
+            clearInterval(id)
+            return
+          }
+        }
+      } catch {
+        // Network blip. Fall through to the retry.
       }
+
+      // The note is sealed either way — the wall row is cosmetic — so after a dozen seconds the
+      // copy says that plainly instead of implying the payment failed.
       if (tries >= 8) {
         setWaited(true)
         clearInterval(id)
       }
     }
+
     poll()
     return () => {
       alive = false
       clearInterval(id)
     }
-  }, [])
+  }, [params])
 
   return (
     <div className="min-h-screen bg-ink text-paper">

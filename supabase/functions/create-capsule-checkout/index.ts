@@ -154,6 +154,44 @@ Deno.serve(async (req) => {
     }
 
     // ---------------------------------------------------------------------------------------
+    // Which entry did this session become?
+    // ---------------------------------------------------------------------------------------
+    // /sealed used to show whichever wall row was newest, on the assumption that it was yours.
+    // With two people buying within a few seconds of each other it was not: the second to load the
+    // page saw a stranger's entry number and proof code presented as their own, contradicting the
+    // confirmation email they had just been sent.
+    //
+    // capsule_wall deliberately carries no payment columns, so the browser cannot ask this itself.
+    // It is answered here, gated the same way as gift_link: the session id is the credential, and
+    // it only appears in the buyer's own success URL and Stripe receipt.
+    //
+    // Returns the sequence number and nothing else. The wall row it points at is world-readable
+    // anyway, so there is no reason for this to go anywhere near the message or the nonce.
+    if (body.kind === 'entry_link') {
+      const sessionId = typeof body.session_id === 'string' ? body.session_id.trim() : ''
+      if (!sessionId || sessionId.length > 200) return reply({ error: 'Not found.' }, 404)
+
+      const paid = await stripe.checkout.sessions.retrieve(sessionId).catch(() => null)
+      if (!paid || paid.payment_status !== 'paid' || paid.metadata?.kind !== 'capsule_entry') {
+        return reply({ error: 'Not found.' }, 404)
+      }
+
+      const res = await fetch(
+        `${Deno.env.get('SUPABASE_URL')}/rest/v1/capsule_entries?select=seq&stripe_session_id=eq.${encodeURIComponent(sessionId)}`,
+        {
+          headers: {
+            apikey: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
+            Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''}`,
+          },
+        },
+      )
+      const rows = res.ok ? await res.json() : []
+      // null rather than 404 while the webhook is still in flight, so the page keeps polling
+      // instead of deciding something went wrong.
+      return reply({ seq: Array.isArray(rows) && rows.length ? rows[0].seq : null })
+    }
+
+    // ---------------------------------------------------------------------------------------
     // Gift purchase. Buys the right to create an entry; writes nothing.
     // ---------------------------------------------------------------------------------------
     // Nothing here is sealed, so there is no message to validate or screen. What IS screened is
