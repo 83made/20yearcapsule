@@ -34,6 +34,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+    <!-- Analytics. Google's own snippet is an inline <script>, which would have required
+         'unsafe-inline' in script-src and given up the one part of the CSP that stops XSS. The
+         init lives in /analytics.js instead, served from this origin, and it redacts gift tokens
+         and Stripe session ids out of the URL before any hit leaves the page. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-R04XD1NSCX"></script>
+    <script src="/analytics.js"></script>
   </head>
   <body>
     <div id="root"></div>
