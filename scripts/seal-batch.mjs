@@ -18,8 +18,12 @@
 //   Did we ever fix any of it? | Jon | Reno, NV
 //   Tell me we stopped saying rizz. | | Reno, NV
 //
-// Optional ` | name | location` after the message. Blank name shows as Anonymous. Lines starting
-// with # are ignored, so you can keep notes in the file.
+// Optional ` | name | location | email` after the message. Blank name shows as Anonymous. Lines
+// starting with # are ignored, so you can keep notes in the file.
+//
+// The email is never published — it is the 2047 contact, and it matters for anyone sealed here who
+// is not you. Without it that person is in the capsule and is never told it opened, which is the
+// one promise the whole thing is built on.
 //
 // Needs SUPABASE_URL and SUPABASE_SERVICE_KEY in .env.local.
 
@@ -93,7 +97,7 @@ const parsed = []
 const problems = []
 
 lines.forEach((line, i) => {
-  const [rawMsg, rawName = '', rawLoc = ''] = line.split('|').map((p) => p.trim())
+  const [rawMsg, rawName = '', rawLoc = '', rawEmail = ''] = line.split('|').map((p) => p.trim())
   const message = rawMsg.replace(/\s+/g, ' ').trim()
   const n = i + 1
 
@@ -104,10 +108,15 @@ lines.forEach((line, i) => {
   if (BLOCK.some((re) => re.test(message))) return problems.push(`line ${n}: blocked content`)
 
   const flags = FLAG.filter((f) => f.re.test(message)).map((f) => f.name)
+  const email = rawEmail || ''
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
+    return problems.push(`line ${n}: "${email}" does not look like an email address`)
+
   parsed.push({
     message,
     display_name: rawName || null,
     location: rawLoc || null,
+    email,
     flags,
     line: n,
   })
@@ -188,6 +197,7 @@ for (const [i, p] of parsed.entries()) {
       // Marks the row as sealed by the owner rather than through Stripe Checkout, so the books
       // stay legible later. Unique per run, so the idempotency constraint still protects you.
       stripe_session_id: `owner-${stamp}-${i}`,
+      contact_email: p.email || null,
       amount_cents: 500,
       flagged: p.flags.length > 0,
       flag_reasons: p.flags,
@@ -212,7 +222,7 @@ console.log('')
 console.log(`  sealed   ${ok}`)
 if (failed) console.log(`  failed   ${failed}`)
 console.log('')
-console.log(`  That is $${(ok * 2).toFixed(2)} you owe your own project. The funding number on the`)
+console.log(`  That is $${(ok * 5).toFixed(2)} you owe your own project. The funding number on the`)
 console.log(`  site counts these, so the money should be real.`)
 console.log('')
 if (failed) process.exitCode = 1
