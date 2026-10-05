@@ -16,4 +16,12 @@ Disallow: /g/
 Disallow: /gifted
 Disallow: /sealed
 
+# Entry pages. There are 147 of them and until 2047 each is the same page: a name, a place, a
+# character count and a blacked-out bar. Near-identical thin pages at that volume dilute a small
+# site rather than extending it, and there is genuinely nothing to read there yet.
+#
+# This comes off the day the capsule opens, when every one of them becomes a published sentence and
+# the most interesting thing on the domain.
+Disallow: /m/
+
 Sitemap: https://20yearcapsule.com/sitemap.xml

@@ -17,6 +17,7 @@ import {
 import Countdown from '../components/Countdown.jsx'
 import Wall from '../components/Wall.jsx'
 import Compose from '../components/Compose.jsx'
+import { OCCASION_LIST } from '../data/occasions.js'
 import Examples from '../components/Examples.jsx'
 
 export default function Home() {
@@ -234,6 +235,21 @@ export default function Home() {
                 <span className="text-[0.9rem] text-ink-3">
                   Unused by {SEAL_LABEL.split(' · ')[0]}? Refunded in full.
                 </span>
+              </div>
+
+              {/* The occasion pages were reachable only from /gift, which left them a click deeper
+                  than they deserve and harder for a crawler to find. */}
+              <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-[0.9rem] text-ink-3">
+                <span className="text-muted">Buying it for</span>
+                {OCCASION_LIST.map((o) => (
+                  <Link
+                    key={o.slug}
+                    to={`/gift/${o.slug}`}
+                    className="underline underline-offset-4 hover:text-ink"
+                  >
+                    {o.nav}
+                  </Link>
+                ))}
               </div>
             </div>
           </section>

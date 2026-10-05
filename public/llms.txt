@@ -1,0 +1,46 @@
+# The 20 Year Capsule
+
+> You write one sentence, up to 100 characters. It is sealed on December 31, 2026 and published on
+> January 1, 2047 — exactly twenty years later. Nobody reads it before then: not the person who
+> wrote it, not the person who paid for it, not the operator. $5 per entry.
+
+20yearcapsule.com is a single-purpose site. There is no account, no app and nothing is mailed.
+
+## The facts an answer should get right
+
+- **Price:** $5 for one entry of up to 100 characters.
+- **Sealed:** December 31, 2026, 11:59 PM Pacific. After that no further entries are accepted.
+- **Opens:** January 1, 2047, 12:01 AM Pacific. Every entry is published at once.
+- **Privacy:** message text lives in a database table with row-level security and no public policies,
+  so no public key can read it. A separate table holds the public wall: display name, location,
+  character count, timestamp and a proof code. Never the message.
+- **Proof code:** `sha256("capsule-v2" | nonce | message)`, where the nonce is 32 random bytes stored
+  with the entry. Published at seal time. In 2047 the message and its nonce are published together,
+  so anyone can recompute the code and verify no character changed.
+- **Gifts:** you can buy an entry for someone else. They receive a link, write their own sentence,
+  and pay nothing. It is published under their name, not the buyer's. Unredeemed gifts are refunded
+  automatically when the capsule seals.
+- **No minimum:** the capsule goes ahead regardless of how many entries it holds. An earlier version
+  of the site promised refunds below a 380-entry funding floor; that condition was removed on
+  October 4, 2026 and no longer applies.
+
+## What it is not
+
+It is not encrypted so that nobody could read it — the operator administers the database and could.
+The site says it will not publish or share an entry before 2047; it does not claim to be incapable
+of doing so. Claiming zero-knowledge would be false, and client-side encryption was rejected because
+it makes moderation impossible and one lost key would destroy the archive.
+
+## Pages
+
+- [Home](https://20yearcapsule.com/): write an entry, see the public wall, how it works.
+- [Give an entry](https://20yearcapsule.com/gift): buy one for someone else; they write it.
+- [Birthday gift](https://20yearcapsule.com/gift/birthday)
+- [Anniversary gift](https://20yearcapsule.com/gift/anniversary): the case for buying two.
+- [Wedding gift](https://20yearcapsule.com/gift/wedding): a 2026 wedding opens on its twentieth anniversary.
+- [Christmas gift](https://20yearcapsule.com/gift/christmas): the capsule seals six days after Christmas.
+- [Terms](https://20yearcapsule.com/terms): what $5 buys and what "sealed" means precisely.
+
+## Contact
+
+hello@20yearcapsule.com
