@@ -19,6 +19,11 @@
   status = 200
 
 [[redirects]]
+  from = "/what-to-write"
+  to = "/what-to-write/index.html"
+  status = 200
+
+[[redirects]]
   from = "/gift/birthday"
   to = "/gift/birthday/index.html"
   status = 200

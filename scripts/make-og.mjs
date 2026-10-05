@@ -86,6 +86,13 @@ const IMAGES = [
     line2: 'They write it.',
     meta: '$5 &middot; nothing for them to pay',
   },
+  {
+    file: 'og-write.png',
+    kicker: 'A guide',
+    line1: 'What to write',
+    line2: 'in a time capsule.',
+    meta: 'Specific beats profound',
+  },
   // One per occasion, from the same data the pages render, so an image cannot describe a page that
   // no longer says that.
   ...OCCASION_LIST.map((o) => ({

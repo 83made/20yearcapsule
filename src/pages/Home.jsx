@@ -179,6 +179,13 @@ export default function Home() {
           <div className="mt-8">
             <Examples onPick={pickExample} />
           </div>
+          <p className="mt-6 text-[0.95rem] text-ink-3">
+            Stuck?{' '}
+            <Link to="/what-to-write" className="underline underline-offset-4">
+              What to write in a time capsule
+            </Link>{' '}
+            &mdash; four kinds that work, and what not to write.
+          </p>
         </section>
 
         <div className="rule" />

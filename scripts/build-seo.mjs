@@ -16,6 +16,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { OCCASION_LIST } from '../src/data/occasions.js'
+import { FAQ as WRITE_FAQ } from '../src/data/what-to-write.js'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -81,6 +82,18 @@ const ROUTES = [
     ogDescription:
       'What $5 buys, what "sealed" means precisely, and what you are agreeing to.',
     image: 'og.png',
+  },
+  {
+    path: '/what-to-write',
+    title: 'What to write in a time capsule — The 20 Year Capsule',
+    description:
+      'Write something specific enough that the future can check it. Four kinds of entry that work, what not to write, and why the ordinary detail outlives the grand sentiment.',
+    ogTitle: 'What to write in a time capsule.',
+    ogDescription:
+      'Specific beats profound. The detail too ordinary to bother recording is the one worth reading in twenty years.',
+    image: 'og-write.png',
+    faq: WRITE_FAQ,
+    article: true,
   },
 ]
 
@@ -217,9 +230,24 @@ for (const r of ROUTES) {
     // no review or rating markup, because there are no reviews and inventing them is how you earn
     // a manual action.
     //
+    // The guide is an article, not a product listing — a Product block on a page that sells nothing
+    // directly is the kind of mismatch that gets structured data ignored.
+    if (r.article) {
+      extra.push(
+        `<script type="application/ld+json">${JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: r.ogTitle,
+          description: r.description,
+          mainEntityOfPage: { '@type': 'WebPage', '@id': SITE + r.path },
+          publisher: { '@type': 'Organization', name: 'The 20 Year Capsule' },
+        })}</script>`,
+      )
+    }
+
     // Skipped on the homepage, which already carries one from LD above — two Product blocks on one
     // page is a markup error, not twice the signal.
-    if (r.path !== '/') extra.push(
+    if (r.path !== '/' && !r.article) extra.push(
       `<script type="application/ld+json">${JSON.stringify({
         '@context': 'https://schema.org',
         '@type': 'Product',

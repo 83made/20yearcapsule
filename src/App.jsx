@@ -5,6 +5,7 @@ import Sealed from './pages/Sealed.jsx'
 import Terms from './pages/Terms.jsx'
 import GiftBuy from './pages/GiftBuy.jsx'
 import GiftOccasion from './pages/GiftOccasion.jsx'
+import WhatToWrite from './pages/WhatToWrite.jsx'
 import Gifted from './pages/Gifted.jsx'
 import Redeem from './pages/Redeem.jsx'
 import GiftCard from './pages/GiftCard.jsx'
@@ -16,6 +17,7 @@ export default function App() {
       <Route path="/sealed" element={<Sealed />} />
       <Route path="/m/:seq" element={<Certificate />} />
       <Route path="/terms" element={<Terms />} />
+      <Route path="/what-to-write" element={<WhatToWrite />} />
 
       {/* Gifts. /g/:token is the redemption link that appears in emails and on printed cards, so
           it is kept short and must never change shape — a link printed on a card in December has
