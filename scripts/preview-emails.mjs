@@ -104,7 +104,7 @@ const previews = [
       wantsInvite: true,
     }),
   ],
-  ['refunded', mod.refundedEmail({ seq: 428, total: 190, goal: 380 })],
+  ['refunded', mod.refundedEmail({ seq: 428, reason: 'The 2026 capsule is not going ahead.' })],
 ]
 
 mkdirSync(OUT, { recursive: true })

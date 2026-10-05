@@ -7,10 +7,9 @@
 // Run this ONCE, after the capsule seals on 2026-12-31. Until then a gift is not lapsed, it is
 // merely unwritten, and there is still time.
 //
-// This is deliberately NOT part of refund-all.mjs. That script exists for one event — the funding
-// floor being missed, in which case everything is refunded and nothing is sealed. Lapsed gifts are
-// refunded at the seal date whether or not the floor was met, because the money was taken for an
-// entry that can now never exist. Two different events, two different conditions, two scripts.
+// This is deliberately NOT part of refund-all.mjs. That one is a manual tool for returning an entry
+// or calling the capsule off. Lapsed gifts refund automatically at the seal date, because the money
+// was taken for an entry that can now never exist. Two different events, two scripts.
 //
 // Safety, matching refund-all.mjs:
 //   - Dry run unless you type --execute.

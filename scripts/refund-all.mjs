@@ -1,4 +1,5 @@
-// The refund path, for the case where the capsule does not reach its threshold by December 31.
+// The refund path. There is no longer a funding threshold that triggers this on its own — it is a
+// manual tool for returning one entry, or the whole capsule if it is ever called off.
 //
 //   node scripts/refund-all.mjs                 # DRY RUN — shows what it would do, changes nothing
 //   node scripts/refund-all.mjs --execute       # actually refunds
@@ -43,7 +44,6 @@ const STRIPE = env('STRIPE_SECRET_KEY')
 const execute = process.argv.includes('--execute')
 const noEmail = process.argv.includes('--no-email')
 const RESEND = env('RESEND_API_KEY')
-const GOAL = 380
 const seqArg = (() => {
   const i = process.argv.indexOf('--seq')
   return i > -1 ? Number(process.argv[i + 1]) : null
@@ -74,9 +74,7 @@ const sb = async (path, init = {}) => {
 const mailRefund = async (to, seq, total) => {
   if (!RESEND || !to || noEmail) return
   const num = String(seq).padStart(6, '0')
-  const text = `The capsule did not happen.
-
-It needed ${GOAL.toLocaleString()} notes by December 31 and reached ${total.toLocaleString()}.
+  const text = `Your entry in The 20 Year Capsule is not going ahead.
 
 Your $5 has been refunded in full - expect it within 5-10 business days. Your note (entry #${num}) has been deleted. It was never shown to anyone.
 

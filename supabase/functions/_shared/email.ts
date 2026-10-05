@@ -4,7 +4,8 @@
 //
 //   1. sealed   — sent the moment a message is sealed. This is the trust moment. Someone just gave
 //                 money to a stranger on a twenty-year promise and needs something concrete back.
-//   2. refunded — sent if the capsule misses its threshold and everything is returned.
+//   2. refunded — a manual tool now, for the case where an entry or the whole capsule has to be
+//                 returned. There is no longer a threshold that triggers it on its own.
 //
 // One deliberate omission: **the confirmation does not contain the message.** It would be a nice
 // keepsake, but the whole premise is that nobody reads it, not even you, and a copy sitting in an
@@ -114,11 +115,11 @@ ${SITE}`
 
      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:30px 0 0;border-top:1px solid #e2e2e8;">
        <tr><td style="padding-top:24px;">
-         <div style="font:700 17px/1.3 Helvetica,Arial,sans-serif;color:#16161d;">Now the awkward part.</div>
+         <div style="font:700 17px/1.3 Helvetica,Arial,sans-serif;color:#16161d;">One more thing.</div>
          <p style="margin:10px 0 0;font:400 14px/1.6 Helvetica,Arial,sans-serif;color:#3d3d4a;">
-           The capsule is only sealed if <strong>380 notes</strong> go in by December 31. If it
-           doesn't get there, everyone is refunded and none of this happens &mdash; including your
-           entry. Sending this to one person is genuinely the whole difference.
+           Yours is in and it is staying in. But a capsule of one voice is a diary &mdash; what makes
+           it worth opening in 2047 is how many different people are in it, and the door shuts
+           December 31. Sending this to one person is genuinely the whole difference.
          </p>
 
          <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:18px;">
@@ -153,8 +154,8 @@ The proof code is made from your exact words. In 2047, when every note is publis
 
 See your entry: ${url}
 
-NOW THE AWKWARD PART
-The capsule is only sealed if 380 notes go in by December 31. If it doesn't get there, everyone is refunded and none of this happens - including your entry.
+ONE MORE THING
+Yours is in and it is staying in. But a capsule of one voice is a diary - what makes it worth opening in 2047 is how many different people are in it, and the door shuts December 31.
 
 Sending this to one person is genuinely the whole difference. Forwarding this email works too.
 
@@ -307,23 +308,23 @@ export async function sendGiftPurchased(
 }
 
 // ------------------------------------------------------------------------------------------------
-export function refundedEmail(opts: { seq: number; total: number; goal: number }) {
+export function refundedEmail(opts: { seq: number; reason?: string | null }) {
   const num = String(opts.seq).padStart(6, '0')
 
   const html = shell(
-    'The capsule did not happen.',
-    `<p style="margin:0 0 16px;">The 20 Year Capsule needed <strong style="color:#16161d;">${opts.goal.toLocaleString()}</strong> notes by December 31 to cover twenty years of keeping it online. It reached <strong style="color:#16161d;">${opts.total.toLocaleString()}</strong>.</p>
+    'Your entry has been refunded.',
+    `<p style="margin:0 0 16px;">${
+       opts.reason ? esc(opts.reason) : 'Your entry in The 20 Year Capsule is not going ahead.'
+     }</p>
 
-     <p style="margin:0 0 16px;">So it isn't being sealed, and <strong style="color:#16161d;">your $5 has been refunded in full</strong>. It should appear on your statement within 5–10 business days.</p>
+     <p style="margin:0 0 16px;"><strong style="color:#16161d;">Your $5 has been refunded in full</strong>. It should appear on your statement within 5–10 business days.</p>
 
      <p style="margin:0 0 16px;">Your note (entry #${num}) has been deleted rather than kept. It was never shown to anyone, and it never will be.</p>
 
      <p style="margin:0;">Promising to keep something safe for twenty years and then not being able to afford it would have been worse than not starting. Thank you for being one of the people who tried.</p>`,
   )
 
-  const text = `The capsule did not happen.
-
-It needed ${opts.goal.toLocaleString()} notes by December 31 and reached ${opts.total.toLocaleString()}.
+  const text = `${opts.reason || 'Your entry in The 20 Year Capsule is not going ahead.'}
 
 Your $5 has been refunded in full — expect it within 5-10 business days. Your note (entry #${num}) has been deleted. It was never shown to anyone.
 
@@ -338,7 +339,7 @@ export async function sendSealed(to: string, opts: { seq: number; hash: string; 
   return await send(to, subject, html, text)
 }
 
-export async function sendRefunded(to: string, opts: { seq: number; total: number; goal: number }) {
+export async function sendRefunded(to: string, opts: { seq: number; reason?: string | null }) {
   const { subject, html, text } = refundedEmail(opts)
   return await send(to, subject, html, text)
 }

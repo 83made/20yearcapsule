@@ -28,8 +28,8 @@ export const SEAL_LABEL = 'December 31, 2026 · 11:59 PM PST'
 export const OPEN_LABEL = 'January 1, 2047 · 12:01 AM PST'
 
 /**
- * The capsule only happens if it can actually be kept for twenty years, so the threshold is derived
- * from real cost rather than picked for looks.
+ * What keeping this promise actually costs, kept here because the number still matters even though
+ * it is no longer a condition of the capsule going ahead.
  *
  *   domain, 20 years of .com renewals rising ~5%/yr from $15   ~$496
  *   static hosting at $5/mo for 20 years (worst case)          ~$1,200
@@ -37,32 +37,22 @@ export const OPEN_LABEL = 'January 1, 2047 · 12:01 AM PST'
  *                                                             ---------
  *                                                              ~$1,721
  *
- * At $5 an entry Stripe takes 2.9% + 30¢, leaving $4.555. 380 entries nets $1,731.
+ * At $5 an entry Stripe takes 2.9% + 30c, leaving $4.555, so roughly 378 entries would cover it.
  *
- * The price moved $2 -> $5 on 2026-09-27 and the floor fell with it, because the floor is a
- * function of the price, not a separate decision: 1,000 at $5 would collect $4,555 for a $1,721
- * obligation, and the page would be claiming a number it did not need.
+ * There used to be a MINIMUM_ENTRIES floor at exactly that number, and below it everyone was
+ * refunded and nothing was sealed. It was removed on 2026-10-04 when the capsule became an annual
+ * series: a present that might evaporate is a bad present, and the conditionality cost more in
+ * conversion than the funding guarantee was worth. The obligation did not go away with it — it now
+ * rests on the operator continuing to run the thing, which is a choice made knowingly rather than
+ * a paragraph that was deleted.
  *
  * Note the database is NOT in that list: once the capsule seals it becomes a static archive with
  * nothing to query, so Supabase only has to exist from launch to January 2027.
  */
-/**
- * The minimum that has to be reached by December 31 for the capsule to go ahead at all. This is a
- * funding floor, not a target — it is what twenty years of domain and hosting costs, nothing more.
- * Below it everyone is refunded and nothing is sealed.
- *
- * It is deliberately NOT presented as the goal on the page. A counter reading "146 of 380" makes
- * 380 look like the ambition, which caps the story at the least interesting number in it.
- */
-export const MINIMUM_ENTRIES = 380
-
-/** Kept as an alias so older references keep working. */
-export const GOAL_ENTRIES = MINIMUM_ENTRIES
 
 /**
  * How many notes the capsule will hold. Ten thousand is deliberately reachable: a cap nobody could
- * ever hit is decoration, and this one is meant to be a real limit that closes. It sits well above
- * MINIMUM_ENTRIES so the floor reads as a floor and the ceiling as a ceiling.
+ * ever hit is decoration, and this one is meant to be a real limit that closes.
  *
  * Do not render this as a progress meter. At 144 sealed a bar against 10,000 reads 1% full, which
  * says "nobody is here" far louder than the cap says "space is limited". The scarcity that is
@@ -92,15 +82,12 @@ export function timeAgo(iso, now = new Date()) {
   return `${months} month${months === 1 ? '' : 's'} ago`
 }
 
-/** What one entry is actually worth after payment processing. Used for the funding readout. */
-export const NET_PER_ENTRY = 2 - (0.029 * 2 + 0.3)
+/** What one entry is actually worth after Stripe takes its cut. */
+export const NET_PER_ENTRY = PRICE_USD - (0.029 * PRICE_USD + 0.3)
 
 export const isSealed = (now = new Date()) => now >= SEALS_AT
 export const isOpen = (now = new Date()) => now >= OPENS_AT
-export const minimumMet = (count) => (count ?? 0) >= MINIMUM_ENTRIES
-export const goalMet = minimumMet
 export const atCapacity = (count) => (count ?? 0) >= CAPACITY
-export const goalPct = (count) => Math.min(100, ((count ?? 0) / GOAL_ENTRIES) * 100)
 
 /** Whole days/hours/minutes/seconds between now and a target. Never negative. */
 export function countdown(target, now = new Date()) {

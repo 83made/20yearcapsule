@@ -4,7 +4,7 @@ import { supabase, configured } from '../lib/supabase.js'
 import { trackPurchase } from '../lib/analytics.js'
 
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL ?? ''}/functions/v1/create-capsule-checkout`
-import { OPEN_LABEL, OPENS_AT, MINIMUM_ENTRIES } from '../lib/capsule.js'
+import { OPEN_LABEL, OPENS_AT } from '../lib/capsule.js'
 import Countdown from '../components/Countdown.jsx'
 import Share from '../components/Share.jsx'
 
@@ -160,11 +160,11 @@ export default function Sealed() {
 
           {/* the ask, at the moment it is most likely to land */}
           <div className="mt-12 border border-paper/25 p-6 sm:p-8">
-            <h2 className="font-display text-3xl">Now the awkward part.</h2>
+            <h2 className="font-display text-3xl">One more thing.</h2>
             <p className="mt-3 leading-relaxed text-paper/70">
-              The capsule only goes ahead if at least {MINIMUM_ENTRIES.toLocaleString()} notes
-              are in by December 31. If it doesn&rsquo;t get there, everyone is refunded and none of
-              this happens — including yours.
+              Yours is in and it is staying in. But a capsule of one voice is a diary &mdash; what
+              makes it worth opening in 2047 is how many different people are in it, and the door
+              shuts December 31.
             </p>
             <p className="mt-3 leading-relaxed text-paper/70">
               Sending this to one person is genuinely the whole difference.

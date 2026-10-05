@@ -7,10 +7,9 @@
 // published in 2047 alongside everyone else's. The only difference from a normal entry is that the
 // payment did not go through Stripe Checkout, because you are the one running the capsule.
 //
-// That means the money has to be real too. 380 entries at $5 is what pays for twenty years of
-// domain and hosting; if entries go in without the $5 behind them, the funding number on the site
-// stops being true. So each row is still recorded at 500 cents, and the honest thing is to actually
-// put that money aside. 30 entries is $150 of your own money going into your own project.
+// That means the money has to be real too. Keeping this online for twenty years costs roughly
+// $1,721, and there is no longer a funding floor forcing that to be covered — so each row is still
+// recorded at 500 cents, and the honest thing is to actually put that money aside. 30 entries is $150 of your own money going into your own project.
 //
 // FILE FORMAT — one message per line, up to 100 characters:
 //

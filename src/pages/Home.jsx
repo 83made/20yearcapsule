@@ -9,7 +9,6 @@ import {
   OPEN_LABEL,
   MAX_CHARS,
   PRICE_USD,
-  MINIMUM_ENTRIES,
   CAPACITY,
   NET_PER_ENTRY,
   timeAgo,
@@ -277,13 +276,8 @@ export default function Home() {
                   lid closes for twenty years.
                 </p>
                 <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-3">
-                  It does need at least{' '}
-                  <strong className="font-semibold text-ink-2">
-                    {MINIMUM_ENTRIES.toLocaleString()}
-                  </strong>{' '}
-                  by December 31 to cover twenty years of keeping the archive online. If it does not
-                  get there, every payment is refunded and nothing is sealed — a twenty-year promise
-                  you cannot afford to keep is not worth making.
+                  It is sealed either way. There is no target to hit and no chance of it being
+                  called off — whatever is inside on December 31 is what gets published in 2047.
                 </p>
               </div>
             </div>
