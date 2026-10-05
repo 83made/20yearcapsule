@@ -18,6 +18,26 @@
   to = "/terms/index.html"
   status = 200
 
+[[redirects]]
+  from = "/gift/birthday"
+  to = "/gift/birthday/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/gift/anniversary"
+  to = "/gift/anniversary/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/gift/wedding"
+  to = "/gift/wedding/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/gift/christmas"
+  to = "/gift/christmas/index.html"
+  status = 200
+
 # SPA: every other route falls through to index.html so /m/123, /g/:token and /sealed work on
 # refresh.
 [[redirects]]

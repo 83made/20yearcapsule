@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PRICE_USD, MAX_CHARS, SEAL_LABEL, OPEN_LABEL } from '../lib/capsule.js'
+import { OCCASION_LIST } from '../data/occasions.js'
 
 const FN_URL = `${import.meta.env.VITE_SUPABASE_URL ?? ''}/functions/v1/create-capsule-checkout`
 
@@ -232,7 +233,18 @@ export default function GiftBuy() {
           </div>
         </form>
 
-        <p className="mt-12 text-[0.9rem] text-ink-3">
+        <nav className="mt-12" aria-label="Occasions">
+          <div className="label">Buying it for an occasion?</div>
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[0.95rem]">
+            {OCCASION_LIST.map((o) => (
+              <Link key={o.slug} to={`/gift/${o.slug}`} className="underline underline-offset-4">
+                {o.nav}
+              </Link>
+            ))}
+          </div>
+        </nav>
+
+        <p className="mt-8 text-[0.9rem] text-ink-3">
           Writing one yourself instead?{' '}
           <Link to="/#write" className="underline underline-offset-4">
             That is over here.

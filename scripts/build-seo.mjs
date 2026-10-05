@@ -15,6 +15,7 @@
 // 146 /m/:seq entry pages (a blacked-out bar each until 2047; there is nothing to preview yet).
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { OCCASION_LIST } from '../src/data/occasions.js'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -47,12 +48,29 @@ const ROUTES = [
     path: '/terms',
     title: 'Terms & what you’re buying — The 20 Year Capsule',
     description:
-      'What $5 buys, what "sealed" means precisely, how the proof code works, and what happens if the capsule does not reach its minimum.',
+      'What $5 buys, what "sealed" means precisely, how the proof code works, and what you are agreeing to when you seal something for twenty years.',
     ogTitle: 'Terms & what you’re buying',
     ogDescription:
-      'What $5 buys, what "sealed" means precisely, and what happens if the capsule does not go ahead.',
+      'What $5 buys, what "sealed" means precisely, and what you are agreeing to.',
   },
 ]
+
+// The gift occasion pages, built from the same data the React page renders. One source of truth:
+// meta tags that drift from the page they describe are the usual way these go wrong.
+//
+// Each carries FAQPage structured data as well. That is the part most likely to be quoted back by
+// an assistant answering "what do you get someone who has everything", which is the query this
+// whole set exists for.
+for (const o of OCCASION_LIST) {
+  ROUTES.push({
+    path: `/gift/${o.slug}`,
+    title: o.title,
+    description: o.description,
+    ogTitle: o.ogTitle,
+    ogDescription: o.ogDescription,
+    faq: o.faq,
+  })
+}
 
 // Structured data, homepage only. Modest on purpose: claiming a richer schema than the site
 // actually supports is how you earn a manual action, and there is nothing here to gain by it.
@@ -115,6 +133,39 @@ for (const r of ROUTES) {
   if (r.path === '/') {
     extra.push(`<script type="application/ld+json">${JSON.stringify(LD)}</script>`)
   }
+  if (r.faq) {
+    extra.push(
+      `<script type="application/ld+json">${JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: r.faq.map(([q, a]) => ({
+          '@type': 'Question',
+          name: q,
+          acceptedAnswer: { '@type': 'Answer', text: a },
+        })),
+      })}</script>`,
+    )
+    // Product + Offer so the price and availability are machine-readable. Deliberately modest:
+    // no review or rating markup, because there are no reviews and inventing them is how you earn
+    // a manual action.
+    extra.push(
+      `<script type="application/ld+json">${JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: 'An entry in The 20 Year Capsule',
+        description: r.description,
+        brand: { '@type': 'Brand', name: 'The 20 Year Capsule' },
+        offers: {
+          '@type': 'Offer',
+          price: '5.00',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+          url: SITE + r.path,
+          priceValidUntil: '2026-12-31',
+        },
+      })}</script>`,
+    )
+  }
   html = html.replace('</head>', `  ${extra.join('\n    ')}\n  </head>`)
 
   const out = r.path === '/' ? join(DIST, 'index.html') : join(DIST, r.path.slice(1), 'index.html')
@@ -133,7 +184,7 @@ ${ROUTES.map(
     <loc>${SITE}${r.path}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${r.path === '/' ? 'daily' : 'monthly'}</changefreq>
-    <priority>${r.path === '/' ? '1.0' : '0.8'}</priority>
+    <priority>${r.path === '/' ? '1.0' : r.path.split('/').length > 2 ? '0.6' : '0.8'}</priority>
   </url>`,
 ).join('\n')}
 </urlset>
