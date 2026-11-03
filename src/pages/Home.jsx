@@ -11,7 +11,6 @@ import {
   PRICE_USD,
   CAPACITY,
   NET_PER_ENTRY,
-  timeAgo,
   isSealed,
 } from '../lib/capsule.js'
 import Countdown from '../components/Countdown.jsx'
@@ -23,7 +22,6 @@ import Examples from '../components/Examples.jsx'
 export default function Home() {
   const [entries, setEntries] = useState([])
   const [total, setTotal] = useState(null)
-  const [lastAt, setLastAt] = useState(null)
   const [loading, setLoading] = useState(true)
   const [prefill, setPrefill] = useState(null)
   const sealed = isSealed()
@@ -46,7 +44,6 @@ export default function Home() {
       if (!alive) return
       setEntries(rows ?? [])
       setTotal(stats?.[0]?.total ?? 0)
-      setLastAt(stats?.[0]?.last_sealed_at ?? null)
       setLoading(false)
     }
     load()
@@ -276,11 +273,6 @@ export default function Home() {
                 >
                   {n.toLocaleString()}
                 </div>
-                {lastAt && (
-                  <div className="mt-3 font-mono text-[0.78rem] text-ink-3">
-                    Last one {timeAgo(lastAt)}
-                  </div>
-                )}
               </div>
 
               <div>
