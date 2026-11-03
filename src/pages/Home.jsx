@@ -124,11 +124,6 @@ export default function Home() {
                   <span className="font-mono text-[0.8rem] font-bold tabular-nums">
                     {n.toLocaleString()} {n === 1 ? 'note' : 'notes'} sealed
                   </span>
-                  {lastAt && (
-                    <span className="font-mono text-[0.75rem] text-muted">
-                      · last one {timeAgo(lastAt)}
-                    </span>
-                  )}
                 </div>
               )}
             </div>
