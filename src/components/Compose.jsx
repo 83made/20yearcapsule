@@ -67,7 +67,7 @@ export default function Compose({ sealed, prefill }) {
         <span className="stamp">Sealed</span>
         <h2 className="mt-5 font-display text-4xl">The capsule is closed.</h2>
         <p className="mt-3 max-w-xl leading-relaxed text-ink-2">
-          Entries closed on December 31, 2026. Everything inside opens {OPEN_LABEL}.
+          Entries closed on January 1, 2030. Everything inside opens {OPEN_LABEL}.
         </p>
       </div>
     )
@@ -100,7 +100,7 @@ export default function Compose({ sealed, prefill }) {
           <p className="mt-3 text-[0.88rem] leading-relaxed text-ink-3">
             When it is sealed you get a proof code, published next to your entry. It is computed
             from your words plus a random value that stays sealed with them, so it gives nothing
-            away now — and in 2047 both are published together, so anyone can check the sentence
+            away now — and in 2050 both are published together, so anyone can check the sentence
             was never altered.
           </p>
 
@@ -128,7 +128,7 @@ export default function Compose({ sealed, prefill }) {
               aria-describedby="nm-help"
             />
             <p id="nm-help" className="mt-2 text-[0.88rem] leading-relaxed text-muted">
-              Shown on the wall now and published as-is in 2047. Leave blank for Anonymous.
+              Shown on the wall now and published as-is in 2050. Leave blank for Anonymous.
             </p>
           </div>
           <div>
@@ -165,7 +165,7 @@ export default function Compose({ sealed, prefill }) {
               which sent the receipt and the card verification to the wrong person entirely. */}
           <p className="mt-2 text-[0.88rem] leading-relaxed text-muted">
             The writer&rsquo;s address, not the card holder&rsquo;s &mdash; it is only used once, in
-            2047, to say the capsule has opened. Never shown publicly.
+            2050, to say the capsule has opened. Never shown publicly.
           </p>
         </div>
       </div>
@@ -182,7 +182,7 @@ export default function Compose({ sealed, prefill }) {
             [`Up to ${MAX_CHARS} characters`, 'About one sentence.'],
             ['Sealed immediately', 'Nobody sees it — not even you.'],
             ['Your name on the wall', 'The note stays hidden.'],
-            ['Opens January 1, 2047', 'Published in full, all at once.'],
+            ['Opens January 1, 2050', 'Published in full, all at once.'],
           ].map(([t, sub]) => (
             <li key={t} className="flex gap-3">
               <span aria-hidden="true" className="mt-[1px] font-mono text-seal">—</span>

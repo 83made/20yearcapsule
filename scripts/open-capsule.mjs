@@ -1,4 +1,4 @@
-// The 2047 script. Decrypts the sealed archive, verifies every message against its published hash,
+// The 2050 script. Decrypts the sealed archive, verifies every message against its published hash,
 // and produces the things you actually need on opening day: a readable book, a spreadsheet, and the
 // mail-merge list for telling every participant it is open.
 //
@@ -52,7 +52,7 @@ const esc = (s) =>
 const blob = JSON.parse(readFileSync(encPath, 'utf8'))
 const p = blob.kdf_params ?? { N: 2 ** 15, r: 8, p: 1, keylen: 32 }
 // maxmem comes from the archive so these parameters stay correct no matter what Node's default is
-// in 2047. The fallback is generous on purpose: too much is harmless, too little fails to decrypt.
+// in 2050. The fallback is generous on purpose: too much is harmless, too little fails to decrypt.
 const maxmem = p.maxmem ?? 96 * 1024 * 1024
 const key = scryptSync(PASS, Buffer.from(blob.salt, 'base64'), p.keylen, { N: p.N, r: p.r, p: p.p, maxmem })
 const decipher = createDecipheriv('aes-256-gcm', key, Buffer.from(blob.iv, 'base64'))
@@ -105,7 +105,7 @@ writeFileSync(
 // ---- mail merge --------------------------------------------------------------------------------
 // A gift has two people to reach: whoever paid, and whoever it was written for. The recipient
 // never made a payment, so they appear nowhere in the Stripe records — this file is the only
-// place they exist. `role` is there so the 2047 send can word the two differently: one person
+// place they exist. `role` is there so the 2050 send can word the two differently: one person
 // wrote the note, the other has been waiting twenty years to read it.
 const mailRows = []
 for (const m of msgs) {
@@ -138,7 +138,7 @@ h1 { font-size: 30pt; margin: 0 0 6pt; letter-spacing: -0.5pt; }
 .f { font: 6.5pt ui-monospace, monospace; color: #b0a88f; word-break: break-all; margin-top: 3pt; }
 </style></head><body>
 <h1>The 20 Year Capsule</h1>
-<div class="sub">${msgs.length.toLocaleString()} notes &middot; sealed 31 December 2026 &middot; opened 1 January 2047</div>
+<div class="sub">${msgs.length.toLocaleString()} notes &middot; sealed 1 January 2030 &middot; opened 1 January 2050</div>
 ${msgs
   .map(
     (m) => `<div class="e"><div class="h">#${String(m.seq).padStart(6, '0')} &middot; ${esc(

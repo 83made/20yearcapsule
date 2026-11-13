@@ -8,7 +8,7 @@
 // are invisible to read: a trailing space, a smart quote substituted for a straight one, a line
 // break inserted by a mail client wrapping a long string.
 //
-// If that happened, you would find out in 2047, when the archive cannot be opened and there is
+// If that happened, you would find out in 2050, when the archive cannot be opened and there is
 // nobody left to ask. This tells you today.
 //
 // It does a real encrypt/decrypt round trip with the exact scrypt and AES-256-GCM parameters

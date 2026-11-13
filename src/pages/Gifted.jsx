@@ -145,7 +145,7 @@ export default function Gifted() {
                 </li>
                 <li>
                   <strong className="font-semibold text-ink-2">They write it, not you.</strong> It
-                  is published under their name in 2047, and you will not see it before then either.
+                  is published under their name in 2050, and you will not see it before then either.
                 </li>
                 <li>
                   <strong className="font-semibold text-ink-2">

@@ -35,7 +35,7 @@ async function sha256Hex(text: string) {
 //
 // With 32 bytes of secret randomness mixed in, every candidate message is equally consistent with
 // the published code, so there is nothing to guess. The nonce is stored in capsule_entries (which
-// anon cannot read) and released in 2047 with the message, so the code still verifies publicly —
+// anon cannot read) and released in 2050 with the message, so the code still verifies publicly —
 // which is the property the site actually promises.
 const COMMIT_VERSION = 'capsule-v2'
 const newNonce = () => hex(crypto.getRandomValues(new Uint8Array(32)))
@@ -167,13 +167,13 @@ Deno.serve(async (req) => {
     .insert({
       message,
       message_hash: hash,
-      // Never leaves capsule_entries until 2047. Without it the published code is guessable.
+      // Never leaves capsule_entries until 2050. Without it the published code is guessable.
       nonce,
       display_name: displayName,
       location,
       // The writer's own address if they gave one, otherwise whoever paid. These are the same
       // person for a normal purchase and different when someone buys on a friend's behalf, and it
-      // is the writer who needs telling in 2047.
+      // is the writer who needs telling in 2050.
       contact_email: session.metadata?.contact_email || session.customer_details?.email || null,
       stripe_session_id: session.id,
       stripe_payment_intent:

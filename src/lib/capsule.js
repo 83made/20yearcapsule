@@ -2,11 +2,11 @@
 // US daylight saving ends in early November, so neither date is PDT. Stored as fixed UTC instants
 // so the countdown cannot drift with the viewer's timezone or with future DST rule changes.
 
-/** Submissions close 2026-12-31 23:59:59 PST */
-export const SEALS_AT = new Date('2027-01-01T07:59:59Z')
+/** Submissions close 2030-01-01 00:00:00 PST (midnight starting New Year's Day) */
+export const SEALS_AT = new Date('2030-01-01T08:00:00Z')
 
-/** The capsule opens 2047-01-01 00:01:00 PST */
-export const OPENS_AT = new Date('2047-01-01T08:01:00Z')
+/** The capsule opens 2050-01-01 00:01:00 PST */
+export const OPENS_AT = new Date('2050-01-01T08:01:00Z')
 
 export const PRICE_USD = 5
 
@@ -24,20 +24,22 @@ export const PRICE_USD = 5
 export const GIFTS_ENABLED = true
 export const MAX_CHARS = 100
 
-export const SEAL_LABEL = 'December 31, 2026 · 11:59 PM PST'
-export const OPEN_LABEL = 'January 1, 2047 · 12:01 AM PST'
+export const SEAL_LABEL = 'January 1, 2030 · 12:00 AM PST'
+export const OPEN_LABEL = 'January 1, 2050 · 12:01 AM PST'
 
 /**
  * What keeping this promise actually costs, kept here because the number still matters even though
  * it is no longer a condition of the capsule going ahead.
  *
- *   domain, 20 years of .com renewals rising ~5%/yr from $15   ~$496
- *   static hosting at $5/mo for 20 years (worst case)          ~$1,200
- *   one email send to every participant in 2047                  ~$25
+ *   domain, 24 years of .com renewals rising ~5%/yr from $15   ~$668
+ *   static hosting at $5/mo for 23 years (worst case)          ~$1,380
+ *   one email send to every participant in 2050                  ~$25
  *                                                             ---------
- *                                                              ~$1,721
+ *                                                              ~$2,073
  *
- * At $5 an entry Stripe takes 2.9% + 30c, leaving $4.555, so roughly 378 entries would cover it.
+ * At $5 an entry Stripe takes 2.9% + 30c, leaving $4.555, so roughly 455 entries would cover it.
+ * (Recomputed 2026-11-13 when the seal moved from end-2026 to 2030-01-01 and the opening from 2047
+ * to 2050. The floor-era figure below, 378, was for the old dates.)
  *
  * There used to be a MINIMUM_ENTRIES floor at exactly that number, and below it everyone was
  * refunded and nothing was sealed. It was removed on 2026-10-04 when the capsule became an annual
@@ -47,7 +49,7 @@ export const OPEN_LABEL = 'January 1, 2047 · 12:01 AM PST'
  * a paragraph that was deleted.
  *
  * Note the database is NOT in that list: once the capsule seals it becomes a static archive with
- * nothing to query, so Supabase only has to exist from launch to January 2027.
+ * nothing to query, so Supabase only has to exist from launch to January 2030.
  */
 
 /**
@@ -104,7 +106,7 @@ export function countdown(target, now = new Date()) {
  * There is deliberately no hashMessage() here any more.
  *
  * The published proof code is sha256('capsule-v2|' + nonce + '|' + message), where the nonce is 32
- * bytes of randomness generated server-side at seal time and kept in capsule_entries until 2047.
+ * bytes of randomness generated server-side at seal time and kept in capsule_entries until 2050.
  * The browser cannot compute it, and it should not try: the old client-side sha256(message) was
  * guessable from a wordlist, which is exactly the hole this closed. The real code comes back from
  * the wall on /sealed and /m/:seq.

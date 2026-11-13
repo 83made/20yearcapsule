@@ -18,8 +18,8 @@ const FROM = Deno.env.get('EMAIL_FROM') ?? 'The 20 Year Capsule <hello@20yearcap
 const REPLY_TO = Deno.env.get('EMAIL_REPLY_TO') ?? 'hello@20yearcapsule.com'
 const SITE = Deno.env.get('SITE_URL') ?? 'https://20yearcapsule.com'
 
-const OPEN_LABEL = 'January 1, 2047'
-const SEAL_SHORT = 'December 31, 2026'
+const OPEN_LABEL = 'January 1, 2050'
+const SEAL_SHORT = 'January 1, 2030'
 
 type SendResult = { ok: boolean; id?: string; error?: string }
 
@@ -85,7 +85,7 @@ export function sealedEmail(opts: { seq: number; hash: string; name?: string | n
 
   // Share links have to be plain hrefs: an email client will not run JavaScript, so the site's
   // share component cannot be reused here. Same wording, built from the same shape.
-  const blurb = `I just sealed a note in a time capsule that opens on January 1, 2047. It's entry #${num} - and I'm not allowed to read it again until then.`
+  const blurb = `I just sealed a note in a time capsule that opens on January 1, 2050. It's entry #${num} - and I'm not allowed to read it again until then.`
   const body = `${blurb}
 
 ${SITE}`
@@ -109,7 +109,7 @@ ${SITE}`
 
      <p style="margin:0 0 16px;">We won't show you what you wrote again — that's rather the point. Keep this email if you want to remember that you were here at all.</p>
 
-     <p style="margin:0 0 22px;">The proof code is made from your exact words. In 2047, when every note is published, anyone can check that code still matches — which is how you'll know not one character changed in twenty years.</p>
+     <p style="margin:0 0 22px;">The proof code is made from your exact words. In 2050, when every note is published, anyone can check that code still matches — which is how you'll know not one character changed in twenty years.</p>
 
      <a href="${url}" style="display:inline-block;background:#16161d;color:#ffffff;font:700 15px/1 Helvetica,Arial,sans-serif;padding:14px 24px;border-radius:999px;text-decoration:none;">See your entry</a>
 
@@ -118,8 +118,8 @@ ${SITE}`
          <div style="font:700 17px/1.3 Helvetica,Arial,sans-serif;color:#16161d;">One more thing.</div>
          <p style="margin:10px 0 0;font:400 14px/1.6 Helvetica,Arial,sans-serif;color:#3d3d4a;">
            Yours is in and it is staying in. But a capsule of one voice is a diary &mdash; what makes
-           it worth opening in 2047 is how many different people are in it, and the door shuts
-           December 31. Sending this to one person is genuinely the whole difference.
+           it worth opening in 2050 is how many different people are in it, and the door shuts
+           January 1, 2030. Sending this to one person is genuinely the whole difference.
          </p>
 
          <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:18px;">
@@ -150,12 +150,12 @@ Proof code: ${opts.hash}
 
 It stays hidden until ${OPEN_LABEL}. We won't show you what you wrote again — that's the point.
 
-The proof code is made from your exact words. In 2047, when every note is published, anyone can check it still matches, which proves nothing changed.
+The proof code is made from your exact words. In 2050, when every note is published, anyone can check it still matches, which proves nothing changed.
 
 See your entry: ${url}
 
 ONE MORE THING
-Yours is in and it is staying in. But a capsule of one voice is a diary - what makes it worth opening in 2047 is how many different people are in it, and the door shuts December 31.
+Yours is in and it is staying in. But a capsule of one voice is a diary - what makes it worth opening in 2050 is how many different people are in it, and the door shuts January 1, 2030.
 
 Sending this to one person is genuinely the whole difference. Forwarding this email works too.
 
@@ -192,7 +192,7 @@ export function giftInviteEmail(opts: {
     : ''
 
   const html = shell(
-    'Someone bought you a place in 2047.',
+    'Someone bought you a place in 2050.',
     `<p style="margin:0 0 16px;">${who}<strong style="color:#16161d;">${from}</strong> has paid for an entry in The 20 Year Capsule and put your name on it.</p>
 
      <p style="margin:0 0 16px;">Here is how it works: you write one sentence, up to 100 characters. It is sealed on ${SEAL_SHORT}, nobody reads it — not you, not them, not us — and it is published on ${OPEN_LABEL}, twenty years later, alongside everyone else's.</p>
@@ -209,7 +209,7 @@ export function giftInviteEmail(opts: {
      </p>`,
   )
 
-  const text = `Someone bought you a place in 2047.
+  const text = `Someone bought you a place in 2050.
 
 ${opts.recipientName ? opts.recipientName + ' - ' : ''}${opts.purchaserName || 'Someone'} has paid for an entry in The 20 Year Capsule and put your name on it.
 

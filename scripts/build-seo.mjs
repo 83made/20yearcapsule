@@ -3,7 +3,7 @@
 // The problem this solves is not search rankings. It is that every link shared from this site —
 // into a group chat, a Reddit comment, a text to a friend — is unfurled by a scraper that does not
 // run JavaScript. A React SPA has exactly one index.html, so /gift was showing the homepage's
-// preview: "Say something to 2047", with nothing about gifting at all. That is the single most
+// preview: "Say something to 2050", with nothing about gifting at all. That is the single most
 // shared link of the Christmas push.
 //
 // Netlify serves a real file before it applies the SPA catch-all, so writing dist/gift/index.html
@@ -12,7 +12,7 @@
 //
 // Deliberately NOT generated: /g/:token (a bearer credential — it must never be crawlable or
 // unfurlable), /gifted and /sealed (transactional, meaningless without the session id), and the
-// 146 /m/:seq entry pages (a blacked-out bar each until 2047; there is nothing to preview yet).
+// 146 /m/:seq entry pages (a blacked-out bar each until 2050; there is nothing to preview yet).
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { OCCASION_LIST } from '../src/data/occasions.js'
@@ -28,12 +28,12 @@ const SITE = 'https://20yearcapsule.com'
 // lifts it out of context. Everything here is true of the page it sits on.
 const HOME_FAQ = [
   [
-    'Can anyone read my message before 2047?',
-    'No. The message text is stored in a table that denies all public access, and the public wall holds only a redacted record — a name, a place, a character count and a proof code. Nobody reads any entry, including the person who wrote it, until January 1, 2047.',
+    'Can anyone read my message before 2050?',
+    'No. The message text is stored in a table that denies all public access, and the public wall holds only a redacted record — a name, a place, a character count and a proof code. Nobody reads any entry, including the person who wrote it, until January 1, 2050.',
   ],
   [
     'What is the proof code?',
-    'A SHA-256 commitment published beside your entry the moment it seals, computed from your exact words plus 32 bytes of randomness stored with them. In 2047 the message and that randomness are published together, so anyone can recompute the code and prove not one character changed.',
+    'A SHA-256 commitment published beside your entry the moment it seals, computed from your exact words plus 32 bytes of randomness stored with them. In 2050 the message and that randomness are published together, so anyone can recompute the code and prove not one character changed.',
   ],
   [
     'Can I change or delete it afterwards?',
@@ -41,7 +41,7 @@ const HOME_FAQ = [
   ],
   [
     'When does it seal and when does it open?',
-    'Entries close on December 31, 2026 at 11:59 PM Pacific. The capsule is published in full on January 1, 2047 at 12:01 AM Pacific — exactly twenty years later.',
+    'Entries close on January 1, 2030 at 12:00 AM Pacific. The capsule is published in full on January 1, 2050 at 12:01 AM Pacific — exactly twenty years later.',
   ],
   [
     'What does it cost?',
@@ -54,12 +54,12 @@ const HOME_FAQ = [
 const ROUTES = [
   {
     path: '/',
-    title: 'The 20 Year Capsule — one sentence, sealed until 2047',
+    title: 'The 20 Year Capsule — one sentence, sealed until 2050',
     description:
-      'Write one sentence. It gets sealed on December 31, 2026 and nobody reads it - not even you - until January 1, 2047.',
-    ogTitle: 'Say something to 2047.',
+      'Write one sentence. It gets sealed on January 1, 2030 and nobody reads it - not even you - until January 1, 2050.',
+    ogTitle: 'Say something to 2050.',
     ogDescription:
-      '$5, 100 characters, sealed for twenty years. Nobody reads it - not even you - until January 1, 2047.',
+      '$5, 100 characters, sealed for twenty years. Nobody reads it - not even you - until January 1, 2050.',
     image: 'og.png',
     faq: HOME_FAQ,
   },
@@ -67,10 +67,10 @@ const ROUTES = [
     path: '/gift',
     title: 'Give an entry — The 20 Year Capsule',
     description:
-      'Buy someone a place in the capsule and they write their own sentence. $5, nothing for them to pay, sealed December 31 and opened January 1, 2047.',
+      'Buy someone a place in the capsule and they write their own sentence. $5, nothing for them to pay, sealed January 1, 2030 and opened January 1, 2050.',
     ogTitle: 'You pay for it. They write it.',
     ogDescription:
-      'Buy someone a seat in a time capsule. They write their own sentence - no checkout, nothing to pay - and nobody reads it until 2047.',
+      'Buy someone a seat in a time capsule. They write their own sentence - no checkout, nothing to pay - and nobody reads it until 2050.',
     image: 'og-gift.png',
   },
   {
@@ -125,7 +125,7 @@ const LD = [
     name: 'The 20 Year Capsule',
     url: SITE + '/',
     description:
-      'Write one sentence. It is sealed on December 31, 2026 and published on January 1, 2047.',
+      'Write one sentence. It is sealed on January 1, 2030 and published on January 1, 2050.',
   },
   {
     '@context': 'https://schema.org',
@@ -140,7 +140,7 @@ const LD = [
     '@type': 'Product',
     name: 'An entry in The 20 Year Capsule',
     description:
-      'One sentence of up to 100 characters, sealed on December 31, 2026 and published on January 1, 2047.',
+      'One sentence of up to 100 characters, sealed on January 1, 2030 and published on January 1, 2050.',
     brand: { '@type': 'Brand', name: 'The 20 Year Capsule' },
     offers: {
       '@type': 'Offer',
@@ -148,7 +148,7 @@ const LD = [
       priceCurrency: 'USD',
       availability: 'https://schema.org/InStock',
       url: SITE + '/',
-      priceValidUntil: '2026-12-31',
+      priceValidUntil: '2029-12-31',
     },
   },
 ]
@@ -260,7 +260,7 @@ for (const r of ROUTES) {
           priceCurrency: 'USD',
           availability: 'https://schema.org/InStock',
           url: SITE + r.path,
-          priceValidUntil: '2026-12-31',
+          priceValidUntil: '2029-12-31',
         },
       })}</script>`,
     )

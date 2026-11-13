@@ -80,7 +80,7 @@ export default function GiftOccasion() {
               ],
               [
                 '03',
-                'It opens in 2047',
+                'It opens in 2050',
                 `Sealed ${SEAL_LABEL.split(' · ')[0]}. Published ${OPEN_LABEL}, all at once, with everyone else's.`,
               ],
             ].map(([num, title, body]) => (

@@ -14,7 +14,7 @@ export default function Terms() {
 
       <main className="mx-auto max-w-2xl px-5 py-14">
         <h1 className="font-display text-5xl">Terms &amp; what you&rsquo;re buying</h1>
-        <p className="mt-4 font-mono text-[0.75rem] text-muted">Last updated September 2026</p>
+        <p className="mt-4 font-mono text-[0.75rem] text-muted">Last updated November 2026</p>
 
         <div className="mt-10 grid gap-9">
           <S t="What you are paying for">
@@ -59,7 +59,7 @@ export default function Terms() {
             automatically, and we may review a note if it is reported.
           </S>
 
-          <S t="If this site does not exist in 2047">
+          <S t="If this site does not exist in 2050">
             That is the obvious risk in a twenty-year promise, so it is addressed directly: the
             published fingerprints mean the archive can be verified by anyone, and the intention is
             for the sealed archive to be mirrored and handed on rather than to depend on one person
@@ -69,6 +69,14 @@ export default function Terms() {
 
           <S t="Timing">
             Entries close {SEAL_LABEL}. The capsule opens {OPEN_LABEL}. Both times are US Pacific.
+          </S>
+
+          <S t="A change to the dates">
+            On November 13, 2026 the dates moved. Entries originally closed December 31, 2026 and
+            the capsule was to open January 1, 2047; it now closes January 1, 2030 and opens
+            January 1, 2050. Every note already sealed stays sealed and opens with everything else
+            on the new date. If you sealed a note under the old dates and would rather have your
+            money back than wait the extra three years, email us and we will refund it.
           </S>
         </div>
 

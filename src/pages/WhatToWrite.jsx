@@ -48,7 +48,7 @@ export default function WhatToWrite() {
           <h2 className="font-display text-4xl md:text-5xl">Why most of them are a let-down</h2>
           <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-ink-2">
             People reach for profundity, and profundity does not age. &ldquo;I hope we are all still
-            happy and healthy&rdquo; is a kind thought that tells a reader in 2047 absolutely nothing
+            happy and healthy&rdquo; is a kind thought that tells a reader in 2050 absolutely nothing
             &mdash; not about the year it was written, not about the person who wrote it.
           </p>
           <p className="mt-4 max-w-2xl text-[1.05rem] leading-relaxed text-ink-2">
@@ -116,7 +116,7 @@ export default function WhatToWrite() {
                 Other people&rsquo;s private information.
               </strong>{' '}
               A phone number, an address, someone else&rsquo;s secret. They did not agree to be in
-              it, and in 2047 it is public.
+              it, and in 2050 it is public.
             </li>
             <li>
               <strong className="font-semibold text-ink">An in-joke with no handle on it.</strong> A

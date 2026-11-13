@@ -1,9 +1,9 @@
-// The failsafe. Run this once the capsule seals (after 2026-12-31 23:59:59 PST).
+// The failsafe. Run this once the capsule seals (after 2030-01-01 00:00:00 PST).
 //
 //   node scripts/export-capsule.mjs
 //
-// The whole point: after January 2027 this project must not depend on a website, a database, a
-// hosting account, or on anyone remembering a password in 2047. It produces three artifacts.
+// The whole point: after January 2030 this project must not depend on a website, a database, a
+// hosting account, or on anyone remembering a password in 2050. It produces three artifacts.
 //
 //   1. capsule-manifest.csv / .json   PUBLIC. seq, name, location, char count, hash, date.
 //                                     No messages, no emails. Publish this immediately — it is a
@@ -16,7 +16,7 @@
 //                                     in cloud storage, on a drive in a safe, with a lawyer, etc.
 //
 //   3. capsule-sealed.json            The same archive in the clear, written ONLY if you pass
-//                                     --plaintext. Intended for 2047, or for a moderation pass.
+//                                     --plaintext. Intended for 2050, or for a moderation pass.
 //
 // Needs, in .env.local or the environment:
 //   SUPABASE_URL              https://<ref>.supabase.co
@@ -61,10 +61,10 @@ const MAXMEM = 96 * 1024 * 1024
 const sha256 = (s) => createHash('sha256').update(s, 'utf8').digest('hex')
 
 // The published proof code commits to the message AND a per-entry secret nonce. The nonce is what
-// stops the code being brute-forced against a wordlist before 2047 — see the migration
+// stops the code being brute-forced against a wordlist before 2050 — see the migration
 // 20260922000300 for why the bare sha256(message) was not safe to publish.
 //
-// The nonce therefore MUST travel into the encrypted archive. Without it, 2047 has a published
+// The nonce therefore MUST travel into the encrypted archive. Without it, 2050 has a published
 // code it cannot verify and no way to prove the text was never altered.
 const COMMIT_VERSION = 'capsule-v2'
 const commit = (nonce, message) => sha256(`${COMMIT_VERSION}|${nonce}|${message}`)
@@ -94,7 +94,7 @@ function encrypt(text, passphrase) {
   const salt = randomBytes(16)
   const iv = randomBytes(12)
   // maxmem must be stated explicitly: 128*N*r for these params is ~33MB, just over Node's 32MB
-  // default, and the 2047 script has to use the identical values or the archive cannot be opened.
+  // default, and the 2050 script has to use the identical values or the archive cannot be opened.
   const key = scryptSync(passphrase, salt, 32, { N: 2 ** 15, r: 8, p: 1, maxmem: MAXMEM })
   const cipher = createCipheriv('aes-256-gcm', key, iv)
   const ct = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()])
@@ -154,13 +154,13 @@ writeFileSync(
     {
       capsule: 'The 20 Year Capsule — 20yearcapsule.com',
       entries: manifest.length,
-      seals_at: '2026-12-31T23:59:59-08:00',
-      opens_at: '2047-01-01T00:01:00-08:00',
+      seals_at: '2030-01-01T00:00:00-08:00',
+      opens_at: '2050-01-01T00:01:00-08:00',
       manifest_sha256: manifestHash,
       generated_at: new Date().toISOString(),
       note: 'Public commitment to the capsule contents. Message text and nonces are NOT included and '
-        + 'must not be published before 2047 — the nonce is what keeps the codes below from being '
-        + 'brute-forced. In 2047, publishing each message with its nonce lets anyone recompute '
+        + 'must not be published before 2050 — the nonce is what keeps the codes below from being '
+        + 'brute-forced. In 2050, publishing each message with its nonce lets anyone recompute '
         + "sha256('capsule-v2|' + nonce + '|' + message) and match it to the code here.",
       manifest,
     },
@@ -181,12 +181,12 @@ writeFileSync(join(OUT, 'capsule-manifest.csv'), csv)
 const archive = {
   capsule: 'The 20 Year Capsule — 20yearcapsule.com',
   entries: rows.length,
-  seals_at: '2026-12-31T23:59:59-08:00',
-  opens_at: '2047-01-01T00:01:00-08:00',
+  seals_at: '2030-01-01T00:00:00-08:00',
+  opens_at: '2050-01-01T00:01:00-08:00',
   manifest_sha256: manifestHash,
   exported_at: new Date().toISOString(),
   instructions:
-    'Publish every message on 2047-01-01. Email each contact_email AND each recipient_email — a '
+    'Publish every message on 2050-01-01. Email each contact_email AND each recipient_email — a '
     + 'gift entry has two people to reach and the recipient never paid, so they are not in the '
     + 'payment records. Verify each entry by computing '
     + "sha256('capsule-v2|' + nonce + '|' + message) in UTF-8 and checking it equals message_hash, "

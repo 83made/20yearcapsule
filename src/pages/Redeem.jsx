@@ -124,7 +124,7 @@ export default function Redeem() {
         <h1 className="mt-6 font-display text-5xl leading-[0.95] md:text-6xl">
           That&rsquo;s it.
           <br />
-          See you in 2047.
+          See you in 2050.
         </h1>
         <p className="mt-6 max-w-lg text-lg leading-relaxed text-ink-2">
           Your sentence is in the capsule. Nobody reads it &mdash; including you &mdash; until{' '}
@@ -168,7 +168,7 @@ export default function Redeem() {
       ],
       redeemed: [
         'This one has already been written.',
-        'The sentence is sealed and nobody can read it until 2047 — including whoever wrote it. A link works exactly once.',
+        'The sentence is sealed and nobody can read it until 2050 — including whoever wrote it. A link works exactly once.',
       ],
       refunded: [
         'This gift was refunded.',
@@ -210,7 +210,7 @@ export default function Redeem() {
       <h1 className="mt-3 font-display text-5xl leading-[0.95] md:text-6xl">
         {gift?.recipient_name ? greeting : 'Someone'}
         <br />
-        {from} bought you a place in 2047.
+        {from} bought you a place in 2050.
       </h1>
 
       <p className="mt-7 max-w-xl text-lg leading-relaxed text-ink-2">
@@ -266,7 +266,7 @@ export default function Redeem() {
                 aria-describedby="nm-help"
               />
               <p id="nm-help" className="mt-2 text-[0.88rem] leading-relaxed text-muted">
-                Shown on the wall now and published as-is in 2047. Leave blank for Anonymous.
+                Shown on the wall now and published as-is in 2050. Leave blank for Anonymous.
               </p>
             </div>
             <div>
@@ -298,7 +298,7 @@ export default function Redeem() {
               placeholder="So we can tell you when it opens"
             />
             <p className="mt-2 text-[0.88rem] text-muted">
-              Never shown publicly, and never given to {from}. Used once, in 2047.
+              Never shown publicly, and never given to {from}. Used once, in 2050.
             </p>
           </div>
         </div>

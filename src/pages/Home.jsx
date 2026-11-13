@@ -95,7 +95,7 @@ export default function Home() {
               >
                 Say something
                 <br />
-                to 2047.
+                to 2050.
               </h1>
 
               <p className="mt-8 max-w-xl text-lg leading-relaxed text-ink-2">
@@ -209,11 +209,11 @@ export default function Home() {
                 {[
                   [
                     'For a birthday',
-                    'They get one every year. This is the one that comes back in 2047 in their own handwriting.',
+                    'They get one every year. This is the one that comes back in 2050 in their own handwriting.',
                   ],
                   [
                     'For Christmas',
-                    `Print the card and put it in an envelope. The capsule seals ${SEAL_LABEL.split(' · ')[0]}, six days after, so there is just enough time.`,
+                    `Print the card and put it in an envelope. Nothing ships, so it is never too late — they have until ${SEAL_LABEL.split(' · ')[0]} to write it.`,
                   ],
                   [
                     'For someone older',
@@ -281,13 +281,13 @@ export default function Home() {
                 </h2>
                 <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-2">
                   That is the whole capsule. Entry numbers are issued in order and never reused, so
-                  whichever one you get is yours alone — and it still says that in 2047. When the
-                  ten thousandth note goes in, or December 31 arrives, whichever comes first, the
+                  whichever one you get is yours alone — and it still says that in 2050. When the
+                  ten thousandth note goes in, or January 1, 2030 arrives, whichever comes first, the
                   lid closes for twenty years.
                 </p>
                 <p className="mt-3 text-[0.95rem] leading-relaxed text-ink-3">
                   It is sealed either way. There is no target to hit and no chance of it being
-                  called off — whatever is inside on December 31 is what gets published in 2047.
+                  called off — whatever is inside on January 1, 2030 is what gets published in 2050.
                 </p>
               </div>
             </div>
@@ -309,7 +309,7 @@ export default function Home() {
               ],
               [
                 '03',
-                'It opens in 2047',
+                'It opens in 2050',
                 `On ${OPEN_LABEL}, every note is published at once — including yours.`,
               ],
             ].map(([num, title, body]) => (
@@ -335,18 +335,18 @@ export default function Home() {
                 When your sentence is sealed, we publish a{' '}
                 <strong className="font-semibold">proof code</strong> — a 64-character string
                 computed from your exact words <em>and</em> a random number that is sealed away
-                with them. Because that number stays secret until 2047, the code gives away
+                with them. Because that number stays secret until 2050, the code gives away
                 nothing about what you wrote — not even to someone who guesses it correctly.
               </p>
               <p className="mt-4 leading-relaxed text-ink-2">
-                In 2047 your sentence and its random number are published together, so anyone can
+                In 2050 your sentence and its random number are published together, so anyone can
                 run the same calculation and confirm it produces the identical code. If a single
                 character had been changed, added, or removed at any point in twenty years, they
                 would not match.
               </p>
               <p className="mt-4 text-[0.95rem] leading-relaxed text-ink-3">
                 It also means the archive does not depend on trusting whoever is running this site
-                in 2047 — the proof is public from the day you write it.
+                in 2050 — the proof is public from the day you write it.
               </p>
             </div>
             <div className="self-start bg-paper-2 p-6">
@@ -360,7 +360,7 @@ export default function Home() {
               </p>
               <div className="label mt-5">Plus a sealed random number</div>
               <p className="mt-2 font-mono text-[0.7rem] text-muted">
-                kept secret until 2047
+                kept secret until 2050
               </p>
               <div className="label mt-5">Which together give this code</div>
               <p className="mt-2 break-all font-mono text-[0.7rem] leading-relaxed text-seal">

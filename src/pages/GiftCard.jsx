@@ -105,7 +105,7 @@ export default function GiftCard() {
               <h1 className="mt-6 font-display text-4xl leading-[1.05] md:text-5xl">
                 {gift?.recipient_name ? `${gift.recipient_name},` : 'For you,'}
                 <br />
-                a place in 2047.
+                a place in 2050.
               </h1>
 
               <p className="mt-7 max-w-lg text-[1.05rem] leading-relaxed text-ink-2">

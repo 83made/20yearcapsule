@@ -9,7 +9,7 @@ import { moderate } from '../_shared/moderate.ts'
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY')!, { apiVersion: '2025-08-27.basil' })
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://20yearcapsule.com'
-const SEALS_AT_MS = Date.parse('2027-01-01T07:59:59Z') // 2026-12-31 23:59:59 PST
+const SEALS_AT_MS = Date.parse('2030-01-01T08:00:00Z') // 2030-01-01 00:00:00 PST
 const CAPACITY = 10_000 // a real ceiling, enforced here so it cannot be exceeded by a race
 
 // Deliberately permissive: the job is to catch a typo and an obviously-bogus string, not to
@@ -104,7 +104,7 @@ Deno.serve(async (req) => {
     }
 
     if (Date.now() >= SEALS_AT_MS) {
-      return reply({ error: 'The capsule is sealed. It opens January 1, 2047.' }, 410)
+      return reply({ error: 'The capsule is sealed. It opens January 1, 2050.' }, 410)
     }
 
     // Capacity. Unlike the old million this one is genuinely reachable, so the check matters:
@@ -232,7 +232,7 @@ Deno.serve(async (req) => {
                 name: giftRecipientName
                   ? `An entry in The 20 Year Capsule — a gift for ${giftRecipientName}`.slice(0, 250)
                   : 'An entry in The 20 Year Capsule — a gift',
-                description: 'They write it. Sealed December 31, 2026. Opens January 1, 2047.',
+                description: 'They write it. Sealed January 1, 2030. Opens January 1, 2050.',
                 tax_code: 'txcd_10000000',
               },
             },
@@ -254,7 +254,7 @@ Deno.serve(async (req) => {
 
     // Check the raw length BEFORE truncating. Previously clean() sliced to 100 first, so this
     // branch could never fire: someone pasting 600 characters was charged $5 and silently had
-    // 500 of them thrown away, with no way to find out until 2047.
+    // 500 of them thrown away, with no way to find out until 2050.
     const rawMessage = typeof body.message === 'string' ? body.message.trim() : ''
     if ([...rawMessage].length > 100) {
       return reply(
@@ -289,7 +289,7 @@ Deno.serve(async (req) => {
 
     // EVERY field that renders on the public wall is screened, not just the note. display_name and
     // location were published unscreened until 2026-09-27, which meant $5 bought a slur on a public
-    // page and a permanent line in the 2047 archive. It also made the gift announcement an abuse
+    // page and a permanent line in the 2050 archive. It also made the gift announcement an abuse
     // primitive: the sender name in an email this site delivers to a stranger is this field.
     //
     // Blocks only, no flags. The flag list is tuned for sentences and fires constantly on real
@@ -316,7 +316,7 @@ Deno.serve(async (req) => {
       // somebody else's behalf — and the payer had no way to fix it at checkout.
       //
       // The payer now enters their own address for the receipt; the writer's address rides in
-      // metadata below and is what the webhook stores as the 2047 contact.
+      // metadata below and is what the webhook stores as the 2050 contact.
       line_items: [
         {
           quantity: 1,
@@ -327,7 +327,7 @@ Deno.serve(async (req) => {
               // Named for what it is on the buyer's card statement and Stripe receipt. Someone
               // buying a present in December should not have to decode their own line item.
               name: 'One sentence in The 20 Year Capsule',
-              description: 'Sealed December 31, 2026. Opens January 1, 2047.',
+              description: 'Sealed January 1, 2030. Opens January 1, 2050.',
               // Required because this account has Managed Payments enabled — without a tax code
               // Stripe rejects the line item outright. "General - Electronically Supplied Services"
               // is the honest classification: a digital service, nothing downloaded or shipped.
@@ -341,7 +341,7 @@ Deno.serve(async (req) => {
         display_name: displayName,
         location,
         kind: 'capsule_entry',
-        // Who to tell in 2047 — the person who wrote it, which is not necessarily whoever paid.
+        // Who to tell in 2050 — the person who wrote it, which is not necessarily whoever paid.
         contact_email: email,
         // Carried through so the webhook does not have to re-run moderation on a different
         // code path and risk the two disagreeing.

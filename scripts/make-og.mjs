@@ -3,7 +3,7 @@
 //   node scripts/make-og.mjs
 //
 // Writes one image per shareable route. Every page sharing a single picture that says "Say
-// something to 2047" meant a /gift/christmas link previewed with nothing about gifting in it — and
+// something to 2050" meant a /gift/christmas link previewed with nothing about gifting in it — and
 // the preview is most of what a pasted link communicates.
 //
 // A link with no preview is a dead link in iMessage, Slack, Discord and every feed — which matters
@@ -74,14 +74,14 @@ const template = ({ kicker, line1, line2, meta }) => `<!doctype html><html><head
 const IMAGES = [
   {
     file: 'og.png',
-    kicker: 'Sealed Dec 31 2026 &middot; Opens Jan 1 2047',
+    kicker: 'Sealed Jan 1 2030 &middot; Opens Jan 1 2050',
     line1: 'Say something',
-    line2: 'to 2047.',
+    line2: 'to 2050.',
     meta: '$5 &middot; 100 characters &middot; 20 years',
   },
   {
     file: 'og-gift.png',
-    kicker: 'A gift that opens in 2047',
+    kicker: 'A gift that opens in 2050',
     line1: 'You pay for it.',
     line2: 'They write it.',
     meta: '$5 &middot; nothing for them to pay',
@@ -97,7 +97,7 @@ const IMAGES = [
   // no longer says that.
   ...OCCASION_LIST.map((o) => ({
     file: `og-gift-${o.slug}.png`,
-    kicker: `A ${o.nav.toLowerCase()} gift &middot; opens Jan 1 2047`,
+    kicker: `A ${o.nav.toLowerCase()} gift &middot; opens Jan 1 2050`,
     line1: o.h1[0],
     line2: o.h1[1],
     meta: '$5 &middot; they write it &middot; 20 years',

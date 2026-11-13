@@ -19,7 +19,7 @@ import { moderate } from '../_shared/moderate.ts'
 import { sendSealed } from '../_shared/email.ts'
 
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://20yearcapsule.com'
-const SEALS_AT_MS = Date.parse('2027-01-01T07:59:59Z') // 2026-12-31 23:59:59 PST
+const SEALS_AT_MS = Date.parse('2030-01-01T08:00:00Z') // 2030-01-01 00:00:00 PST
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
@@ -138,7 +138,7 @@ Deno.serve(async (req) => {
     }
 
     // Screened exactly like a paid entry. A gift is not a trusted path: the person holding the link
-    // is a stranger to us, and what they write is published in 2047 beside everyone else's.
+    // is a stranger to us, and what they write is published in 2050 beside everyone else's.
     const verdict = moderate(message)
     if (verdict.action === 'block') {
       return reply({ error: verdict.message ?? 'This note cannot be accepted.' }, 422)

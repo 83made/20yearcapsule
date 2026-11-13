@@ -9,7 +9,7 @@
 // public wall. The entry itself is kept so the payment and the decision stay on the record —
 // and so you can refund it with:  node scripts/refund-all.mjs --execute --seq 42
 //
-// This is the only place message text is read outside of the 2047 open, which is the point:
+// This is the only place message text is read outside of the 2050 open, which is the point:
 // reviewing a flagged message is a deliberate act, not a side effect of browsing an admin panel.
 
 import { readFileSync, existsSync } from 'node:fs'

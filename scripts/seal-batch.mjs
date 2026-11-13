@@ -4,7 +4,7 @@
 //   node scripts/seal-batch.mjs my-messages.txt --execute  # actually seals them
 //
 // These are real entries. They get real proof codes, they appear on the wall, and they are
-// published in 2047 alongside everyone else's. The only difference from a normal entry is that the
+// published in 2050 alongside everyone else's. The only difference from a normal entry is that the
 // payment did not go through Stripe Checkout, because you are the one running the capsule.
 //
 // That means the money has to be real too. Keeping this online for twenty years costs roughly
@@ -20,7 +20,7 @@
 // Optional ` | name | location | email` after the message. Blank name shows as Anonymous. Lines
 // starting with # are ignored, so you can keep notes in the file.
 //
-// The email is never published — it is the 2047 contact, and it matters for anyone sealed here who
+// The email is never published — it is the 2050 contact, and it matters for anyone sealed here who
 // is not you. Without it that person is in the capsule and is never told it opened, which is the
 // one promise the whole thing is built on.
 //
@@ -68,7 +68,7 @@ const sha256 = (s) => createHash('sha256').update(s, 'utf8').digest('hex')
 
 // Mirrors the block tier of supabase/functions/_shared/moderate.ts. Your own messages still get
 // checked — mostly to catch the accidental phone number or address, since these are published in
-// full in 2047.
+// full in 2050.
 const BLOCK = [
   /\bn[i1]gg(er|a)\b/i,
   /\bfagg?ot\b/i,
@@ -136,7 +136,7 @@ console.log(`  cost at $5    $${(parsed.length * 5).toFixed(2)}`)
 const flagged = parsed.filter((p) => p.flags.length)
 if (flagged.length) {
   console.log('')
-  console.log('  worth a second look (these publish in full in 2047):')
+  console.log('  worth a second look (these publish in full in 2050):')
   for (const f of flagged) console.log(`    line ${f.line} [${f.flags.join(', ')}]  "${f.message}"`)
 }
 

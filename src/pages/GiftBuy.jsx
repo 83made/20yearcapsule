@@ -204,7 +204,7 @@ export default function GiftBuy() {
                 ['They write it', `Up to ${MAX_CHARS} characters, in their own words.`],
                 ['Their name on the wall', 'It is their entry, not yours.'],
                 ['Nothing for them to pay', 'No checkout, no account. Just the link.'],
-                ['Unused by December 31', 'You are refunded in full, automatically.'],
+                ['Unused by January 1, 2030', 'You are refunded in full, automatically.'],
               ].map(([t, sub]) => (
                 <li key={t} className="flex gap-3">
                   <span aria-hidden="true" className="mt-[1px] font-mono text-seal">

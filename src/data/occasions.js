@@ -8,7 +8,7 @@
  * Each occasion has to carry its OWN argument. Four pages with the nouns swapped is a doorway set —
  * Google demotes them and an answer engine has no reason to quote any of them. So the hook below is
  * the thing that is genuinely only true for that occasion: the wedding one opens on a twentieth
- * anniversary, the Christmas one seals six days after Christmas, the anniversary one is the only
+ * anniversary, the Christmas one is a present that ships nothing and opens on a New Year's Day, the anniversary one is the only
  * case where buying two is the point.
  *
  * `faq` is published as FAQPage structured data as well as rendered. That is the part most likely to
@@ -22,11 +22,11 @@ export const OCCASIONS = {
     nav: 'Birthday',
     title: 'A 20-year time capsule as a birthday gift',
     description:
-      'Buy someone a sealed entry for their birthday. They write one sentence, nobody reads it, and it opens on January 1, 2047.',
-    h1: ['A birthday present', 'that arrives in 2047.'],
-    ogTitle: 'A birthday present that arrives in 2047.',
+      'Buy someone a sealed entry for their birthday. They write one sentence, nobody reads it, and it opens on January 1, 2050.',
+    h1: ['A birthday present', 'that arrives in 2050.'],
+    ogTitle: 'A birthday present that arrives in 2050.',
     ogDescription:
-      'They write one sentence. It is sealed December 31 and nobody reads it — not you, not them — until 2047.',
+      'They write one sentence. It is sealed January 1, 2030 and nobody reads it — not you, not them — until 2050.',
     lead: 'They get older on the same day every year. This is the one that comes back once, twenty years later, in their own words.',
     beats: [
       [
@@ -39,7 +39,7 @@ export const OCCASIONS = {
       ],
       [
         'They write it, not you',
-        'You pay for the seat; the words are theirs. It is published under their name in 2047, and you will not see it before then either.',
+        'You pay for the seat; the words are theirs. It is published under their name in 2050, and you will not see it before then either.',
       ],
     ],
     faq: [
@@ -49,11 +49,11 @@ export const OCCASIONS = {
       ],
       [
         'What if they never write it?',
-        'You are refunded in full, automatically, when the capsule seals on December 31. There is nothing to chase.',
+        'You are refunded in full, automatically, when the capsule seals on January 1, 2030. There is nothing to chase.',
       ],
       [
         'Can I read what they wrote?',
-        'No. Nobody reads any entry until January 1, 2047 — not the person who wrote it, not the person who paid, not us.',
+        'No. Nobody reads any entry until January 1, 2050 — not the person who wrote it, not the person who paid, not us.',
       ],
     ],
   },
@@ -63,12 +63,12 @@ export const OCCASIONS = {
     nav: 'Anniversary',
     title: 'A 20-year time capsule as an anniversary gift',
     description:
-      'Seal a sentence each and read them together in 2047. Two entries, written separately, opened the same morning twenty years later.',
-    h1: ['Write one each.', 'Read them in 2047.'],
-    ogTitle: 'Write one each. Read them in 2047.',
+      'Seal a sentence each and read them together in 2050. Two entries, written separately, opened the same morning twenty years later.',
+    h1: ['Write one each.', 'Read them in 2050.'],
+    ogTitle: 'Write one each. Read them in 2050.',
     ogDescription:
       'Two sealed sentences, written separately, opened the same morning twenty years later. Neither of you sees the other until then.',
-    lead: 'This is the one occasion where buying two is the point. You each write a sentence, neither of you sees the other, and they open on the same morning in 2047.',
+    lead: 'This is the one occasion where buying two is the point. You each write a sentence, neither of you sees the other, and they open on the same morning in 2050.',
     beats: [
       [
         'Two entries, sealed separately',
@@ -76,24 +76,24 @@ export const OCCASIONS = {
       ],
       [
         'Nobody gets to edit it later',
-        'The proof code published beside each entry is computed from the exact words at the moment it seals. In 2047 it either still matches or it does not, which is what makes it worth anything.',
+        'The proof code published beside each entry is computed from the exact words at the moment it seals. In 2050 it either still matches or it does not, which is what makes it worth anything.',
       ],
       [
         'It is a terrible last-minute gift',
-        'Worth saying plainly: there is nothing to unwrap and nothing arrives in the post. What they get on the day is a card with a link, and what they get in 2047 is the actual present.',
+        'Worth saying plainly: there is nothing to unwrap and nothing arrives in the post. What they get on the day is a card with a link, and what they get in 2050 is the actual present.',
       ],
     ],
     faq: [
       [
         'Can we both write one?',
-        'Yes, and it is the better version. Buy them an entry, then write your own from the home page. Neither of you can read the other until 2047.',
+        'Yes, and it is the better version. Buy them an entry, then write your own from the home page. Neither of you can read the other until 2050.',
       ],
       [
         'Do we find out what the other wrote?',
-        'Not until January 1, 2047, when every entry in the capsule is published at once. There is no preview and no exception.',
+        'Not until January 1, 2050, when every entry in the capsule is published at once. There is no preview and no exception.',
       ],
       [
-        'What if we are not together in 2047?',
+        'What if we are not together in 2050?',
         'The entries still open. That is part of what you are agreeing to when you seal something for twenty years, and it is worth deciding before you write rather than after.',
       ],
     ],
@@ -104,12 +104,12 @@ export const OCCASIONS = {
     nav: 'Wedding',
     title: 'A 20-year time capsule as a wedding gift',
     description:
-      'Seal a sentence for a couple married in 2026 and it opens on their twentieth anniversary — January 1, 2047.',
+      'Seal a sentence for a couple getting married and it opens on January 1, 2050 — the year of their twentieth anniversary for a 2029 wedding, a little after it for an earlier one.',
     h1: ['Sealed at the wedding.', 'Opened at the twentieth.'],
     ogTitle: 'Sealed at the wedding. Opened at the twentieth.',
     ogDescription:
-      'A sentence sealed the year they married, published on January 1, 2047 — their twentieth anniversary.',
-    lead: 'A couple married in 2026 reaches their twentieth anniversary in 2046. This capsule opens on January 1, 2047, which is about as close as a wedding present gets to arriving on purpose.',
+      'A sentence written around the wedding, published on January 1, 2050 — twenty years and change into the marriage.',
+    lead: 'A couple married in 2029 reaches their twentieth anniversary in 2049. This capsule stays open until January 1, 2030 and opens on January 1, 2050, which is about as close as a wedding present gets to arriving on purpose.',
     beats: [
       [
         'Better than the guest book',
@@ -131,7 +131,7 @@ export const OCCASIONS = {
       ],
       [
         'When exactly does it open?',
-        'January 1, 2047, at 12:01 AM Pacific. Everything in the capsule is published at once, on the same morning.',
+        'January 1, 2050, at 12:01 AM Pacific. Everything in the capsule is published at once, on the same morning.',
       ],
       [
         'Is there anything physical?',
@@ -145,20 +145,20 @@ export const OCCASIONS = {
     nav: 'Christmas',
     title: 'A 20-year time capsule as a Christmas gift',
     description:
-      'The capsule seals on December 31, six days after Christmas. Print the card, put it under the tree, and it opens in 2047.',
-    h1: ['The last thing', 'that goes in this year.'],
-    ogTitle: 'The last thing that goes in this year.',
+      'Nothing to ship. Print the card, put it under the tree, and the sentence they write opens on January 1, 2050.',
+    h1: ['Under the tree this year.', 'Opened January 1, 2050.'],
+    ogTitle: 'Under the tree this year. Opened January 1, 2050.',
     ogDescription:
-      'The capsule seals December 31 — six days after Christmas. Print the card, hand it over, and it opens January 1, 2047.',
-    lead: 'The capsule seals on December 31, six days after Christmas. That is enough time for them to write it on Boxing Day and not quite enough for them to forget.',
+      'Nothing to ship and never too late. Print the card, hand it over, and it opens January 1, 2050.',
+    lead: 'There is nothing to wrap but a card, and nothing that can arrive late. They write their sentence whenever it comes to them — the capsule stays open until January 1, 2030 — and nobody reads it until 2050.',
     beats: [
       [
         'There is a card to print',
-        'Buy it, print the card, put it in an envelope. What they open on the day is a link and an explanation; what they get in 2047 is the sentence they wrote on it.',
+        'Buy it, print the card, put it in an envelope. What they open on the day is a link and an explanation; what they get in 2050 is the sentence they wrote on it.',
       ],
       [
         'The deadline is real',
-        'December 31 is not a sales tactic, it is when the lid closes. Anyone who misses it waits for the next capsule and opens theirs in 2048 instead.',
+        'January 1, 2030 is not a sales tactic, it is when the lid closes. Anyone who misses it waits for the next capsule and opens theirs in 2051 instead.',
       ],
       [
         'It is five dollars',
@@ -168,11 +168,11 @@ export const OCCASIONS = {
     faq: [
       [
         'Will it arrive in time for Christmas?',
-        'There is nothing to ship. You buy it, print the card, and hand it over — so it is available until the moment the capsule seals on December 31.',
+        'There is nothing to ship. You buy it, print the card, and hand it over — so it is available until the moment the capsule seals on January 1, 2030.',
       ],
       [
         'What if they open it after Christmas?',
-        'They have until December 31 to write their sentence. After that the capsule is closed and you are refunded automatically if it went unused.',
+        'They have until January 1, 2030 to write their sentence. After that the capsule is closed and you are refunded automatically if it went unused.',
       ],
       [
         'Can I buy several?',

@@ -113,7 +113,7 @@ export function moderate(raw: string): Verdict {
         action: 'block',
         reasons: ['slur'],
         message:
-          'This note cannot be accepted. The capsule will be published in full in 2047 and is not a place for slurs.',
+          'This note cannot be accepted. The capsule will be published in full in 2050 and is not a place for slurs.',
       }
     }
   }

@@ -11,7 +11,7 @@ export const EXAMPLE_GROUPS = [
   {
     id: 'predict',
     label: 'Predict something',
-    hint: 'Call your shot. Be specific enough that 2047 can tell you were right.',
+    hint: 'Call your shot. Be specific enough that 2050 can tell you were right.',
     items: [
       'I will marry Steven R.',
       'I want to be the first female president.',

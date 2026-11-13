@@ -4,7 +4,7 @@
 //   node scripts/refund-lapsed-gifts.mjs --execute    # actually refunds
 //   node scripts/refund-lapsed-gifts.mjs --execute --no-email
 //
-// Run this ONCE, after the capsule seals on 2026-12-31. Until then a gift is not lapsed, it is
+// Run this ONCE, after the capsule seals on 2030-01-01. Until then a gift is not lapsed, it is
 // merely unwritten, and there is still time.
 //
 // This is deliberately NOT part of refund-all.mjs. That one is a manual tool for returning an entry
@@ -82,7 +82,7 @@ const mailLapsed = async (to, name) => {
   const who = name ? ` for ${name}` : ''
   const text = `Your gift entry was not used.
 
-You bought an entry in The 20 Year Capsule${who}, and it was not written before the capsule sealed on December 31.
+You bought an entry in The 20 Year Capsule${who}, and it was not written before the capsule sealed on January 1, 2030.
 
 Your $5 has been refunded in full - expect it within 5-10 business days. Nothing was published and nothing was kept.
 

@@ -114,7 +114,7 @@ export default function Sealed() {
           >
             That&rsquo;s it.
             <br />
-            See you in 2047.
+            See you in 2050.
           </h1>
 
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-paper/70">
@@ -163,8 +163,8 @@ export default function Sealed() {
             <h2 className="font-display text-3xl">One more thing.</h2>
             <p className="mt-3 leading-relaxed text-paper/70">
               Yours is in and it is staying in. But a capsule of one voice is a diary &mdash; what
-              makes it worth opening in 2047 is how many different people are in it, and the door
-              shuts December 31.
+              makes it worth opening in 2050 is how many different people are in it, and the door
+              shuts January 1, 2030.
             </p>
             <p className="mt-3 leading-relaxed text-paper/70">
               Sending this to one person is genuinely the whole difference.

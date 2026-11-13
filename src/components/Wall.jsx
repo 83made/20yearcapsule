@@ -74,7 +74,7 @@ export function WallRow({ entry }) {
  * An empty gallery announces that nothing is happening. This does the opposite job with the same
  * true facts: the wall is empty, which means the lowest entry numbers have not been taken, and
  * those are the only genuinely scarce thing here. #000001 exists exactly once and will still say
- * #000001 when it is published in 2047.
+ * #000001 when it is published in 2050.
  */
 function EmptyWall() {
   return (
@@ -82,7 +82,7 @@ function EmptyWall() {
       <div className="mx-auto max-w-lg text-center">
         <span className="stamp">Unopened</span>
         <p className="mt-6 font-display text-4xl leading-tight">
-          Nobody has written to 2047 yet.
+          Nobody has written to 2050 yet.
         </p>
         <p className="mt-4 leading-relaxed text-ink-3">
           Which means the first numbers are still on the shelf. Entry numbers are assigned in order

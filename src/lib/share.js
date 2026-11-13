@@ -3,7 +3,7 @@
 // Two rules shaped this:
 //
 // 1. The copy is written to be FORWARDED, not announced. "I just sealed a note in a time capsule
-//    that opens in 2047" is a sentence someone says to a friend. "Check out this website" is not.
+//    that opens in 2050" is a sentence someone says to a friend. "Check out this website" is not.
 //    Including the person's own entry number makes it specific, which is what makes it interesting.
 //
 // 2. The order is deliberate. A text to one friend converts far better than a post to a feed,
@@ -14,10 +14,10 @@ export const SITE = 'https://20yearcapsule.com'
 
 export function shareText(seq) {
   return seq
-    ? `I just sealed a note in a time capsule that opens on January 1, 2047. It's entry #${String(
+    ? `I just sealed a note in a time capsule that opens on January 1, 2050. It's entry #${String(
         seq,
       ).padStart(6, '0')} — and I'm not allowed to read it again until then.`
-    : `You write one sentence, it gets sealed until January 1, 2047, and nobody reads it — not even you.`
+    : `You write one sentence, it gets sealed until January 1, 2050, and nobody reads it — not even you.`
 }
 
 const enc = encodeURIComponent
@@ -41,7 +41,7 @@ export function shareTargets(seq) {
     {
       id: 'email',
       label: 'Email it',
-      href: `mailto:?subject=${enc('A time capsule that opens in 2047')}&body=${enc(withUrl)}`,
+      href: `mailto:?subject=${enc('A time capsule that opens in 2050')}&body=${enc(withUrl)}`,
     },
     {
       id: 'x',
@@ -62,7 +62,7 @@ export function shareTargets(seq) {
       id: 'reddit',
       label: 'Reddit',
       href: `https://www.reddit.com/submit?url=${enc(SITE)}&title=${enc(
-        'A website where you write one sentence and nobody reads it until 2047',
+        'A website where you write one sentence and nobody reads it until 2050',
       )}`,
     },
   ]
